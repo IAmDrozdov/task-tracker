@@ -1,2 +1,3 @@
-.git
 help.txt
+venv/
+.idea/
