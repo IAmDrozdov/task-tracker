@@ -2,15 +2,22 @@
 # -*- coding: utf-8 -*-
 
 from task import Task
-from task_container import TaskContainer
+import json
 import sys
+from pprint import pprint
 
 
 def main():
-    container = TaskContainer()
+    container = []
     if sys.argv[1] == 'add':
-        container.push(Task(sys.argv[2]))
-    pass
+        container.append(Task(sys.argv[2]))
+    elif sys.argv[1] == 'remove':
+        for task in container:
+            if task.name == sys.argv[2]:
+                del task
+        else:
+            print('nothing to delete')
+    pprint(container)
 
 
 if __name__ == '__main__':
