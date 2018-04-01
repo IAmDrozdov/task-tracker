@@ -4,21 +4,18 @@
 from task import Task
 import sys
 import json
+from datetime import datetime
 from parser import Encoder
-
-
-def get_actual_index(container):
-    if len(container) == 0:
-        return 1
-    else:
-        return container[len(container)-1]['id'] + 1
+from randomizer import Randomizer
 
 
 def main():
     container = json.loads(open('database.json').read())
 
     if sys.argv[1] == 'add':
-        new_task = Task(info=sys.argv[2], id=get_actual_index(container))
+        new_task = Task(info=sys.argv[2],
+                        id=Randomizer.get_actual_index(container),
+                        deadline=datetime.strptime(sys.argv[3] + str(datetime.now().year), '%d %b%Y'))
         container.append(new_task)
 
         with open('database.json', mode='w', encoding='utf-8') as db:
@@ -33,9 +30,11 @@ def main():
                 break
         else:
             print('nothing to delete')
+
     elif sys.argv[1] == "show":
         for index, task in enumerate(container):
-            print('#', index, '|', task['info'], '|', task['id'], '|', task['date'])
+            print('#', index, '|', task['info'], '|', task['id'], '|', task['status'],
+                  datetime.strptime(task['date'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime('%d.%m.%Y'))
 
 
 if __name__ == '__main__':
