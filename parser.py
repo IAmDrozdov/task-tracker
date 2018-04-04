@@ -1,15 +1,13 @@
-import json
-from datetime import datetime
-from task import Task
+import argparse
 
 
-class Encoder(json.JSONEncoder):
-    """
-    if type of serializable object is 'Task', encoder return dict with
-    fields of this object
-    """
-    def default(self, py_object):
-        if isinstance(py_object, Task):
-            return py_object.__dict__
-        elif isinstance(py_object, datetime):
-            return py_object.isoformat() + "Z"
+def create_parser():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(dest='command')
+    add_parser = subparsers.add_parser('add')
+    add_parser.add_argument('-d', '--description', required=True)
+    add_parser.add_argument('-dl', '--deadline')
+    show_parser = subparsers.add_parser('show')
+    show_parser.add_argument('-a', '--all', action='store_true', default=False, required=False)
+    show_parser.add_argument('id', nargs='?', action='store', type=int)
+    return parser

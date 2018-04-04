@@ -1,52 +1,16 @@
 [
     {
         "status": "unfinished",
+        "date": "2018-04-04T14:26:59.736273Z",
+        "info": "used argparse",
         "id": 1,
-        "info": "third",
-        "date": "2018-04-02T00:50:16.898074Z"
+        "deadline": null
     },
     {
         "status": "unfinished",
+        "date": "2018-04-04T14:27:01.093736Z",
+        "info": "used argparse with deadline",
         "id": 2,
-        "info": "second",
-        "date": "2018-04-02T00:51:17.279900Z"
-    },
-    {
-        "status": "unfinished",
-        "id": 3,
-        "info": "first",
-        "date": "2018-04-02T00:51:20.676182Z"
-    },
-    {
-        "status": "unfinished",
-        "id": 4,
-        "info": "first",
-        "date": "2018-04-02T00:58:15.071112Z"
-    },
-    {
-        "status": "unfinished",
-        "id": 5,
-        "info": "firs213",
-        "date": "2018-04-02T01:07:25.607811Z"
-    },
-    {
-        "status": "unfinished",
-        "id": 6,
-        "info": "firs213123123",
-        "date": "2018-04-02T01:07:27.113661Z"
-    },
-    {
-        "status": "unfinished",
-        "date": "2018-04-02T01:10:43.943783Z",
-        "deadline": "1900-05-05T00:00:00Z",
-        "info": "firs213123123",
-        "id": 7
-    },
-    {
-        "status": "unfinished",
-        "id": 8,
-        "date": "2018-04-02T01:11:57.327955Z",
-        "info": "firs213123123",
-        "deadline": "2018-05-05T00:00:00Z"
+        "deadline": "2018-05-10T00:00:00Z"
     }
 ]
