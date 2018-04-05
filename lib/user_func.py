@@ -1,5 +1,4 @@
 from lib.user import User
-from lib.task_func import rec_task_delete
 
 
 def operation_create_user(container, options):
@@ -32,7 +31,6 @@ def operation_user_logout(container):
 
 
 def operation_user_remove(container, options):
-    print(options.nickname)
     for user in container['users']:
         if user.nickname == options.nickname:
             container['users'].remove(user)

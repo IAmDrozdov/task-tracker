@@ -31,9 +31,9 @@ def operation_plan_remove(container, options):
         print('Nothing to delete.')
 
 
-def operation_plan_add(container, options):
+def operation_plan_add(options):
     period_options = datetime_parser.parse_period(options.period)
     p_time = datetime_parser.parse_time(options.time) if options.time else None
-    new_plan = Plan(info=options.description, id=Plan.get_actual_index(container),
+    new_plan = Plan(info=options.description,
                     period=period_options[0], period_type=period_options[1], time_in=p_time)
-    container.append(new_plan)
+    return new_plan

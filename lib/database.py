@@ -49,9 +49,9 @@ class Database:
             db.write(to_write)
         self.path = temp_path
 
-    def check_user_exist(self, new_user_nickname):
+    def check_user_exist(self, nickname):
         for user in self.users:
-            if user.nickname == new_user_nickname:
+            if user.nickname == nickname:
                 raise custom_exceptions.UserAlreadyExist
 
     def add_user(self, new_user):
@@ -68,14 +68,17 @@ class Database:
         else:
             raise custom_exceptions.UserNotFound
 
+    def get_current_user(self):
+        return self.get_users(self.current_user)
+
     def remove_current_user(self):
         self.current_user = None
         self.serialize()
 
-    def remove_user(self, user_nickname):
+    def remove_user(self, nickname):
         for user in self.users:
-            if user.nickname == user_nickname:
-                if self.current_user == user_nickname:
+            if user.nickname == nickname:
+                if self.current_user == nickname:
                     self.current_user = None
                 self.users.remove(user)
                 self.serialize()
@@ -93,6 +96,17 @@ class Database:
             else:
                 raise custom_exceptions.UserNotFound
 
+    @staticmethod
+    def get_id(where, sub=False):
+        if sub:
+            if len(where) == 0:
+                return '1'
+            else:
+                pre_id = where[len(where) - 1].id.split('_')
+                return str(int(pre_id[len(pre_id) - 1]) + 1)
+        else:
+            return str(int(where[len(where) - 1].id) + 1) if len(where) != 0 else '1'
+
     def check_current(self):
         if self.current_user:
             for user in self.users:
@@ -103,12 +117,17 @@ class Database:
 
     def add_plan(self, new_plan):
         current = self.check_current()
+        new_plan.id = Database.get_id(current.plans)
         current.plans.append(new_plan)
         self.serialize()
 
     def remove_plan(self, id):
         current = self.check_current()
         current.plans.remove(self.get_plans(id))
+        for task in self.get_tasks():
+            if task.plan == id:
+                self.remove_task(task)
+                print('removed')
         self.serialize()
 
     def get_plans(self, id=None):
@@ -156,10 +175,12 @@ class Database:
         if new_task.parent_id:
             found_task = Database.rec_get_task(current.tasks, new_task.parent_id)
             if found_task:
+                new_task.id = Database.get_id(found_task.subtasks, True)
                 found_task.subtasks.append(new_task)
             else:
                 raise custom_exceptions.TaskNotFound
         else:
+            new_task.id = Database.get_id(current.tasks)
             current.tasks.append(new_task)
         self.serialize()
 

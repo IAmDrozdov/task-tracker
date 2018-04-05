@@ -1,6 +1,7 @@
 from lib.task import Task
 from datetime import datetime, timedelta
 from colorama import Fore
+from lib.database import Database
 import lib.datetime_parser as dp
 
 
@@ -19,17 +20,6 @@ class Plan:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
                 .strftime("%Y-%m-%d %H:%M:%S")
 
-    def create_task(self):
-        new_task = Task(info=self.info, plan=self.id, id=self.id+'_p')
-        self.is_created = True
-        self.last_create = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.inc_next() if self.period_type == 'd' else None
-        return new_task
-
-    def is_mine(self, task):
-        if hasattr(task, 'plan'):
-            return True if task.plan == self.id else False
-
     def __str__(self):
         created = '\nstatus: created' if self.is_created else '\nstatus: not created'
         return ' '.join(['Info:', self.info, '\nID:', self.id, created])
@@ -41,11 +31,28 @@ class Plan:
             color = Fore.WHITE
         print(color + self.info, self.id)
 
-    def check_before_create(self):
+    def create_task(self):
+        new_task = Task(info=self.info, plan=self.id, id=self.id + '_p')
+        self.is_created = True
+        self.last_create = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.inc_next() if self.period_type == 'd' else None
+        return new_task
+
+    def check_uncreated(self):
         if self.period_type == 'd':
-            if self.delta_period_next() == timedelta(days=0):
-                if int(self.time_in) <= datetime.now().hour:
-                    return True
+            if self.delta_period_next() != timedelta(days=0):
+                if self.time_in:
+                    if int(self.time_in) > datetime.now().hour:
+                        return
+                return
+        else:
+            for wday in self.period:
+                if datetime.now().weekday() == wday:
+                    if self.time_in:
+                        if int(self.time_in) > datetime.now().hour:
+                            return
+                    return
+        return self.create_task()
 
     def delta_period_next(self):
         return dp.parse_iso(self.next_create) - datetime.now().date()
@@ -54,52 +61,42 @@ class Plan:
         return dp.parse_iso(self.last_create) - datetime.now().date()
 
     def inc_next(self):
-        self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=self.period)).strftime("%Y-%m-%d %H:%M:%S")
+        self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
+            .strftime("%Y-%m-%d %H:%M:%S")
 
-    def check_uncreated_days(self, container):
-        if self.check_before_create():
-            container.append(self.create_task())
-            self.is_created = True
-        return
+    def check_created(self, tasks):
+        if self.period_type == 'd':
+            return self.check_created_days(tasks)
+        else:
+            return self.check_created_wdays(tasks)
 
-    def check_uncreated_wdays(self, container):
-        for wday in self.period:
-            if datetime.now().weekday() == wday:
-                if int(self.time_in) <= datetime.now().hour:
-                    container.append(self.create_task())
-                    self.is_created = True
-                    return
+    def is_mine(self, task):
+        if hasattr(task, 'plan'):
+            return True if task.plan == self.id else False
 
-    def check_created_days(self, container):
+    def check_created_days(self, tasks):
         if self.delta_period_last() != timedelta(days=0):
             self.is_created = False
-            for task in container:
+            for task in tasks:
                 if self.is_mine(task):
-                    container.remove(task)
-                    return
+                    print(task)
+                    return task
 
-    def check_created_wdays(self, container):
+    def check_created_wdays(self, tasks):
         for wday in self.period:
             if datetime.now().weekday() != wday:
                 self.is_created = False
-                for task in container:
+                for task in tasks:
                     if self.is_mine(task):
-                        container.remove(task)
-                return
+                        return task
 
-    def check(self, container):
+    def check(self, database):
         if not self.is_created:
-            self.check_uncreated_days(container) if self.period_type == 'd' else self.check_uncreated_wdays(container)
-        else:
-            self.check_created_days(container) if self.period_type == 'd' else self.check_created_wdays(container)
-
-    @staticmethod
-    def get_actual_index(container, is_sub=True):
-        if is_sub:
-            if len(container) == 0:
-                return '1'
+            to_add = self.check_uncreated()
+            if to_add:
+                database.add_task(to_add)
             else:
-                pre_id = container[len(container) - 1].id.split('_')
-                return str(int(pre_id[len(pre_id) - 1]) + 1)
+                return
         else:
-            return str(int(container[len(container) - 1].id) + 1) if len(container) != 0 else '1'
+            to_remove = self.check_created(database.get_tasks())
+            database.remove_task(to_remove)
