@@ -14,4 +14,7 @@ def create_parser():
 
     remove_parser = subparsers.add_parser('remove')
     remove_parser.add_argument('id', type=int)
+
+    calendar_parser = subparsers.add_parser('calendar')
+    calendar_parser.add_argument('date', type=int, nargs=2)
     return parser

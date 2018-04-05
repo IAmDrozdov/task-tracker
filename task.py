@@ -4,6 +4,12 @@ import database
 
 
 class Task:
+    priority = None
+    comments = []
+    tag = []
+    isComplex = False
+    subtasks = []
+
     def __init__(self, **kwargs):
         """
         :param kwargs:
@@ -11,6 +17,7 @@ class Task:
         data = date of create
         """
         self.status = 'unfinished'
+        self.deadline = None
         self.date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         self.__dict__.update(kwargs)
 
@@ -51,3 +58,8 @@ class Task:
                 break
         else:
             print('nothing to delete')
+
+    def change_status(self, status_new):
+        self.status = status_new
+
+

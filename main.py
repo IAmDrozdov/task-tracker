@@ -7,6 +7,7 @@ import database
 import datetime_parser
 from parser import create_parser
 from task import Task
+import calendar_custom
 
 
 def main():
@@ -27,12 +28,15 @@ def main():
     #######################################
     elif namespace.command == 'remove':
         Task.delete(container, namespace.id)
+
     #########################################
-    elif namespace.command == "show":
+    elif namespace.command == 'show':
         if namespace.id is not None:
             Task.print(container, namespace.id)
         else:
             Task.print(container)
+    elif namespace.command == 'calendar':
+        calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])
 
 
 if __name__ == '__main__':
