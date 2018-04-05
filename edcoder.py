@@ -1,6 +1,6 @@
+from task import Task
 import json
 from datetime import datetime
-from task import Task
 
 
 class Encoder(json.JSONEncoder):
