@@ -12,3 +12,9 @@ def parse_date(date_iso):
 def date_print(date_iso):
     return parse_date(date_iso).strftime('%d.%m.%Y')
 
+
+def get_day(month, year):
+    string_date = str(month) + str(year)
+    date_datetime = datetime.strptime('1' + string_date, '%d%m%Y')
+    return date_datetime.weekday() + 1
+

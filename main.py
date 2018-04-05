@@ -14,7 +14,7 @@ def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
     namespace = parser.parse_args()
-    #################################
+    ######################################
     if namespace.command == 'add':
         info_new = namespace.description
         id_new = randomizer.get_actual_index(container)
@@ -29,12 +29,13 @@ def main():
     elif namespace.command == 'remove':
         Task.delete(container, namespace.id)
 
-    #########################################
+    #######################################
     elif namespace.command == 'show':
         if namespace.id is not None:
             Task.print(container, namespace.id)
         else:
             Task.print(container)
+    #######################################
     elif namespace.command == 'calendar':
         calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])
 

@@ -1,5 +1,6 @@
 import calendar
 import datetime_parser
+from colorama import Fore, Back
 
 
 def is_match(self, month, year):
@@ -15,26 +16,32 @@ def is_match(self, month, year):
 
 def print_month_calendar(container, month, year):
     cal = calendar.Calendar()
-    container_date_collection = []
     marked_dates = []
+    first_day = datetime_parser.get_day(month, year)
     day_counter = 0
-    print(cal.firstweekday)
     for task in container:
         if is_match(task, month, year):
-            container_date_collection.append(datetime_parser.parse_date(task['deadline']))
-    for day in cal.itermonthdays(month, month):
-        if (day_counter % 7) == 0:
-            print(day)
-        else:
-            print('{num:02d}'.format(num=day), end=' ')
+            new_day = datetime_parser.parse_date(task['deadline']).day
+            if new_day not in marked_dates:
+                marked_dates.append(new_day)
+
+    print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
+    for i in range(1, first_day+1):
+        if i != first_day:
+            print('   ', end=' ')
         day_counter = day_counter + 1
+    else:
+        print(' ', end='')
+    for day in cal.itermonthdays(month, month):
+        task_foreground = Fore.WHITE
+        if day in marked_dates:
+            task_foreground = Fore.RED
 
-        for day_in_collection in container_date_collection:
-            if day == day_in_collection.day:
-                if day not in marked_dates:
-                    marked_dates.append(day)
-
-
-############# get weekady as string
-############# parse string to int
-############# start printing with day_counter = 0 -> int
+        if day != 0:
+            if (day_counter % 7) == 0:
+                print(task_foreground + '{num:02d}'.format(num=day), end='\n ')
+            else:
+                print(task_foreground + '{num:02d}'.format(num=day), end='  ')
+            day_counter = day_counter + 1
+    else:
+        print()
