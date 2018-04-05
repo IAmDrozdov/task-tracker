@@ -6,7 +6,7 @@ import database
 class Task:
     priority = None
     comments = []
-    tag = []
+    tags = []
     isComplex = False
     subtasks = []
 

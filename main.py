@@ -22,7 +22,7 @@ def main():
             deadline_new = datetime_parser.get_deadline(namespace.deadline)
         else:
             deadline_new = None
-        new_task = Task(info=info_new, id=id_new, deadline=deadline_new)
+        new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=namespace.tags.split())
         container.append(new_task)
         database.serialize(container, 'database_tasks.json')
     #######################################

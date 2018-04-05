@@ -8,6 +8,7 @@ def create_parser():
     add_parser = subparsers.add_parser('add')
     add_parser.add_argument('-d', '--description', required=True)
     add_parser.add_argument('-dl', '--deadline')
+    add_parser.add_argument('-t', '--tags')
 
     show_parser = subparsers.add_parser('show')
     show_parser.add_argument('id', nargs='?', action='store', type=int)
