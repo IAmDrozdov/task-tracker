@@ -9,7 +9,7 @@
         "priority": 1
     },
     {
-        "status": "unfinished",
+        "status": "finished",
         "deadline": null,
         "date": "2018-04-06T20:36:28Z",
         "info": "priority 2",
@@ -43,5 +43,27 @@
         "id": 5,
         "tags": [],
         "priority": 5
+    },
+    {
+        "status": "unfinished",
+        "deadline": null,
+        "date": "2018-04-06T21:19:05Z",
+        "info": "with tag lol(2)",
+        "id": 7,
+        "tags": [
+            "lol"
+        ],
+        "priority": 1
+    },
+    {
+        "status": "unfinished",
+        "deadline": null,
+        "date": "2018-04-06T21:19:47Z",
+        "info": "with tag lol(3)",
+        "id": 8,
+        "tags": [
+            "lol"
+        ],
+        "priority": 1
     }
 ]

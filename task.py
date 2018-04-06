@@ -26,20 +26,13 @@ class Task:
         pass
 
     @staticmethod
-    def print(container, id=None):
+    def print(container, id=None, tag=None):
         priority_colors = [Fore.CYAN,
                            Fore.GREEN,
                            Fore.YELLOW,
                            Fore.LIGHTMAGENTA_EX,
                            Fore.RED]
-        if id is None:
-            for index, task in enumerate(container):
-                date_print = datetime_parser.date_print(task['date'])
-                deadline_print = datetime_parser.date_print(task['deadline']) if task['deadline'] else 'no deadline'
-
-                print(priority_colors[task['priority']-1] + '#', index+1, '|', task['info'], '|', task['id'], '|',
-                      task['status'], '|', date_print, '|', deadline_print)
-        else:
+        if id:
             for index, task in enumerate(container):
                 if task['id'] == id:
                     date_print = datetime_parser.date_print(task['date'])
@@ -52,6 +45,31 @@ class Task:
                     break
             else:
                 print('Nothing to show')
+        elif tag:
+            is_empty = True
+            for index, task in enumerate(container):
+                if tag in task['tags']:
+                    is_empty = False
+                    date_print = datetime_parser.date_print(task['date'])
+                    if task['deadline'] is None:
+                        deadline_print = 'no deadline'
+                    else:
+                        deadline_print = datetime_parser.date_print(task['deadline'])
+                    print('#', index+1, '|', task['info'], '|', task['id'], '|', task['status'], '|', date_print
+                          , '|', deadline_print)
+
+            if is_empty is True:
+                print('Nothing to Show')
+
+
+        else:
+            for index, task in enumerate(container):
+                date_print = datetime_parser.date_print(task['date'])
+                deadline_print = datetime_parser.date_print(task['deadline']) if task['deadline'] else 'no deadline'
+
+                print(priority_colors[task['priority']-1] + '#', index+1, '|', task['info'], '|', task['id'], '|',
+                      task['status'], '|', date_print, '|', deadline_print)
+
 
     @staticmethod
     def delete(container, id):
@@ -65,5 +83,3 @@ class Task:
 
     def change_status(self, status_new):
         self.status = status_new
-
-

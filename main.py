@@ -30,10 +30,17 @@ def main():
             Task.delete(container, namespace.id)
     #######################################
         elif namespace.command == 'show':
-            if namespace.id is not None:
-                Task.print(container, namespace.id)
-            else:
+            if namespace.to_show == 'id':
+                Task.print(container, int(namespace.choosen))
+            elif namespace.to_show == 'tag':
+                Task.print(container, tag=namespace.choosen)
+            elif namespace.to_show == 'all' or namespace.to_show is None:
                 Task.print(container)
+        elif namespace.command == 'finish':
+            for task in container:
+                if task['id'] == namespace.id:
+                    print(task)
+                    database.serialize(container, 'database_tasks.json')
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])

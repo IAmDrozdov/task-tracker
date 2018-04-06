@@ -15,10 +15,14 @@ def create_parser():
     add_task.add_argument('-p', '--priority')
 
     show_task = task_parser.add_parser('show')
-    show_task.add_argument('id', nargs='?', action='store', type=int)
+    show_task.add_argument('to_show', action='store', nargs='?', choices=('all', 'id', 'tag'))
+    show_task.add_argument('choosen', nargs='?')
 
     remove_task = task_parser.add_parser('remove')
     remove_task.add_argument('id', type=int)
+
+    change_task = task_parser.add_parser('finish')
+    change_task.add_argument('id', type=int)
 
     targets_calendar = subparser_targets.add_parser('calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')
