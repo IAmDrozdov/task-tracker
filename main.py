@@ -21,13 +21,14 @@ def main():
             id_new = randomizer.get_actual_index(container)
             deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
             tags_new = namespace.tags.split() if namespace.tags else []
-            new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new)
+            priority_new = int(namespace.priority) if namespace.priority else 1
+            new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new, priority=priority_new)
             container.append(new_task)
             database.serialize(container, 'database_tasks.json')
-        #######################################
+    #######################################
         elif namespace.command == 'remove':
             Task.delete(container, namespace.id)
-        #######################################
+    #######################################
         elif namespace.command == 'show':
             if namespace.id is not None:
                 Task.print(container, namespace.id)

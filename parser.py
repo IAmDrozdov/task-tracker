@@ -7,10 +7,12 @@ def create_parser():
 
     targets_task = subparser_targets.add_parser('task')
     task_parser = targets_task.add_subparsers(dest='command')
+
     add_task = task_parser.add_parser('add')
-    add_task.add_argument('-d', '--description', required=True)
+    add_task.add_argument('description')
     add_task.add_argument('-dl', '--deadline')
     add_task.add_argument('-t', '--tags')
+    add_task.add_argument('-p', '--priority')
 
     show_task = task_parser.add_parser('show')
     show_task.add_argument('id', nargs='?', action='store', type=int)
@@ -20,6 +22,7 @@ def create_parser():
 
     targets_calendar = subparser_targets.add_parser('calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')
+
     show_calendar = calendar_parser.add_parser('show')
     show_calendar.add_argument('date', type=int, nargs=2)
     return parser

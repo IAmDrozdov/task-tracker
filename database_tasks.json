@@ -2,20 +2,46 @@
     {
         "status": "unfinished",
         "deadline": null,
-        "date": "2018-04-06T19:54:21Z",
-        "info": "without deadline",
+        "date": "2018-04-06T20:36:27Z",
+        "info": "priority 0",
         "id": 1,
-        "tags": []
+        "tags": [],
+        "priority": 1
     },
     {
         "status": "unfinished",
-        "deadline": "2018-05-08T00:00:00Z",
-        "date": "2018-04-06T19:54:52Z",
-        "info": "with deadline and tags",
+        "deadline": null,
+        "date": "2018-04-06T20:36:28Z",
+        "info": "priority 2",
+        "id": 2,
+        "tags": [],
+        "priority": 2
+    },
+    {
+        "status": "unfinished",
+        "deadline": null,
+        "date": "2018-04-06T20:36:31Z",
+        "info": "priority 1",
         "id": 3,
-        "tags": [
-            "nature",
-            "lol"
-        ]
+        "tags": [],
+        "priority": 3
+    },
+    {
+        "status": "unfinished",
+        "deadline": null,
+        "date": "2018-04-06T20:36:34Z",
+        "info": "priority 3",
+        "id": 4,
+        "tags": [],
+        "priority": 4
+    },
+    {
+        "status": "unfinished",
+        "deadline": null,
+        "date": "2018-04-06T20:37:52Z",
+        "info": "priority 5",
+        "id": 5,
+        "tags": [],
+        "priority": 5
     }
 ]

@@ -1,6 +1,7 @@
 from datetime import datetime
 import datetime_parser
 import database
+from colorama import Fore
 
 
 class Task:
@@ -26,15 +27,18 @@ class Task:
 
     @staticmethod
     def print(container, id=None):
+        priority_colors = [Fore.CYAN,
+                           Fore.GREEN,
+                           Fore.YELLOW,
+                           Fore.LIGHTMAGENTA_EX,
+                           Fore.RED]
         if id is None:
             for index, task in enumerate(container):
                 date_print = datetime_parser.date_print(task['date'])
-                if task['deadline'] is None:
-                    deadline_print = 'no deadline'
-                else:
-                    deadline_print = datetime_parser.date_print(task['deadline'])
-                print('#', index+1, '|', task['info'], '|', task['id'], '|', task['status'], '|', date_print
-                      , '|', deadline_print)
+                deadline_print = datetime_parser.date_print(task['deadline']) if task['deadline'] else 'no deadline'
+
+                print(priority_colors[task['priority']-1] + '#', index+1, '|', task['info'], '|', task['id'], '|',
+                      task['status'], '|', date_print, '|', deadline_print)
         else:
             for index, task in enumerate(container):
                 if task['id'] == id:
