@@ -14,8 +14,6 @@ def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
     namespace = parser.parse_args()
-    for task in container:
-        print(type(task))
     ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
@@ -23,14 +21,13 @@ def main():
                 for task in container:
                     if task['id'] == namespace.subtask:
                         info_new = namespace.description
-                        id_new = randomizer.get_actual_index(container)
+                        id_new = task['id'] + '_' + randomizer.get_actual_index(task['subtasks'])
                         deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
                         tags_new = namespace.tags.split() if namespace.tags else []
                         priority_new = int(namespace.priority) if namespace.priority else 1
                         indent_new = task['indent'] + 1
                         new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new,
                                         priority=priority_new, indent=indent_new)
-
                         Task.add_subtask(task, new_task)
                         database.serialize(container, 'database_tasks.json')
                         break
@@ -38,7 +35,7 @@ def main():
                     print('nowhere to append')
             else:
                 info_new = namespace.description
-                id_new = randomizer.get_actual_index(container)
+                id_new = randomizer.get_actual_index(container, False)
                 deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
                 tags_new = namespace.tags.split() if namespace.tags else []
                 priority_new = int(namespace.priority) if namespace.priority else 1
@@ -51,7 +48,7 @@ def main():
     #######################################
         elif namespace.command == 'show':
             if namespace.to_show == 'id':
-                Task.print(container, int(namespace.choosen))
+                Task.print(container, namespace.choosen)
             elif namespace.to_show == 'tag':
                 Task.print(container, tag=namespace.choosen)
             elif namespace.to_show == 'all' or namespace.to_show is None:
@@ -59,7 +56,7 @@ def main():
         elif namespace.command == 'finish':
             for task in container:
                 if task['id'] == namespace.id:
-                    print(task)
+                    Task.change_status(task)
                     database.serialize(container, 'database_tasks.json')
     #######################################
     elif namespace.target == 'calendar':

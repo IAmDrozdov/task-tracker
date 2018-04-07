@@ -5,9 +5,6 @@ from colorama import Fore
 
 
 class Task:
-    priority = None
-    comments = []
-    isComplex = False
 
     def __init__(self, *initial_data, **kwargs):
         """
@@ -51,10 +48,14 @@ class Task:
                     print('#', index+1, '|', task['info'], '|', task['id'], '|', task['status'], '|', date_print
                           , '|', deadline_print)
                     if len(task['subtasks']) > 0:
-                        for index, sub in enumerate(task['subtasks']):
-                            print(sub['indent']*'  ', '#', index + 1, '|', task['info'], '|', task['id'], '|', task['status'], '|',
-                                  date_print
-                                  , '|', deadline_print)
+                        for index_s, sub in enumerate(task['subtasks']):
+                            date_print_sub = datetime_parser.date_print(sub['date'])
+                            if sub['deadline'] is None:
+                                deadline_print_sub = 'no deadline'
+                            else:
+                                deadline_print_sub = datetime_parser.date_print(task['deadline'])
+                            print(sub['indent']*'  ', '#', index_s + 1, '|', sub['info'], '|', sub['id'], '|',
+                                  sub['status'], '|', date_print_sub, '|', deadline_print_sub)
 
                     break
             else:
@@ -75,7 +76,6 @@ class Task:
             if is_empty is True:
                 print('Nothing to Show')
 
-
         else:
             for index, task in enumerate(container):
                 date_print = datetime_parser.date_print(task['date'])
@@ -83,7 +83,6 @@ class Task:
 
                 print(priority_colors[task['priority']-1] + '#', index+1, '|', task['info'], '|', task['id'], '|',
                       task['status'], '|', date_print, '|', deadline_print)
-
 
     @staticmethod
     def delete(container, id):
@@ -95,5 +94,11 @@ class Task:
         else:
             print('nothing to delete')
 
-    def change_status(self, status_new):
-        self.status = status_new
+    @staticmethod
+    def change_status(task, status_new='finished'):
+        task['status'] = status_new
+        if task['subtasks'] != 0:
+            for sub in task['subtasks']:
+                sub['status'] = status_new
+
+
