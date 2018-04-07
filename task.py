@@ -7,16 +7,20 @@ from colorama import Fore
 class Task:
     priority = None
     comments = []
-    tags = []
     isComplex = False
-    subtasks = []
 
-    def __init__(self, **kwargs):
+    def __init__(self, *initial_data, **kwargs):
         """
         :param kwargs:
         name = name of task
         data = date of create
         """
+        self.cl = 'task'
+        for dictionary in initial_data:
+            for key in dictionary:
+                setattr(self, key, dictionary[key])
+        self.subtasks = []
+        self.indent = 0
         self.status = 'unfinished'
         self.deadline = None
         self.date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -24,6 +28,10 @@ class Task:
 
     def _table_print(self):
         pass
+
+    @staticmethod
+    def add_subtask(task_parent, task_child):
+        task_parent['subtasks'].append(task_child)
 
     @staticmethod
     def print(container, id=None, tag=None):
@@ -42,6 +50,12 @@ class Task:
                         deadline_print = datetime_parser.date_print(task['deadline'])
                     print('#', index+1, '|', task['info'], '|', task['id'], '|', task['status'], '|', date_print
                           , '|', deadline_print)
+                    if len(task['subtasks']) > 0:
+                        for index, sub in enumerate(task['subtasks']):
+                            print(sub['indent']*'  ', '#', index + 1, '|', task['info'], '|', task['id'], '|', task['status'], '|',
+                                  date_print
+                                  , '|', deadline_print)
+
                     break
             else:
                 print('Nothing to show')

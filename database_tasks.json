@@ -1,69 +1,39 @@
 [
     {
+        "cl": "task",
+        "subtasks": [
+            {
+                "cl": "task",
+                "subtasks": [],
+                "indent": 1,
+                "status": "unfinished",
+                "deadline": null,
+                "date": "2018-04-07T12:54:19Z",
+                "info": "l23214",
+                "id": 2,
+                "tags": [],
+                "priority": 1
+            },
+            {
+                "cl": "task",
+                "subtasks": [],
+                "indent": 1,
+                "status": "unfinished",
+                "deadline": null,
+                "date": "2018-04-07T12:59:01Z",
+                "info": "lsecond4",
+                "id": 2,
+                "tags": [],
+                "priority": 1
+            }
+        ],
+        "indent": 0,
         "status": "unfinished",
         "deadline": null,
-        "date": "2018-04-06T20:36:27Z",
-        "info": "priority 0",
+        "date": "2018-04-07T12:54:05Z",
+        "info": "l23214",
         "id": 1,
         "tags": [],
-        "priority": 1
-    },
-    {
-        "status": "finished",
-        "deadline": null,
-        "date": "2018-04-06T20:36:28Z",
-        "info": "priority 2",
-        "id": 2,
-        "tags": [],
-        "priority": 2
-    },
-    {
-        "status": "unfinished",
-        "deadline": null,
-        "date": "2018-04-06T20:36:31Z",
-        "info": "priority 1",
-        "id": 3,
-        "tags": [],
-        "priority": 3
-    },
-    {
-        "status": "unfinished",
-        "deadline": null,
-        "date": "2018-04-06T20:36:34Z",
-        "info": "priority 3",
-        "id": 4,
-        "tags": [],
-        "priority": 4
-    },
-    {
-        "status": "unfinished",
-        "deadline": null,
-        "date": "2018-04-06T20:37:52Z",
-        "info": "priority 5",
-        "id": 5,
-        "tags": [],
-        "priority": 5
-    },
-    {
-        "status": "unfinished",
-        "deadline": null,
-        "date": "2018-04-06T21:19:05Z",
-        "info": "with tag lol(2)",
-        "id": 7,
-        "tags": [
-            "lol"
-        ],
-        "priority": 1
-    },
-    {
-        "status": "unfinished",
-        "deadline": null,
-        "date": "2018-04-06T21:19:47Z",
-        "info": "with tag lol(3)",
-        "id": 8,
-        "tags": [
-            "lol"
-        ],
         "priority": 1
     }
 ]

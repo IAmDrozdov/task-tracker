@@ -13,3 +13,7 @@ class Encoder(json.JSONEncoder):
             return py_object.__dict__
         elif isinstance(py_object, datetime):
             return py_object.isoformat() + "Z"
+
+    def json_to_py(self, json_object):
+        if 'cl' in json_object:
+            return Task(json_object.__dict__)

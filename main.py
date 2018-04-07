@@ -14,17 +14,37 @@ def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
     namespace = parser.parse_args()
+    for task in container:
+        print(type(task))
     ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
-            info_new = namespace.description
-            id_new = randomizer.get_actual_index(container)
-            deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
-            tags_new = namespace.tags.split() if namespace.tags else []
-            priority_new = int(namespace.priority) if namespace.priority else 1
-            new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new, priority=priority_new)
-            container.append(new_task)
-            database.serialize(container, 'database_tasks.json')
+            if namespace.subtask:
+                for task in container:
+                    if task['id'] == namespace.subtask:
+                        info_new = namespace.description
+                        id_new = randomizer.get_actual_index(container)
+                        deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
+                        tags_new = namespace.tags.split() if namespace.tags else []
+                        priority_new = int(namespace.priority) if namespace.priority else 1
+                        indent_new = task['indent'] + 1
+                        new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new,
+                                        priority=priority_new, indent=indent_new)
+
+                        Task.add_subtask(task, new_task)
+                        database.serialize(container, 'database_tasks.json')
+                        break
+                else:
+                    print('nowhere to append')
+            else:
+                info_new = namespace.description
+                id_new = randomizer.get_actual_index(container)
+                deadline_new = datetime_parser.get_deadline(namespace.deadline) if namespace.deadline else None
+                tags_new = namespace.tags.split() if namespace.tags else []
+                priority_new = int(namespace.priority) if namespace.priority else 1
+                new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new, priority=priority_new)
+                container.append(new_task)
+                database.serialize(container, 'database_tasks.json')
     #######################################
         elif namespace.command == 'remove':
             Task.delete(container, namespace.id)

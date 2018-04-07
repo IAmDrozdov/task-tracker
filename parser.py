@@ -13,6 +13,7 @@ def create_parser():
     add_task.add_argument('-dl', '--deadline')
     add_task.add_argument('-t', '--tags')
     add_task.add_argument('-p', '--priority')
+    add_task.add_argument('-s', '--subtask', action='store', type=int)
 
     show_task = task_parser.add_parser('show')
     show_task.add_argument('to_show', action='store', nargs='?', choices=('all', 'id', 'tag'))
