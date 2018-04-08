@@ -13,5 +13,5 @@ def get_actual_index(container, is_sub=True):
             pre_id = container[len(container) - 1]['id'].split('_')
             return str(int(pre_id[len(pre_id) - 1]) + 1)
     else:
-        return str(int(container[len(container) - 1]['id']) + 1) if len(container) != 0 else '1'
+        return str(int(container[len(container) - 1].id) + 1) if len(container) != 0 else '1'
 

@@ -1,11 +1,14 @@
-import json
-from edcoder import Encoder
+import jsonpickle
+jsonpickle.set_encoder_options('simplejson', sort_keys=True, indent=4)
 
 
 def serialize(container, path):
     with open(path, mode='w', encoding='utf-8') as db:
-        json.dump(container, db, cls=Encoder, indent=4, sort_keys=True)
+        to_write = jsonpickle.encode(container)
+        db.write(to_write)
 
 
 def deserialize(path):
-    return json.loads(open(path).read())
+    with open(path, mode='r', encoding='utf-8') as db:
+        json_file = db.read()
+    return jsonpickle.decode(json_file)
