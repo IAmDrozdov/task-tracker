@@ -23,5 +23,17 @@
             }
         ],
         "tags": []
+    },
+    {
+        "cl": "task",
+        "date": "2018-04-08T11:49:13Z",
+        "deadline": null,
+        "id": "2",
+        "indent": 0,
+        "info": "lol priority 5",
+        "priority": 5,
+        "status": "unfinished",
+        "subtasks": [],
+        "tags": []
     }
 ]

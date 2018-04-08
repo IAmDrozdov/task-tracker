@@ -52,7 +52,10 @@ def main():
             elif namespace.to_show == 'tag':
                 Task.print(container, tag=namespace.choosen)
             elif namespace.to_show == 'all' or namespace.to_show is None:
-                Task.print(container)
+                if namespace.colored:
+                    Task.print(container)
+                else:
+                    Task.print(container, is_colored=False)
         elif namespace.command == 'finish':
             for task in container:
                 if task['id'] == namespace.id:

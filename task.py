@@ -31,12 +31,11 @@ class Task:
         task_parent['subtasks'].append(task_child)
 
     @staticmethod
-    def print(container, id=None, tag=None):
-        priority_colors = [Fore.CYAN,
-                           Fore.GREEN,
-                           Fore.YELLOW,
-                           Fore.LIGHTMAGENTA_EX,
-                           Fore.RED]
+    def print(container, id=None, tag=None, is_colored=True):
+        if is_colored:
+            priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
+        else:
+            priority_colors = [Fore.WHITE, Fore.WHITE, Fore.WHITE, Fore.WHITE, Fore.WHITE]
         if id:
             for index, task in enumerate(container):
                 if task['id'] == id:

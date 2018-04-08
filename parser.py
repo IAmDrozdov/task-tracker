@@ -18,6 +18,7 @@ def create_parser():
     show_task = task_parser.add_parser('show')
     show_task.add_argument('to_show', action='store', nargs='?', choices=('all', 'id', 'tag'))
     show_task.add_argument('choosen', nargs='?')
+    show_task.add_argument('-c', '--colored', action='store_true')
 
     remove_task = task_parser.add_parser('remove')
     remove_task.add_argument('id', type=str)
