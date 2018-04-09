@@ -28,7 +28,7 @@ def main():
                         indent_new = task.indent + 1
                         new_task = Task(info=info_new, id=id_new, deadline=deadline_new, tags=tags_new,
                                         priority=priority_new, indent=indent_new)
-                        Task.add_subtask(task, new_task)
+                        task.add_subtask(new_task)
                         database.serialize(container, 'database_tasks.json')
                         break
                 else:
@@ -59,7 +59,7 @@ def main():
         elif namespace.command == 'finish':
             for task in container:
                 if task.id == namespace.id:
-                    Task.change_status(task)
+                    task.change_status()
                     database.serialize(container, 'database_tasks.json')
     #######################################
     elif namespace.target == 'calendar':

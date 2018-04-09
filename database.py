@@ -1,5 +1,4 @@
 import jsonpickle
-jsonpickle.set_encoder_options('simplejson', sort_keys=True, indent=4)
 
 
 def serialize(container, path):
