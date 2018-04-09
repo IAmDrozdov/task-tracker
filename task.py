@@ -28,6 +28,7 @@ class Task:
     def add_subtask(self, task_child):
         self.subtasks.append(task_child)
 
+
     def table_print(self, index, color=False):
         if color:
             priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
@@ -47,6 +48,7 @@ class Task:
                         for index_s, sub in enumerate(task.subtasks):
                             print(sub.indent*'  ', end='')
                             sub.table_print(index_s)
+
                     break
             else:
                 print('Nothing to show')
