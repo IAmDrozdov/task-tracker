@@ -1,1 +1,1 @@
-[]
+[{"py/object": "task.Task", "date": "2018-04-10T01:06:41", "deadline": null, "id": "1", "indent": 0, "info": "lol", "priority": 1, "status": "unfinished", "subtasks": [{"py/object": "task.Task", "date": "2018-04-10T01:06:45", "deadline": null, "id": "1_1", "indent": 1, "info": "lol", "priority": 1, "status": "unfinished", "subtasks": [], "tags": []}, {"py/object": "task.Task", "date": "2018-04-10T01:14:33", "deadline": null, "id": "1_2", "indent": 1, "info": "lo2l", "priority": 1, "status": "unfinished", "subtasks": [], "tags": []}], "tags": []}]

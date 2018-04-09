@@ -12,7 +12,7 @@ def create_parser():
     add_task.add_argument('description')
     add_task.add_argument('-dl', '--deadline')
     add_task.add_argument('-t', '--tags')
-    add_task.add_argument('-p', '--priority')
+    add_task.add_argument('-p', '--priority', type=int)
     add_task.add_argument('-s', '--subtask', action='store', type=str)
 
     show_task = task_parser.add_parser('show')

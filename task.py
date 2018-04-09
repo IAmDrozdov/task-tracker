@@ -6,28 +6,21 @@ from colorama import Fore
 
 class Task:
 
-    def __init__(self, *initial_data, **kwargs):
+    def __init__(self, **kwargs):
         """
         :param kwargs:
         name = name of task
         data = date of create
         """
-        # for dictionary in initial_data:
-        #     for key in dictionary:
-        #         setattr(self, key, dictionary[key])
         self.subtasks = []
         self.id = None
         self.info = None
-        self.indent = 0
+        self.tags = []
         self.status = 'unfinished'
         self.deadline = None
         self.priority = 1
         self.date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         self.__dict__.update(kwargs)
-
-    def add_subtask(self, task_child):
-        self.subtasks.append(task_child)
-
 
     def table_print(self, index, color=False):
         if color:
