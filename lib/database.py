@@ -18,4 +18,7 @@ def deserialize(path):
     except FileNotFoundError:
         with open(path, mode='w+', encoding='utf-8') as db:
             db.write(jsonpickle.encode([]))
+        with open(path, mode='r', encoding='utf-8') as db:
+            json_file = db.read()
+        return jsonpickle.decode(json_file)
 
