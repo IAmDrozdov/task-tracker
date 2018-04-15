@@ -1,6 +1,5 @@
 from datetime import datetime
-import datetime_parser
-import database
+from lib import database, datetime_parser
 from colorama import Fore
 
 
@@ -19,6 +18,7 @@ class Task:
         self.status = 'unfinished'
         self.deadline = None
         self.priority = 1
+        self.indent = 0
         self.date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         self.__dict__.update(kwargs)
 
@@ -32,7 +32,7 @@ class Task:
               datetime_parser.parse_iso_pretty(self.date), '|', deadline_print)
 
     @staticmethod
-    def print(container, id=None, tag=None, is_colored=True):
+    def print(container, id=None, tag=None, is_colored=False):
         if id:
             for index, task in enumerate(container):
                 if task.id == id:
@@ -56,6 +56,7 @@ class Task:
 
         else:
             for index, task in enumerate(container):
+                print(task.indent * '  ', end='')
                 task.table_print(index, is_colored)
 
     @staticmethod
@@ -76,3 +77,15 @@ class Task:
                     sub.status = status_new
         else:
             pass
+
+    @staticmethod
+    def get_actual_index(container, is_sub=True):
+        if is_sub:
+            if len(container) == 0:
+                return '1'
+            else:
+                pre_id = container[len(container) - 1].id.split('_')
+                return str(int(pre_id[len(pre_id) - 1]) + 1)
+        else:
+            return str(int(container[len(container) - 1].id) + 1) if len(container) != 0 else '1'
+

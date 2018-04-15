@@ -1,5 +1,5 @@
 import calendar
-import datetime_parser
+from lib import datetime_parser
 from colorama import Fore, Back
 
 
