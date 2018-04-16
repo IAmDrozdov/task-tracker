@@ -1,4 +1,6 @@
-venv/
 .idea/
 __pycache__/
-./database_tasks.json
+lib/__pycache__/
+venv/
+
+database_tasks.json
