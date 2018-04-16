@@ -52,6 +52,8 @@ def rec_add_sub(container, options):
 def operation_add(options, container):
     if options.subtask:
         rec_add_sub(container, options)
+    elif options.periodic:
+        pass
     else:
         new_task = Task(info=options.description,
                         id=Task.get_actual_index(container, False),
