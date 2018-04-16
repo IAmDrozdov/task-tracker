@@ -53,9 +53,6 @@ def operation_add(options, container):
     if options.subtask:
         rec_add_sub(container, options)
     elif options.periodic:
-        new_task = Task(info=options.description, id=Task.get_actual_index(container, False), periodic=True,
-                        )
-        container.append(new_task)
         pass
     else:
         new_task = Task(info=options.description,
@@ -74,8 +71,13 @@ def operation__show(container, options):
         rec_show_id(container, options)
     elif options.to_show == 'tag':
         rec_show_tags(container, options)
-    elif options.to_show == 'all' or options.to_show is None:
+    elif options.all:
         rec_show_all(container, options)
+    else:
+        for index, task in enumerate(container):
+            task.table_print(options.colored)
+            if index == 9:
+                return
 
 
 def rec_delete(container, options):
@@ -139,6 +141,36 @@ def operation_move(container, namespace):
         database.serialize(container, 'database_tasks.json')
 
 
+def rec_change(container, options):
+    if container:
+        for task in container:
+            if task.id == options.id:
+                if options.deadline:
+                    task.deadline = datetime_parser.get_deadline(options.deadline)
+                if options.info:
+                    task.info = options.info
+                if options.priority:
+                    task.priority = options.priority
+                if options.status:
+                    task.status = options.status
+                if options.append_tags:
+                    for tag in re.sub("[^\w]", " ",  options.append_tags).split():
+                        task.tags.append(tag)
+                    task.tags = list(set(task.tags))
+                if options.remove_tags:
+                    for tag in re.sub("[^\w]", " ", options.remove_tags).split():
+                        if tag in task.tags:
+                            task.tags.remove(tag)
+                return
+            rec_change(task.subtasks, options)
+
+
+
+def operation_change(container, options):
+    rec_change(container, options)
+    database.serialize(container, 'database_tasks.json')
+
+
 def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
@@ -158,6 +190,8 @@ def main():
             operation_finish(container, namespace)
         elif namespace.command == 'move':
             operation_move(container, namespace)
+        elif namespace.command == 'change':
+            operation_change(container, namespace)
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])
