@@ -1,4 +1,4 @@
-help.txt
 venv/
 .idea/
 __pycache__/
+database_tasks.json

@@ -1,6 +1,7 @@
 from datetime import datetime
 from lib import datetime_parser
 from colorama import Fore
+from itertools import chain
 
 
 class Task:
@@ -30,9 +31,13 @@ class Task:
 
         deadline_print = datetime_parser.parse_iso_pretty(self.deadline) if self.deadline else 'no deadline'
         offset = '+' if self.indent == 0 else self.indent*' ' + self.indent*'*'
+        date_print = datetime_parser.parse_iso_pretty(self.date)
+        tags_print = ' '.join(self.tags)
+        # print(priority_colors[self.priority-1] + offset, self.info, '|', self.id, '|', self.status, '|',
+        #       date_print, '|', deadline_print)
 
-        print(priority_colors[self.priority-1] + offset, self.info, '|', self.id, '|', self.status, '|',
-              datetime_parser.parse_iso_pretty(self.date), '|', deadline_print)
+        print(priority_colors[self.priority - 1] + offset, self.info, self.id, self.status, date_print, deadline_print,
+              tags_print)
 
     @staticmethod
     def get_actual_index(container, is_sub=True):

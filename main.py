@@ -5,30 +5,32 @@
 from lib import database, datetime_parser, calendar_custom
 from parser import create_parser
 from lib.task import Task
+import re
+import copy
 
 
-def rec_show_all(container, is_colored=False):
+def rec_show_all(container, options):
     if container:
         for task in container:
-            task.table_print(is_colored)
-            rec_show_all(task.subtasks, is_colored)
+            task.table_print(options.colored)
+            rec_show_all(task.subtasks, options)
 
 
-def rec_show_id(container, id, is_colored=False):
+def rec_show_id(container, options):
     if container:
         for task in container:
-            if task.id == id:
-                task.table_print(is_colored)
-                rec_show_all(task.subtasks, is_colored)
-            rec_show_id(task.subtasks, id, is_colored)
+            if task.id == options.choosen:
+                task.table_print(options.colored)
+                rec_show_all(task.subtasks, options)
+            rec_show_id(task.subtasks, options)
 
 
-def rec_show_tags(container, tags, is_colored=False):
+def rec_show_tags(container, options):
     if container:
         for task in container:
-            if all(elem in task.tags for elem in tags):
-                task.table_print(is_colored)
-            rec_show_tags(task.subtasks, tags, is_colored)
+            if all(elem in task.tags for elem in options.choosen.split()):
+                task.table_print(options.colored)
+            rec_show_tags(task.subtasks, options)
 
 
 def rec_add_sub(container, options):
@@ -39,7 +41,7 @@ def rec_add_sub(container, options):
                                 id=task.id + '_' + Task.get_actual_index(task.subtasks),
                                 deadline=datetime_parser.get_deadline(
                                     options.deadline) if options.deadline else None,
-                                tags=options.tags.split() if options.tags else [],
+                                tags=re.sub("[^\w]", " ",  options.tags).split() if options.tags else [],
                                 priority=options.priority if options.priority else 1,
                                 indent=task.id.count('_') + 1)
                 task.subtasks.append(new_task)
@@ -54,7 +56,7 @@ def operation_add(options, container):
         new_task = Task(info=options.description,
                         id=Task.get_actual_index(container, False),
                         deadline=datetime_parser.get_deadline(options.deadline) if options.deadline else None,
-                        tags=options.tags.split() if options.tags else [],
+                        tags=re.sub("[^\w]", " ",  options.tags).split() if options.tags else [],
                         priority=options.priority if options.priority else 1)
         container.append(new_task)
     database.serialize(container, 'database_tasks.json')
@@ -64,11 +66,11 @@ def operation__show(container, options):
     if len(container) == 0:
         print('Nothing to show')
     if options.to_show == 'id':
-        rec_show_id(container, options.choosen, options.colored)
+        rec_show_id(container, options)
     elif options.to_show == 'tag':
-        rec_show_tags(container, options.choosen.split(), options.colored)
+        rec_show_tags(container, options)
     elif options.to_show == 'all' or options.to_show is None:
-        rec_show_all(container, options.colored)
+        rec_show_all(container, options)
 
 
 def rec_delete(container, options):
@@ -106,10 +108,37 @@ def operation_finish(container, options):
     database.serialize(container, 'database_tasks.json')
 
 
+def search_task(container, id):
+    if container:
+        for task in container:
+            if task.id == id:
+                return task
+            search_task(task.subtasks, id)
+
+
+def operation_move(container, namespace):
+    """
+    сейчас работает только для тасок первого уровня
+    :param container:
+    :param namespace:
+    :return:
+    """
+    task_from = search_task(container, namespace.id_from)
+    task_to = search_task(container, namespace.id_to)
+    if task_from and task_to:
+        task_from.id = task_to.id + '_' + Task.get_actual_index(task_to.subtasks)
+        task_from.indent = task_from.id.count('_') + 1
+        temp_task = copy.deepcopy(task_from)
+        rec_delete(container, task_from)
+        task_to.subtasks.append(temp_task)
+        database.serialize(container, 'database_tasks.json')
+
+
 def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
     namespace = parser.parse_args()
+    print(namespace)
     ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
@@ -122,6 +151,8 @@ def main():
             operation__show(container, namespace)
         elif namespace.command == 'finish':
             operation_finish(container, namespace)
+        elif namespace.command == 'move':
+            operation_move(container, namespace)
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])
