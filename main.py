@@ -181,15 +181,12 @@ def main():
     container = database.deserialize('database_tasks.json')
     parser = create_parser()
     namespace = parser.parse_args()
-    print(namespace)
     ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
             operation_add(namespace, container)
-    #######################################
         elif namespace.command == 'remove':
             operation_remove(container, namespace)
-    #######################################
         elif namespace.command == 'show':
             operation__show(container, namespace)
         elif namespace.command == 'finish':
@@ -201,6 +198,19 @@ def main():
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(container, namespace.date[0], namespace.date[1])
+    #######################################
+    elif namespace.target == 'user':
+        print(namespace)
+        if namespace.command == 'login':
+            pass
+        elif namespace.command == 'logout':
+            pass
+        elif namespace.command == 'create':
+            pass
+        elif namespace.command == 'remove':
+            pass
+        elif namespace.command == 'info':
+            pass
 
 
 if __name__ == '__main__':

@@ -58,11 +58,18 @@ def create_parser():
     user_parser = targets_user.add_subparsers(dest='command')
 
     login_user = user_parser.add_parser('login', help='User authentication')
-    login_user.add_argument('login', type=str, help='User nickname')
+    login_user.add_argument('nickname', type=str, help='User nickname')
 
-    targets_user.add_argument('logout', help='User deauthentication')
+    logout_user = user_parser.add_parser('logout', help='User deauthentication')
+    logout_user.add_argument('nickname', help='User nickname')
 
-    create_user = user_parser.add_parser('create', help='create new user')
+    create_user = user_parser.add_parser('create', help='Create new user')
     create_user.add_argument('nickname', type=str, help='User nickname for authentication')
+
+    delete_user = user_parser.add_parser('remove', help='Remove user by nickname')
+    delete_user.add_argument('nickname', help='User nickname')
+
+    about_user = user_parser.add_parser('info', help='View information about user')
+    about_user.add_argument('nickname', help='User nickname')
 
     return parser
