@@ -22,6 +22,7 @@ def rec_show_id(container, options):
             if task.id == options.choosen:
                 task.table_print(options.colored)
                 rec_show_all(task.subtasks, options)
+                return
             rec_show_id(task.subtasks, options)
 
 
@@ -115,26 +116,32 @@ def operation_finish(container, options):
     database.serialize(container, 'database_tasks.json')
 
 
-def search_task(container, id):
-    if container:
-        for task in container:
-            if task.id == id:
+def rec_find(container, idx_mass):
+    for task in container:
+        if int(task.id.split('_')[len(task.id.split('_')) - 1]) == int(idx_mass[0]):
+            if len(idx_mass) > 1:
+                return rec_find(task.subtasks, idx_mass[1:])
+            else:
                 return task
-            search_task(task.subtasks, id)
 
 
-def operation_move(container, namespace):
-    """
-    сейчас работает только для тасок первого уровня
-    :param container:
-    :param namespace:
-    :return:
-    """
-    task_from = search_task(container, namespace.id_from)
-    task_to = search_task(container, namespace.id_to)
-    if task_from and task_to:
+def rec_move_sub(owner):
+    if owner.subtasks:
+        for task in owner.subtasks:
+            task.id = owner.id + '_' + str(int(Task.get_actual_index(owner.subtasks, True)) - 1)
+            task.indent = owner.id.count('_') + 1
+            rec_move_sub(task)
+
+
+def operation_move(container, options):
+    mapping = options.id_from.split('_')
+    task_from = rec_find(container, mapping)
+    mapping = options.id_to.split('_')
+    task_to = rec_find(container, mapping)
+    if task_to and task_from:
         task_from.id = task_to.id + '_' + Task.get_actual_index(task_to.subtasks)
-        task_from.indent = task_from.id.count('_') + 1
+        task_from.indent = task_from.id.count('_')
+        rec_move_sub(task_from)
         temp_task = copy.deepcopy(task_from)
         rec_delete(container, task_from)
         task_to.subtasks.append(temp_task)
@@ -163,7 +170,6 @@ def rec_change(container, options):
                             task.tags.remove(tag)
                 return
             rec_change(task.subtasks, options)
-
 
 
 def operation_change(container, options):
