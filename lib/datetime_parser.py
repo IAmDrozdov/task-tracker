@@ -1,11 +1,6 @@
 from datetime import datetime
 
 
-def month_converter(month):
-    months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-    return months.index(month.strip()[:3].lower) + 1
-
-
 def get_deadline(deadline_string):
     curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), '%d %B%Y')
     if curr_year_input < datetime.now():

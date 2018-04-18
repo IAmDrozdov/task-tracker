@@ -136,10 +136,8 @@ def rec_move_sub(owner):
 
 
 def operation_move(container, options):
-    mapping = options.id_from.split('_')
-    task_from = rec_find(container, mapping)
-    mapping = options.id_to.split('_')
-    task_to = rec_find(container, mapping)
+    task_from = rec_find(container, options.id_from.split('_'))
+    task_to = rec_find(container, options.id_to.split('_'))
     if task_to and task_from:
         task_from.id = task_to.id + '_' + Task.get_actual_index(task_to.subtasks)
         task_from.indent = task_from.id.count('_')
@@ -219,6 +217,32 @@ def operation_remove_user(container, options):
         print('User does not exist')
 
 
+def rec_default_subs(new_task):
+    if new_task.subtasks:
+        for task in new_task.subtasks:
+            task.id = new_task.id + '_' + Task.get_actual_index(new_task.subtasks)
+            task.indent = task.id.count('_')
+            rec_default_subs(task)
+
+
+def operation_share(current_user_tasks, container, options):
+    task_from = rec_find(current_user_tasks, options.id_from.split('_'))
+    for user in container['users']:
+        if user.nickname == options.nickname_to:
+            user_to = user
+            break
+    else:
+        print('Nowhere to send task')
+        return
+    new_task = copy.deepcopy(task_from)
+    new_task.id = Task.get_actual_index(user_to.tasks, False)
+    new_task.indent = 0
+    rec_default_subs(new_task)
+    user_to.tasks.append(new_task)
+    if options.delete:
+        current_user_tasks.remove(task_from)
+
+
 def main():
     db = database.deserialize('database.json')
     parser = create_parser()
@@ -259,6 +283,8 @@ def main():
             operation_move(current.tasks, namespace)
         elif namespace.command == 'change':
             operation_change(current.tasks, namespace)
+        elif namespace.command == 'share':
+            operation_share(current.tasks, db, namespace)
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(current.tasks, namespace.date[0], namespace.date[1])

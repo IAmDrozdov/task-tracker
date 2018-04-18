@@ -20,7 +20,7 @@ def create_parser():
     add_task.add_argument('-d', '--days', help='Repeat every entered N days')
     add_task.add_argument('-r', '--remind', help='Create task at certain time. Or default will be 00:00')
 
-    show_task = task_parser.add_parser('show', help='SHow full information about task')
+    show_task = task_parser.add_parser('show', help='Print full information about task')
     show_task.add_argument('to_show', action='store', nargs='?', choices=('id', 'tags'), help='Filter for show')
     show_task.add_argument('choosen', nargs='?', help='Value of choosen filter or ID')
     show_task.add_argument('-a', '--all', action='store_true', help='Detailed output')
@@ -48,6 +48,11 @@ def create_parser():
     change_task.add_argument('-rt', '--remove_tags', help='Remove tags from task')
     change_task.add_argument('-s', '--status', help='Change task status')
 
+    share_task = task_parser.add_parser('share', help='Send task to another user')
+    share_task.add_argument('id_from', help='ID task what will be send')
+    share_task.add_argument('nickname_to', help='Nickname user what will take task')
+    share_task.add_argument('-d', '--delete', action='store_true', help='Deleting task from the sender')
+
     targets_calendar = subparser_targets.add_parser('calendar', help='Working with calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')
 
@@ -60,7 +65,7 @@ def create_parser():
     login_user = user_parser.add_parser('login', help='User authentication')
     login_user.add_argument('nickname', type=str, help='User nickname')
 
-    logout_user = user_parser.add_parser('logout', help='User deauthentication')
+    user_parser.add_parser('logout', help='User deauthentication')
 
     create_user = user_parser.add_parser('create', help='Create new user')
     create_user.add_argument('nickname', type=str, help='User nickname for authentication')
@@ -69,6 +74,7 @@ def create_parser():
     delete_user = user_parser.add_parser('remove', help='Remove user by nickname')
     delete_user.add_argument('nickname', help='User nickname')
 
-    about_user = user_parser.add_parser('info', help='View information about user')
+    about_user = user_parser.add_parser('info', help='Print short information about user')
+    about_user.add_argument('-a', '--all', help='Print all information about user')
 
     return parser
