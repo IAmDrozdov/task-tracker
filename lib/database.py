@@ -14,10 +14,12 @@ def deserialize(path):
             json_file = db.read()
         return jsonpickle.decode(json_file)
     except json.decoder.JSONDecodeError:
-        return []
+        return {'current_user': None,
+                'users': []}
     except FileNotFoundError:
         with open(path, mode='w+', encoding='utf-8') as db:
-            db.write(jsonpickle.encode([]))
+            db.write(jsonpickle.encode(({'current_user': None,
+                                       'users': []})))
         with open(path, mode='r', encoding='utf-8') as db:
             json_file = db.read()
         return jsonpickle.decode(json_file)

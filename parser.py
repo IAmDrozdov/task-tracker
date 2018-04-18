@@ -61,15 +61,14 @@ def create_parser():
     login_user.add_argument('nickname', type=str, help='User nickname')
 
     logout_user = user_parser.add_parser('logout', help='User deauthentication')
-    logout_user.add_argument('nickname', help='User nickname')
 
     create_user = user_parser.add_parser('create', help='Create new user')
     create_user.add_argument('nickname', type=str, help='User nickname for authentication')
+    create_user.add_argument('-f', '--force', action='store_true', help='After creating user sign in')
 
     delete_user = user_parser.add_parser('remove', help='Remove user by nickname')
     delete_user.add_argument('nickname', help='User nickname')
 
     about_user = user_parser.add_parser('info', help='View information about user')
-    about_user.add_argument('nickname', help='User nickname')
 
     return parser
