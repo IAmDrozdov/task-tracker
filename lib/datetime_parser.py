@@ -9,16 +9,16 @@ def month_converter(month):
 def get_deadline(deadline_string):
     curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), '%d %B%Y')
     if curr_year_input < datetime.now():
-        return datetime.strptime(deadline_string + str(datetime.now().year+1), '%d %B%Y')
+        return str(datetime.strptime(deadline_string + str(datetime.now().year+1), '%d %B%Y'))
     else:
-        return curr_year_input
+        return str(curr_year_input)
 
 
 def parse_iso_pretty(date_iso):
     try:
         return date_iso.strftime('%d %b')
     except AttributeError:
-        return datetime.strptime(date_iso, "%Y-%m-%dT%H:%M:%S").strftime('%d %b')
+        return datetime.strptime(date_iso, "%Y-%m-%d %H:%M:%S").strftime('%d %b')
 
 
 def get_weekday(month, year):

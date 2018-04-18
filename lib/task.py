@@ -1,7 +1,6 @@
 from datetime import datetime
 from lib import datetime_parser
 from colorama import Fore
-from itertools import chain
 
 
 class Task:
@@ -22,8 +21,8 @@ class Task:
         self.deadline = None
         self.priority = 1
         self.indent = 0
-        self.changed = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        self.date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        self.changed = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.__dict__.update(kwargs)
 
     def table_print(self, color=False):
