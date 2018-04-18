@@ -7,6 +7,7 @@ from parser import create_parser
 from lib.task import Task
 from lib.user import User
 import re
+from _datetime import datetime
 import copy
 
 
@@ -169,6 +170,7 @@ def rec_change(container, options):
                     for tag in re.sub("[^\w]", " ", options.remove_tags).split():
                         if tag in task.tags:
                             task.tags.remove(tag)
+                task.changed = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
                 return
             rec_change(task.subtasks, options)
 
