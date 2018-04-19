@@ -212,15 +212,15 @@ def operation_remove_user(container, options):
     for user in container['users']:
         if user.nickname == options.nickname:
             container['users'].remove(user)
-            break
+
     else:
         print('User does not exist')
 
 
 def rec_default_subs(new_task):
     if new_task.subtasks:
-        for task in new_task.subtasks:
-            task.id = new_task.id + '_' + Task.get_actual_index(new_task.subtasks)
+        for index, task in enumerate(new_task.subtasks):
+            task.id = new_task.id + '_' + str(index + 1)
             task.indent = task.id.count('_')
             rec_default_subs(task)
 

@@ -12,7 +12,6 @@ class Task:
         data = date of create
         """
 
-        self.periodic = False
         self.subtasks = []
         self.id = None
         self.info = None
