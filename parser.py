@@ -77,4 +77,18 @@ def create_parser():
     about_user = user_parser.add_parser('info', help='Print short information about user')
     about_user.add_argument('-a', '--all', help='Print all information about user')
 
+    targets_plan = subparser_targets.add_parser('plan', help='Working with periodic tasks')
+    plan_parser = targets_plan.add_subparsers(dest='command')
+
+    add_plan = plan_parser.add_parser('add', help='Create plan, what will create periodic')
+    add_plan.add_argument('description', help='Information for task')
+    add_plan.add_argument('-pd', '--period_day', help='Recreate task every entered day from today')
+    add_plan.add_argument('-pw', '--period_weekday', help='Recreate task avery entered weekdays')
+    add_plan.add_argument('-t', '--time', help='time when task will be created. Default is 00:00')
+
+    show_plan = plan_parser.add_parser('show', help='Print list of plans')
+    show_plan.add_argument('-c', '--colored', action='store_true', help='Mark worked plans with another color')
+
+    remove_plan = plan_parser.add_parser('remove', help='Remove plan')
+    remove_plan.add_argument('id', help='ID of plan to delete')
     return parser

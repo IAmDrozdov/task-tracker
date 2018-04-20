@@ -1,6 +1,3 @@
-import re
-
-
 class User:
     def __init__(self, **kwargs):
         self.nickname = None
@@ -12,6 +9,18 @@ class User:
 
     def print(self):
         tasks_print = []
-        for task in self.tasks:
-            tasks_print.append(task.info)
-        print(self.nickname, '|', ', '.join(tasks_print))
+        plans_print = []
+        if self.tasks:
+            for task in self.tasks:
+                tasks_print.append(task.info)
+            tasks_print = 'tasks:\n' + ', '.join(tasks_print)
+        else:
+            tasks_print = '\nNo tasks'
+
+        if self.plans:
+            for plan in self.plans:
+                plans_print.append(plan.info)
+            plans_print = '\nplans:\n' + ', '.join(plans_print)
+        else:
+            plans_print = '\nNo plans'
+        print(self.nickname, tasks_print, plans_print)

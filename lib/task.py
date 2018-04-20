@@ -20,6 +20,7 @@ class Task:
         self.deadline = None
         self.priority = 1
         self.indent = 0
+        self.plan = None
         self.changed = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.__dict__.update(kwargs)

@@ -6,37 +6,38 @@ from lib import database, datetime_parser, calendar_custom
 from parser import create_parser
 from lib.task import Task
 from lib.user import User
+from lib.plan import Plan
 import re
 from _datetime import datetime
 import copy
 
 
-def rec_show_all(container, options):
+def rec_task_show_all(container, options):
     if container:
         for task in container:
             task.table_print(options.colored)
-            rec_show_all(task.subtasks, options)
+            rec_task_show_all(task.subtasks, options)
 
 
-def rec_show_id(container, options):
+def rec_task_show_id(container, options):
     if container:
         for task in container:
             if task.id == options.choosen:
                 task.table_print(options.colored)
-                rec_show_all(task.subtasks, options)
+                rec_task_show_all(task.subtasks, options)
                 return
-            rec_show_id(task.subtasks, options)
+            rec_task_show_id(task.subtasks, options)
 
 
-def rec_show_tags(container, options):
+def rec_task_show_tags(container, options):
     if container:
         for task in container:
             if all(elem in task.tags for elem in options.choosen.split()):
                 task.table_print(options.colored)
-            rec_show_tags(task.subtasks, options)
+            rec_task_show_tags(task.subtasks, options)
 
 
-def rec_add_sub(container, options):
+def rec_task_add_sub(container, options):
     if container:
         for task in container:
             if task.id == options.subtask:
@@ -49,12 +50,12 @@ def rec_add_sub(container, options):
                                 indent=task.id.count('_') + 1)
                 task.subtasks.append(new_task)
                 return
-            rec_add_sub(task.subtasks, options)
+            rec_task_add_sub(task.subtasks, options)
 
 
-def operation_add(options, container):
+def operation_task_add(options, container):
     if options.subtask:
-        rec_add_sub(container, options)
+        rec_task_add_sub(container, options)
     elif options.periodic:
         pass
     else:
@@ -67,15 +68,15 @@ def operation_add(options, container):
     database.serialize(container, 'database.json')
 
 
-def operation__show(container, options):
+def operation_taks_show(container, options):
     if len(container) == 0:
         print('Nothing to show')
     if options.to_show == 'id':
-        rec_show_id(container, options)
+        rec_task_show_id(container, options)
     elif options.to_show == 'tag':
-        rec_show_tags(container, options)
+        rec_task_show_tags(container, options)
     elif options.all:
-        rec_show_all(container, options)
+        rec_task_show_all(container, options)
     else:
         for index, task in enumerate(container):
             task.table_print(options.colored)
@@ -83,7 +84,7 @@ def operation__show(container, options):
                 return
 
 
-def rec_delete(container, options):
+def rec_task_delete(container, options):
     if container:
         for task in container:
             if task.id == options.id:
@@ -93,62 +94,62 @@ def rec_delete(container, options):
 
 
 def operation_remove(container, options):
-    rec_delete(container, options)
+    rec_task_delete(container, options)
     database.serialize(container, 'database.json')
 
 
-def rec_finish_all(container):
+def rec_task_finish_all(container):
     if container:
         for task in container:
             task.status = 'finished'
-            rec_finish_all(task.subtasks)
+            rec_task_finish_all(task.subtasks)
 
 
-def rec_finish(container, options):
+def rec_task_finish(container, options):
     if container:
         for task in container:
             if task.id == options.id:
                 task.status = 'finished'
-                rec_finish_all(task.subtasks)
-            rec_finish(task.subtasks, options)
+                rec_task_finish_all(task.subtasks)
+            rec_task_finish(task.subtasks, options)
 
 
-def operation_finish(container, options):
-    rec_finish(container, options)
+def operation_task_finish(container, options):
+    rec_task_finish(container, options)
     database.serialize(container, 'database.json')
 
 
-def rec_find(container, idx_mass):
+def rec_task_find(container, idx_mass):
     for task in container:
         if int(task.id.split('_')[len(task.id.split('_')) - 1]) == int(idx_mass[0]):
             if len(idx_mass) > 1:
-                return rec_find(task.subtasks, idx_mass[1:])
+                return rec_task_find(task.subtasks, idx_mass[1:])
             else:
                 return task
 
 
-def rec_move_sub(owner):
+def rec_task_move_sub(owner):
     if owner.subtasks:
         for task in owner.subtasks:
             task.id = owner.id + '_' + str(int(Task.get_actual_index(owner.subtasks, True)) - 1)
             task.indent = owner.id.count('_') + 1
-            rec_move_sub(task)
+            rec_task_move_sub(task)
 
 
-def operation_move(container, options):
-    task_from = rec_find(container, options.id_from.split('_'))
-    task_to = rec_find(container, options.id_to.split('_'))
+def operation_task_move(container, options):
+    task_from = rec_task_find(container, options.id_from.split('_'))
+    task_to = rec_task_find(container, options.id_to.split('_'))
     if task_to and task_from:
         task_from.id = task_to.id + '_' + Task.get_actual_index(task_to.subtasks)
         task_from.indent = task_from.id.count('_')
-        rec_move_sub(task_from)
+        rec_task_move_sub(task_from)
         temp_task = copy.deepcopy(task_from)
-        rec_delete(container, task_from)
+        rec_task_delete(container, task_from)
         task_to.subtasks.append(temp_task)
         database.serialize(container, 'database.json')
 
 
-def rec_change(container, options):
+def rec_task_change(container, options):
     if container:
         for task in container:
             if task.id == options.id:
@@ -170,11 +171,11 @@ def rec_change(container, options):
                             task.tags.remove(tag)
                 task.changed = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
                 return
-            rec_change(task.subtasks, options)
+            rec_task_change(task.subtasks, options)
 
 
-def operation_change(container, options):
-    rec_change(container, options)
+def operation_task_change(container, options):
+    rec_task_change(container, options)
     database.serialize(container, 'database.json')
 
 
@@ -225,8 +226,8 @@ def rec_default_subs(new_task):
             rec_default_subs(task)
 
 
-def operation_share(current_user_tasks, container, options):
-    task_from = rec_find(current_user_tasks, options.id_from.split('_'))
+def operation_task_share(current_user_tasks, container, options):
+    task_from = rec_task_find(current_user_tasks, options.id_from.split('_'))
     for user in container['users']:
         if user.nickname == options.nickname_to:
             user_to = user
@@ -241,6 +242,11 @@ def operation_share(current_user_tasks, container, options):
     user_to.tasks.append(new_task)
     if options.delete:
         current_user_tasks.remove(task_from)
+
+
+def operation_plan_add(container, options):
+    new_plan = Plan(info=options.description)
+    container.append(new_plan)
 
 
 def main():
@@ -272,19 +278,19 @@ def main():
     ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
-            operation_add(namespace, current.tasks)
+            operation_task_add(namespace, current.tasks)
         elif namespace.command == 'remove':
             operation_remove(current.tasks, namespace)
         elif namespace.command == 'show':
-            operation__show(current.tasks, namespace)
+            operation_taks_show(current.tasks, namespace)
         elif namespace.command == 'finish':
-            operation_finish(current.tasks, namespace)
+            operation_task_finish(current.tasks, namespace)
         elif namespace.command == 'move':
-            operation_move(current.tasks, namespace)
+            operation_task_move(current.tasks, namespace)
         elif namespace.command == 'change':
-            operation_change(current.tasks, namespace)
+            operation_task_change(current.tasks, namespace)
         elif namespace.command == 'share':
-            operation_share(current.tasks, db, namespace)
+            operation_task_share(current.tasks, db, namespace)
     #######################################
     elif namespace.target == 'calendar':
         calendar_custom.print_month_calendar(current.tasks, namespace.date[0], namespace.date[1])
@@ -296,6 +302,13 @@ def main():
             operation_remove(db, namespace)
         elif namespace.command == 'info':
             current.print()
+    elif namespace.target == 'plan':
+        if namespace.command == 'add':
+            pass
+        if namespace.target == 'show':
+            pass
+        if namespace.target == 'remove':
+            pass
     database.serialize(db, 'database.json')
 
 
