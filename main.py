@@ -245,15 +245,41 @@ def operation_task_share(current_user_tasks, container, options):
 
 
 def operation_plan_add(container, options):
-    new_plan = Plan(info=options.description)
+    new_plan = Plan(info=options.description, id=Task.get_actual_index(container))
     container.append(new_plan)
+    Plan.check(container)
+
+
+def operation_plan_remove(container, options):
+    for plan in container:
+        if plan.id == options.id:
+            container.remove(plan)
+            return
+    else:
+        print('Nothing to delete.')
+
+
+def operation_plan_show_id(container, options):
+    for plan in container:
+        if plan.id == options.id:
+            print(plan)
+            return
+    else:
+        print('Nothing to show')
+
+
+def operation_plan_show_all(container, options):
+    if len(container) != 0:
+        for plan in container:
+            Plan.colored_print(plan, options.colored)
+    else:
+        print('No plans')
 
 
 def main():
     db = database.deserialize('database.json')
     parser = create_parser()
     namespace = parser.parse_args()
-
     if namespace.target == 'user':
         if namespace.command == 'create':
             operation_create_user(db, namespace)
@@ -304,11 +330,14 @@ def main():
             current.print()
     elif namespace.target == 'plan':
         if namespace.command == 'add':
-            pass
-        if namespace.target == 'show':
-            pass
-        if namespace.target == 'remove':
-            pass
+            operation_plan_add(user.plans, namespace)
+        elif namespace.command == 'show':
+            if namespace.id:
+                operation_plan_show_id(user.plans, namespace)
+            else:
+                operation_plan_show_all(user.plans, namespace)
+        elif namespace.command == 'remove':
+            operation_plan_remove(user.plans, namespace)
     database.serialize(db, 'database.json')
 
 

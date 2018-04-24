@@ -48,3 +48,10 @@ class Task:
                 return str(int(pre_id[len(pre_id) - 1]) + 1)
         else:
             return str(int(container[len(container) - 1].id) + 1) if len(container) != 0 else '1'
+
+    def find_plan(self, plan_container):
+        for plan in plan_container:
+            if plan.id == self.plan:
+                return self
+        else:
+            return False

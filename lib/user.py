@@ -15,12 +15,12 @@ class User:
                 tasks_print.append(task.info)
             tasks_print = 'tasks:\n' + ', '.join(tasks_print)
         else:
-            tasks_print = '\nNo tasks'
+            tasks_print = 'No tasks'
 
         if self.plans:
             for plan in self.plans:
                 plans_print.append(plan.info)
-            plans_print = '\nplans:\n' + ', '.join(plans_print)
+            plans_print = 'plans:\n' + ', '.join(plans_print)
         else:
-            plans_print = '\nNo plans'
-        print(self.nickname, tasks_print, plans_print)
+            plans_print = 'No plans'
+        print('user: {}\n{}\n{}'.format(self.nickname, tasks_print, plans_print))

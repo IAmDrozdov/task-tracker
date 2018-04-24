@@ -87,8 +87,9 @@ def create_parser():
     add_plan.add_argument('-t', '--time', help='time when task will be created. Default is 00:00')
 
     show_plan = plan_parser.add_parser('show', help='Print list of plans')
+    show_plan.add_argument('id', type=str, nargs='?', help='ID of plan to show')
     show_plan.add_argument('-c', '--colored', action='store_true', help='Mark worked plans with another color')
 
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
-    remove_plan.add_argument('id', help='ID of plan to delete')
+    remove_plan.add_argument('id', type=str, help='ID of plan to delete')
     return parser
