@@ -99,4 +99,4 @@ class Plan:
                 return
         else:
             to_remove = self.check_created(database.get_tasks())
-            database.remove_task(to_remove)
+            database.remove_task(to_remove.id)

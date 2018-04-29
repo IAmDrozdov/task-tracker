@@ -2,32 +2,27 @@
 # -*- coding: utf-8 -*-
 
 
-from lib import database, calendar_custom, plan_func, datetime_parser, task_func
+import console_operations as co
+from lib.database import Database
 from parser import create_parser
-from lib.user import User
-from lib.plan import Plan
-from lib.task import Task
 
 
 def main():
-    db = database.Database('database.json')
-
+    db = Database('database.json')
     parser = create_parser()
     namespace = parser.parse_args()
     #######################################
     if namespace.target == 'user':
-        if namespace.command == 'create':
-            db.add_user(User(namespace.nickname))
-            if namespace.force:
-                db.set_current_user(namespace.nickname)
+        if namespace.command == 'add':
+            co.operation_user_add(db, namespace.nickname, namespace.force)
         elif namespace.command == 'login':
-            db.set_current_user(namespace.nickname)
+            co.operation_user_login(db, namespace.nickname)
         elif namespace.command == 'logout':
-            db.remove_current_user()
+            co.operation_user_logout(db)
         elif namespace.command == 'remove':
-            db.remove_user(namespace.nickname)
+            co.operation_user_remove(db, namespace.nickname)
         elif namespace.command == 'info':
-            db.get_current_user().print()
+            co.operation_user_info(db)
     #######################################
     if namespace.daemon:
         for plan in db.get_plans():
@@ -36,37 +31,32 @@ def main():
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
-            task_func.operation_task_add(namespace, current.tasks)
+            co.operation_task_add(db, namespace.description, namespace.priority, namespace.deadline,
+                                  namespace.tags, namespace.subtask)
         elif namespace.command == 'remove':
-            db.remove_task(namespace.id)
+            co.operation_task_remove(db, namespace.id)
         elif namespace.command == 'show':
-            task_func.operation_task_show(current.tasks, namespace)
+            co.operation_task_show(db, namespace.id)
         elif namespace.command == 'finish':
-            task_func.operation_task_finish(current.tasks, namespace)
+            co.operation_task_finish(db, namespace.id)
         elif namespace.command == 'move':
-            task_func.operation_task_move(current.tasks, namespace)
+            co.operation_task_move(db, namespace.id_from, namespace.id_to)
         elif namespace.command == 'change':
-            task_func.operation_task_change(current.tasks, namespace)
+            co.operation_task_change(db, namespace.id, namespace.info, namespace.deadline, namespace.priority,
+                                     namespace.status, namespace.append_tags, namespace.remove_tags)
         elif namespace.command == 'share':
-            task_func.operation_task_share(current.tasks, db, namespace)
+            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete)
     #######################################
     elif namespace.target == 'calendar':
-        calendar_custom.print_month_calendar(current.tasks, namespace.date[0], namespace.date[1])
+        co.operation_calendar_show(db.get_tasks(), namespace.date[0], namespace.date[1])
     #######################################
     elif namespace.target == 'plan':
         if namespace.command == 'add':
-            period_options = datetime_parser.parse_period(namespace.period)
-            time = datetime_parser.parse_time(namespace.time) if namespace.time else None
-            db.add_plan(Plan(info=namespace.description, period=period_options[0],
-                             period_type=period_options[1], time_in=time))
+            co.operation_plan_add(db, namespace.description, namespace.perion, namespace.time)
         elif namespace.command == 'show':
-            if namespace.id:
-                print(db.get_plans(namespace.id))
-            else:
-                for plan in db.get_plans():
-                    plan.colored_print(namespace.colored)
+            co.operation_plan_show(db, namespace.id)
         elif namespace.command == 'remove':
-            db.remove_plan(namespace.id)
+            co.operation_plan_remove(db, namespace.id)
 
 
 if __name__ == '__main__':

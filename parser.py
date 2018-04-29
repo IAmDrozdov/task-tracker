@@ -64,7 +64,7 @@ def create_parser():
 
     user_parser.add_parser('logout', help='User deauthentication')
 
-    create_user = user_parser.add_parser('create', help='Create new user')
+    create_user = user_parser.add_parser('add', help='Create new user')
     create_user.add_argument('nickname', type=str, help='User nickname for authentication')
     create_user.add_argument('-f', '--force', action='store_true', help='After creating user sign in')
 

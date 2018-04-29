@@ -1,1 +1,137 @@
-{"py/object": "lib.database.Database", "current_user": "new", "users": [{"py/object": "lib.user.User", "archive": [], "nickname": "new", "plans": [], "tasks": [{"py/object": "lib.task.Task", "date": "2018-04-05 16:53:05", "deadline": null, "id": "1", "indent": 0, "info": "lol", "last_change": "2018-04-05 16:53:05", "parent_id": null, "plan": "1", "priority": 1, "status": "unfinished", "subtasks": [], "tags": []}]}]}
+{
+  "py/object": "lib.database.Database",
+  "current_user": "new22",
+  "users": [
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "sasha",
+      "plans": [],
+      "tasks": [
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-04-29 22:12:04",
+          "deadline": null,
+          "id": "1",
+          "indent": 0,
+          "info": "first",
+          "last_change": "2018-04-29 22:12:04",
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "unfinished",
+          "subtasks": [
+            {
+              "py/object": "lib.task.Task",
+              "date": "2018-04-29 22:12:07",
+              "deadline": null,
+              "id": "1_1",
+              "indent": 1,
+              "info": "first_sub",
+              "last_change": "2018-04-29 22:12:07",
+              "parent_id": "1",
+              "plan": null,
+              "priority": 1,
+              "status": "unfinished",
+              "subtasks": [],
+              "tags": []
+            },
+            {
+              "py/object": "lib.task.Task",
+              "date": "2018-04-29 22:12:16",
+              "deadline": null,
+              "id": "1_3",
+              "indent": 1,
+              "info": "first_sub_3",
+              "last_change": "2018-04-29 22:12:16",
+              "parent_id": "1",
+              "plan": null,
+              "priority": 1,
+              "status": "unfinished",
+              "subtasks": [],
+              "tags": []
+            }
+          ],
+          "tags": []
+        },
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-04-29 22:12:20",
+          "deadline": null,
+          "id": "2",
+          "indent": 0,
+          "info": "second",
+          "last_change": "2018-04-29 22:12:20",
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "unfinished",
+          "subtasks": [
+            {
+              "py/object": "lib.task.Task",
+              "date": "2018-04-29 22:12:23",
+              "deadline": null,
+              "id": "2_1",
+              "indent": 1,
+              "info": "second_sub",
+              "last_change": "2018-04-29 22:12:23",
+              "parent_id": "2",
+              "plan": null,
+              "priority": 1,
+              "status": "unfinished",
+              "subtasks": [
+                {
+                  "py/object": "lib.task.Task",
+                  "date": "2018-04-29 22:12:13",
+                  "deadline": null,
+                  "id": "2_1_1",
+                  "indent": 2,
+                  "info": "first_sub_2",
+                  "last_change": "2018-04-29 22:12:13",
+                  "parent_id": "2_1",
+                  "plan": null,
+                  "priority": 1,
+                  "status": "unfinished",
+                  "subtasks": [
+                    {
+                      "py/object": "lib.task.Task",
+                      "date": "2018-04-29 22:12:41",
+                      "deadline": null,
+                      "id": "2_1_1_1",
+                      "indent": 3,
+                      "info": "1_2_sub",
+                      "last_change": "2018-04-29 22:12:41",
+                      "parent_id": "2_1_1",
+                      "plan": null,
+                      "priority": 1,
+                      "status": "unfinished",
+                      "subtasks": [],
+                      "tags": []
+                    }
+                  ],
+                  "tags": []
+                }
+              ],
+              "tags": []
+            }
+          ],
+          "tags": []
+        }
+      ]
+    },
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "new",
+      "plans": [],
+      "tasks": []
+    },
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "new22",
+      "plans": [],
+      "tasks": []
+    }
+  ]
+}

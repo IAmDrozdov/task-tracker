@@ -1,31 +1,10 @@
-import jsonpickle
 import json
 import re
-from lib import datetime_parser
+
+import jsonpickle
+
 from lib import custom_exceptions
-
-
-def serialize(container, path):
-        with open(path, mode='w+', encoding='utf-8') as db:
-            to_write = jsonpickle.encode(container)
-            db.write(to_write)
-
-
-def deserialize(path):
-    try:
-        with open(path, mode='r', encoding='utf-8') as db:
-            json_file = db.read()
-        return jsonpickle.decode(json_file)
-    except json.decoder.JSONDecodeError:
-        return {'current_user': None,
-                'users': []}
-    except FileNotFoundError:
-        with open(path, mode='w+', encoding='utf-8') as db:
-            db.write(jsonpickle.encode(({'current_user': None,
-                                       'users': []})))
-        with open(path, mode='r', encoding='utf-8') as db:
-            json_file = db.read()
-        return jsonpickle.decode(json_file)
+from lib import datetime_parser
 
 
 class Database:
@@ -45,7 +24,7 @@ class Database:
         temp_path = self.path
         del self.path
         with open(temp_path, mode='w+', encoding='utf-8') as db:
-            to_write = jsonpickle.encode(self)
+            to_write = jsonpickle.encode(self, make_refs=False)
             db.write(to_write)
         self.path = temp_path
 
@@ -97,15 +76,15 @@ class Database:
                 raise custom_exceptions.UserNotFound
 
     @staticmethod
-    def get_id(where, sub=False):
+    def get_id(list_to, sub=False):
         if sub:
-            if len(where) == 0:
+            if len(list_to) == 0:
                 return '1'
             else:
-                pre_id = where[len(where) - 1].id.split('_')
+                pre_id = list_to[len(list_to) - 1].id.split('_')
                 return str(int(pre_id[len(pre_id) - 1]) + 1)
         else:
-            return str(int(where[len(where) - 1].id) + 1) if len(where) != 0 else '1'
+            return str(int(list_to[len(list_to) - 1].id) + 1) if len(list_to) != 0 else '1'
 
     def check_current(self):
         if self.current_user:
@@ -126,8 +105,7 @@ class Database:
         current.plans.remove(self.get_plans(id))
         for task in self.get_tasks():
             if task.plan == id:
-                self.remove_task(task)
-                print('removed')
+                self.remove_task(task.id)
         self.serialize()
 
     def get_plans(self, id=None):
@@ -147,24 +125,25 @@ class Database:
             for task in tasks:
                 if task.id == id:
                     tasks.remove(task)
+                    return
                 else:
                     Database.rec_del_task(task.subtasks, id)
 
     @staticmethod
-    def rec_get_task(tasks, id):
-        if len(tasks) > 0:
-            for task in tasks:
-                if task.id == id:
-                    return task
+    def get_task_by_id(tasks, idx_mass):
+        for task in tasks:
+            if int(task.id.split('_')[len(task.id.split('_')) - 1]) == int(idx_mass[0]):
+                if len(idx_mass) > 1:
+                    return Database.get_task_by_id(task.subtasks, idx_mass[1:])
                 else:
-                    return Database.rec_get_task(task.subtasks, id)
+                    return task
 
     def get_tasks(self, id=None):
         current = self.check_current()
         if id is None:
-            return [task for task in current.tasks]
+            return current.tasks
         else:
-            found_task = Database.rec_get_task(current.tasks, id)
+            found_task = Database.get_task_by_id(current.tasks, id.split('_'))
             if found_task:
                 return found_task
             else:
@@ -173,10 +152,11 @@ class Database:
     def add_task(self, new_task):
         current = self.check_current()
         if new_task.parent_id:
-            found_task = Database.rec_get_task(current.tasks, new_task.parent_id)
-            if found_task:
-                new_task.id = Database.get_id(found_task.subtasks, True)
-                found_task.subtasks.append(new_task)
+            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split('_'))
+            if parent_task:
+                new_task.id = parent_task.id + '_' + Database.get_id(parent_task.subtasks, True)
+                new_task.indent = new_task.id.count('_')
+                parent_task.subtasks.append(new_task)
             else:
                 raise custom_exceptions.TaskNotFound
         else:
@@ -187,6 +167,7 @@ class Database:
     def remove_task(self, id):
         current = self.check_current()
         Database.rec_del_task(current.tasks, id)
+
         self.serialize()
 
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
@@ -204,6 +185,7 @@ class Database:
                 found_task.tags.append(tag)
             found_task.tags = list(set(found_task.tags))
         if minus_tag:
-            for tag in re.sub("[^\w]", " ", plus_tag).split():
+            for tag in re.sub("[^\w]", " ", minus_tag).split():
                 found_task.tags.remove(tag)
         found_task.changed()
+        self.serialize()

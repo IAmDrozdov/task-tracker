@@ -1,6 +1,9 @@
 from datetime import datetime
-from lib import datetime_parser
+
 from colorama import Fore
+
+from lib import datetime_parser
+from lib.database import Database
 
 
 class Task:
@@ -35,13 +38,17 @@ class Task:
     def changed(self):
         self.last_change = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    @staticmethod
-    def get_actual_index(container, is_sub=True):
-        if is_sub:
-            if len(container) == 0:
-                return '1'
-            else:
-                pre_id = container[len(container) - 1].id.split('_')
-                return str(int(pre_id[len(pre_id) - 1]) + 1)
-        else:
-            return str(int(container[len(container) - 1].id) + 1) if len(container) != 0 else '1'
+    def reset_sub_id(self):
+        if self.subtasks:
+            for task in self.subtasks:
+                task.id = self.id + '_' + str(int(Database.get_id(self.subtasks, True)) - 1)
+                task.indent = self.id.count('_') + 1
+                task.parent_id = self.id
+                Task.reset_sub_id(task)
+
+    def append_task(self, task_from):
+        task_from.id = self.id + '_' + Database.get_id(self.subtasks, True)
+        task_from.indent = task_from.id.count('_')
+        task_from.parent_id = self.id
+        task_from.reset_sub_id()
+        self.subtasks.append(task_from)
