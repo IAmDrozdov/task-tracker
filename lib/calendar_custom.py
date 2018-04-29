@@ -5,7 +5,8 @@ from colorama import Fore, Back
 
 def is_match(self, month, year):
     if self.deadline:
-        return True if self.deadline.month == month and self.deadline.year == year else False
+        return True if datetime_parser.parse_iso(self.deadline).month == month and \
+                       datetime_parser.parse_iso(self.deadline).year == year else False
     else:
         return False
 
@@ -14,7 +15,7 @@ def mark_dates(container, month, year):
     marked_dates = []
     for task in container:
         if is_match(task, month, year):
-            new_day = task.deadline.day
+            new_day = datetime_parser.parse_iso(task.deadline).day
             if new_day not in marked_dates:
                 marked_dates.append(new_day)
     return marked_dates

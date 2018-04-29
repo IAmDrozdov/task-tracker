@@ -11,10 +11,7 @@ def get_deadline(deadline_string):
 
 
 def parse_iso_pretty(date_iso):
-    try:
-        return date_iso.strftime('%d %b')
-    except AttributeError:
-        return parse_iso(date_iso).strftime('%d %b')
+    return parse_iso(date_iso).strftime('%d %b')
 
 
 def parse_iso(date_iso):
@@ -48,4 +45,3 @@ def parse_time(string_time):
         return string_time.split(':')
     else:
         return string_time
-

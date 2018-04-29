@@ -2,5 +2,3 @@
 __pycache__/
 lib/__pycache__/
 venv/
-
-database_tasks.json

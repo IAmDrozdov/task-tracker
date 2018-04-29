@@ -4,14 +4,7 @@ from colorama import Fore
 
 
 class Task:
-
     def __init__(self, **kwargs):
-        """
-        :param kwargs:
-        name = name of task
-        data = date of create
-        """
-
         self.subtasks = []
         self.id = None
         self.info = None
@@ -19,9 +12,10 @@ class Task:
         self.status = 'unfinished'
         self.deadline = None
         self.priority = 1
+        self.parent_id = None
         self.indent = 0
         self.plan = None
-        self.changed = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.last_change = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.__dict__.update(kwargs)
 
@@ -37,6 +31,9 @@ class Task:
         tags_print = ' '.join(self.tags)
         print(priority_colors[self.priority - 1] + offset, self.info, self.id, self.status, date_print, deadline_print,
               tags_print)
+
+    def changed(self):
+        self.last_change = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def get_actual_index(container, is_sub=True):

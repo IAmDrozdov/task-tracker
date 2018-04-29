@@ -16,10 +16,6 @@ def create_parser():
     add_task.add_argument('-p', '--priority', type=int, help='Attach priority for task, default is 1')
     add_task.add_argument('-s', '--subtask', type=str, help='ID of task for what you want to add new '
                                                             'task as subtask')
-    add_task.add_argument('-pt', '--periodic', action='store_true', help='Make task periodic')
-    add_task.add_argument('-wd', '--weekdays', help='Repeat very entered')
-    add_task.add_argument('-d', '--days', help='Repeat every entered N days')
-    add_task.add_argument('-r', '--remind', help='Create task at certain time. Or default will be 00:00')
 
     show_task = task_parser.add_parser('show', help='Print full information about task')
     show_task.add_argument('to_show', action='store', nargs='?', choices=('id', 'tags'), help='Filter for show')

@@ -1,11 +1,9 @@
 class User:
-    def __init__(self, **kwargs):
-        self.nickname = None
+    def __init__(self, nickname=None):
+        self.nickname = nickname
         self.tasks = []
         self.plans = []
         self.archive = []
-        self.mail = None
-        self.__dict__.update(**kwargs)
 
     def print(self):
         tasks_print = []
