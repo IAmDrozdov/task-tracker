@@ -1,8 +1,5 @@
 from datetime import datetime
 
-from colorama import Fore
-
-from lib import datetime_parser
 from lib.database import Database
 
 
@@ -22,21 +19,14 @@ class Task:
         self.date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.__dict__.update(kwargs)
 
-    def table_print(self, color=False):
-        if color:
-            priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
-        else:
-            priority_colors = [Fore.WHITE, Fore.WHITE, Fore.WHITE, Fore.WHITE, Fore.WHITE]
-
-        deadline_print = datetime_parser.parse_iso_pretty(self.deadline) if self.deadline else 'no deadline'
-        offset = '+' if self.indent == 0 else self.indent*' ' + self.indent*' *'
-        date_print = datetime_parser.parse_iso_pretty(self.date)
-        tags_print = ' '.join(self.tags)
-        print(priority_colors[self.priority - 1] + offset, self.info, self.id, self.status, date_print, deadline_print,
-              tags_print)
-
     def changed(self):
         self.last_change = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def finish(self):
+        self.status = 'finished'
+        for task in self.subtasks:
+            task.status = 'finished'
+            task.finish()
 
     def reset_sub_id(self):
         if self.subtasks:

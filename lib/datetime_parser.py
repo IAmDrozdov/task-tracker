@@ -1,11 +1,11 @@
-from datetime import datetime
 import re
+from datetime import datetime
 
 
 def get_deadline(deadline_string):
     curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), '%d %B%Y')
     if curr_year_input < datetime.now():
-        return str(datetime.strptime(deadline_string + str(datetime.now().year+1), '%d %B%Y'))
+        return str(datetime.strptime(deadline_string + str(datetime.now().year + 1), '%d %B%Y'))
     else:
         return str(curr_year_input)
 

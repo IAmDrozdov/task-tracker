@@ -178,7 +178,9 @@ class Database:
             found_task.deadline = datetime_parser.get_deadline(deadline)
         if priority:
             found_task.priority = priority
-        if status:
+        if status == 'finished':
+            found_task.finish()
+        else:
             found_task.status = status
         if plus_tag:
             for tag in re.sub("[^\w]", " ", plus_tag).split():

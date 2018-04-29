@@ -1,5 +1,8 @@
 import copy
 import re
+from datetime import datetime
+
+from colorama import Fore
 
 from lib import calendar_custom as cc
 from lib import datetime_parser as dp
@@ -7,12 +10,10 @@ from lib.database import Database
 from lib.plan import Plan
 from lib.task import Task
 from lib.user import User
-from colorama import Fore
-from datetime import datetime
 
 
 def operation_user_add(db, nickname, force):
-    db.add_user(User(nickname))
+    db.add_user(User(nickname=nickname))
     if force:
         db.set_current_user(nickname)
 
@@ -60,8 +61,43 @@ def operation_task_remove(db, id):
     db.remove_task(id)
 
 
-def operation_task_show(db, id):
-    pass
+def task_print(tasks, colored, short=True, tags=None):
+    if colored:
+        priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
+    else:
+        priority_colors = [Fore.RESET] * 6
+
+    for task in tasks:
+        if tags:
+            if all(elem in task.tags for elem in re.sub("[^\w]", " ", tags).split()):
+                subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
+                print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
+            task_print(task.subtasks, colored, tags=tags)
+        elif short:
+            subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
+            print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
+        elif not short:
+            offset = '' if task.indent == 0 else task.indent * ' ' + task.indent * ' *'
+            print(priority_colors[task.priority - 1] + offset + '| {} | {}'.format(task.id, task.info))
+            task_print(task.subtasks, colored, False)
+
+
+def operation_task_show(db, choice, selected, all, colored):
+    if choice == 'id':
+        task = db.get_tasks(selected)
+        deadline_print = dp.parse_iso_pretty(task.deadline) if task.deadline else 'No deadline'
+        tags_print = ', '.join(task.tags) if len(task.tags) > 0 else 'No tags'
+        print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nCreated: {}\nLast change: {}\nTags: {}'
+              .format(task.info, task.id, deadline_print, task.status,
+                      dp.parse_iso_pretty(task.date), dp.parse_iso_pretty(task.last_change), tags_print))
+        print('Subtasks:')
+        task_print(task.subtasks, colored)
+    elif choice == 'tags':
+        task_print(db.get_tasks(), colored, tags=selected)
+    elif all:
+        task_print(db.get_tasks(), colored, False)
+    elif not choice:
+        task_print(db.get_tasks(), colored)
 
 
 def operation_task_finish(db, id):

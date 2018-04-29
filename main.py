@@ -35,7 +35,7 @@ def main():
         elif namespace.command == 'remove':
             co.operation_task_remove(db, namespace.id)
         elif namespace.command == 'show':
-            co.operation_task_show(db, namespace.id)
+            co.operation_task_show(db, namespace.to_show, namespace.selected, namespace.all, namespace.colored)
         elif namespace.command == 'finish':
             co.operation_task_finish(db, namespace.id)
         elif namespace.command == 'move':

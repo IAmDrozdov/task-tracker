@@ -1,8 +1,8 @@
-from lib.task import Task
 from datetime import datetime, timedelta
-from colorama import Fore
-from lib.notification import call
+
 import lib.datetime_parser as dp
+from lib.notification import call
+from lib.task import Task
 
 
 class Plan:
@@ -17,7 +17,7 @@ class Plan:
         self.period = None
         self.__dict__.update(**kwargs)
         if self.period_type == 'd':
-            self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
+            self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
                 .strftime("%Y-%m-%d %H:%M:%S")
 
     def create_task(self):
@@ -47,7 +47,7 @@ class Plan:
         return self.create_task()
 
     def inc_next(self):
-        self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
+        self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
             .strftime("%Y-%m-%d %H:%M:%S")
 
     def check_created(self, tasks):

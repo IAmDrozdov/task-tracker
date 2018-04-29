@@ -1,6 +1,8 @@
 import calendar
-from lib import datetime_parser
+
 from colorama import Fore, Back
+
+from lib import datetime_parser
 
 
 def is_match(self, month, year):
@@ -28,7 +30,7 @@ def print_month_calendar(container, month, year):
     day_counter = 0
 
     print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
-    for i in range(1, first_day+1):
+    for i in range(1, first_day + 1):
         if i != first_day:
             print('   ', end=' ')
         day_counter = day_counter + 1
