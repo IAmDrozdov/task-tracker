@@ -1,7 +1,7 @@
 from lib.task import Task
 from datetime import datetime, timedelta
 from colorama import Fore
-from lib.database import Database
+from lib.notification import call
 import lib.datetime_parser as dp
 
 
@@ -20,23 +20,15 @@ class Plan:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
                 .strftime("%Y-%m-%d %H:%M:%S")
 
-    def __str__(self):
-        created = '\nstatus: created' if self.is_created else '\nstatus: not created'
-        return ' '.join(['Info:', self.info, '\nID:', self.id, created])
-
-    def colored_print(self, colored):
-        if colored:
-            color = Fore.LIGHTCYAN_EX if self.is_created else Fore.RED
-        else:
-            color = Fore.WHITE
-        print(color + self.info, self.id)
-
     def create_task(self):
         new_task = Task(info=self.info, plan=self.id, id=self.id + '_p')
         self.is_created = True
         self.last_create = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.inc_next() if self.period_type == 'd' else None
         return new_task
+
+    def delta_period_next(self):
+        return dp.parse_iso(self.next_create) - datetime.now().date()
 
     def check_uncreated(self):
         if self.period_type == 'd':
@@ -54,12 +46,6 @@ class Plan:
                     return
         return self.create_task()
 
-    def delta_period_next(self):
-        return dp.parse_iso(self.next_create) - datetime.now().date()
-
-    def delta_period_last(self):
-        return dp.parse_iso(self.last_create) - datetime.now().date()
-
     def inc_next(self):
         self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period)))\
             .strftime("%Y-%m-%d %H:%M:%S")
@@ -74,12 +60,14 @@ class Plan:
         if hasattr(task, 'plan'):
             return True if task.plan == self.id else False
 
+    def delta_period_last(self):
+        return dp.parse_iso(self.last_create) - datetime.now().date()
+
     def check_created_days(self, tasks):
         if self.delta_period_last() != timedelta(days=0):
             self.is_created = False
             for task in tasks:
                 if self.is_mine(task):
-                    print(task)
                     return task
 
     def check_created_wdays(self, tasks):
@@ -94,9 +82,13 @@ class Plan:
         if not self.is_created:
             to_add = self.check_uncreated()
             if to_add:
+                call('New task', to_add.info)
                 database.add_task(to_add)
             else:
                 return
         else:
             to_remove = self.check_created(database.get_tasks())
-            database.remove_task(to_remove.id)
+            if to_remove:
+                if to_remove.status == "unfinished":
+                    call('Lost task', to_remove.info)
+                    database.remove_task(to_remove)

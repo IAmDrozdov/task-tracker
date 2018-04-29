@@ -25,8 +25,7 @@ def main():
             co.operation_user_info(db)
     #######################################
     if namespace.daemon:
-        for plan in db.get_plans():
-            plan.check(db)
+        co.daemon(db)
         return
     #######################################
     if namespace.target == 'task':
@@ -52,9 +51,9 @@ def main():
     #######################################
     elif namespace.target == 'plan':
         if namespace.command == 'add':
-            co.operation_plan_add(db, namespace.description, namespace.perion, namespace.time)
+            co.operation_plan_add(db, namespace.description, namespace.period, namespace.time)
         elif namespace.command == 'show':
-            co.operation_plan_show(db, namespace.id)
+            co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
 

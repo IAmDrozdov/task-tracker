@@ -7,6 +7,8 @@ from lib.database import Database
 from lib.plan import Plan
 from lib.task import Task
 from lib.user import User
+from colorama import Fore
+from datetime import datetime
 
 
 def operation_user_add(db, nickname, force):
@@ -28,7 +30,23 @@ def operation_user_remove(db, nickname):
 
 
 def operation_user_info(db):
-    db.get_current_user().print()
+    user = db.get_current_user()
+    tasks_print = []
+    plans_print = []
+    if user.tasks:
+        for task in user.tasks:
+            tasks_print.append(task.info)
+        tasks_print = 'tasks:\n' + ', '.join(tasks_print)
+    else:
+        tasks_print = 'No tasks'
+
+    if user.plans:
+        for plan in user.plans:
+            plans_print.append(plan.info)
+        plans_print = 'plans:\n' + ', '.join(plans_print)
+    else:
+        plans_print = 'No plans'
+    print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
 
 
 def operation_task_add(db, description, priority, deadline, tags, subtask):
@@ -85,9 +103,40 @@ def operation_plan_add(db, description, period, time):
                      time_in=dp.parse_time(time) if time else None))
 
 
-def operation_plan_show(db, id):
-    pass
+def operation_plan_show(db, id, colored):
+    if id:
+        plan = db.get_plans(id)
+        created = 'Status: created' if plan.is_created else 'Status: not created'
+        period_print = 'Period: every '
+        time_print = 'in ' + plan.time_in + " o'clock" if plan.time_in else ''
+        next_print = 'Next creating: '
+        if plan.period_type == 'd':
+            period_print += str(plan.period) + ' days'
+            next_print += dp.parse_iso_pretty(plan.next_create)
+        else:
+            weekdays = []
+            for day in plan.period:
+                weekdays.append(dp.get_weekday_word(day))
+            period_print += ', '.join(weekdays)
+            if len(plan.period) > 1:
+                next_print += dp.get_weekday_word(min(filter(lambda x: x > datetime.now().weekday(), plan.period)))
+            else:
+                next_print += dp.get_weekday_word(plan.period[0])
+        print('Information: {}\n{}\nID: {}\n{}\n{} {}'
+              .format(plan.info, created, plan.id, next_print, period_print, time_print))
+    else:
+        for plan in db.get_plans():
+            if colored:
+                color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
+            else:
+                color = Fore.RESET
+            print(color + '|ID {}| {}'.format(plan.id, plan.info))
 
 
 def operation_plan_remove(db, id):
     db.remove_plan(id)
+
+
+def daemon(db):
+    for plan in db.get_plans():
+        plan.check(db)

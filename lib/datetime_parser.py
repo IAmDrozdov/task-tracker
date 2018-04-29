@@ -24,9 +24,14 @@ def get_first_weekday(month, year):
     return date_datetime.weekday() + 1
 
 
-def get_weekday(str_weekday):
+def get_weekday_number(str_weekday):
     weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
     return weekdays.index(str_weekday[:3].lower())
+
+
+def get_weekday_word(number):
+    weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    return weekdays[number]
 
 
 def parse_period(period):
@@ -36,7 +41,7 @@ def parse_period(period):
         weekdays_digits_list = []
         weekdays_list = re.sub("[^\w]", " ", period).split()
         for day in weekdays_list:
-            weekdays_digits_list.append(get_weekday(day))
+            weekdays_digits_list.append(get_weekday_number(day))
         return [weekdays_digits_list, 'wd']
 
 
