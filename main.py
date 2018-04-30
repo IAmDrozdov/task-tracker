@@ -3,7 +3,6 @@
 
 
 import argcomplete
-
 import console_operations as co
 from lib.database import Database
 from parser import create_parser

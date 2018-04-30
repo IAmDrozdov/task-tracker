@@ -1,0 +1,25 @@
+{
+  "py/object": "lib.database.Database",
+  "current_user": "new",
+  "users": [
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "new",
+      "plans": [
+        {
+          "py/object": "lib.plan.Plan",
+          "id": "1",
+          "info": "new",
+          "is_created": false,
+          "last_create": "2018-04-30 06:32:55",
+          "next_create": "2018-05-01 00:00:00",
+          "period": 1,
+          "period_type": "d",
+          "time_in": null
+        }
+      ],
+      "tasks": []
+    }
+  ]
+}

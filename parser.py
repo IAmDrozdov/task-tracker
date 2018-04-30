@@ -4,7 +4,8 @@ import argparse
 def create_parser():
     parser = argparse.ArgumentParser()
     subparser_targets = parser.add_subparsers(dest='target')
-    parser.add_argument('-d', '--daemon', action='store_true', help='For running program as daemon')
+    parser.add_argument('-d', '--daemon', action='store_true', help='Running program as daemon')
+    parser.add_argument('-sd','--stop_daemon', action='store_true', help='Stop daemon')
 
     targets_task = subparser_targets.add_parser('task', help='Working with tasks')
     task_parser = targets_task.add_subparsers(dest='command')
@@ -93,6 +94,7 @@ def create_parser():
     show_plan.add_argument('-c', '--colored', action='store_true', help='Mark worked plans with another color')
 
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
+    remove_plan.add_argument('id', type=str, help='ID of plan to delete')
     remove_plan.add_argument('id', type=str, help='ID of plan to delete')
 
     return parser

@@ -1,14 +1,15 @@
 import copy
 import re
 from datetime import datetime
-from collections import namedtuple
 from colorama import Fore
-
+import time
+import threading
 from lib import calendar_custom as cc
 from lib import datetime_parser as dp
 from lib.database import Database
 from lib.plan import Plan
 from lib.task import Task
+from lib.notification import call
 from lib.user import User
 
 
@@ -180,6 +181,14 @@ def operation_plan_remove(db, id):
     db.remove_plan(id)
 
 
-def daemon(db):
-    for plan in db.get_plans():
-        plan.check(db)
+def check_plans(db):
+    while True:
+        call('work', 'dddd')
+        for plan in db.get_plans():
+            plan.check(db)
+        time.sleep(5)
+
+
+def daemon(db, end=False):
+    d = threading.Thread(name='daemon', daemon=True, target=check_plans(db))
+    d.start()
