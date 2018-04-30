@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+import argcomplete
+
 import console_operations as co
 from lib.database import Database
 from parser import create_parser
@@ -10,6 +12,7 @@ from parser import create_parser
 def main():
     db = Database('database.json')
     parser = create_parser()
+    argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
     if namespace.target == 'user':
