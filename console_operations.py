@@ -1,7 +1,7 @@
 import copy
 import re
 from datetime import datetime
-
+from collections import namedtuple
 from colorama import Fore
 
 from lib import calendar_custom as cc
@@ -101,6 +101,10 @@ def operation_task_show(db, choice, selected, all, colored):
 
 
 def operation_task_finish(db, id):
+    task_finish = db.get_tasks(id)
+    if hasattr(task_finish, 'owner'):
+        user_owner = db.get_users(task_finish.owner['nickname'])
+        Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split('_')).finish()
     db.change_task(id, status='finished')
 
 
@@ -117,13 +121,16 @@ def operation_task_change(db, id, info, deadline, priority, status, append_tags,
                    minus_tag=remove_tags)
 
 
-def operation_task_share(db, id_from, nickname_to, delete):
+def operation_task_share(db, id_from, nickname_to, delete, track):
     task_from = db.get_tasks(id_from)
     user_to = db.get_users(nickname_to)
     task_send = copy.deepcopy(task_from)
     task_send.id = Database.get_id(user_to.tasks)
     task_send.reset_sub_id()
+    if track:
+        task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
     user_to.tasks.append(task_send)
+    db.serialize()
     if delete:
         db.remove_task(id_from)
 

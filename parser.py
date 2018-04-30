@@ -49,6 +49,8 @@ def create_parser():
     share_task.add_argument('id_from', help='ID task what will be send')
     share_task.add_argument('nickname_to', help='Nickname user what will take task')
     share_task.add_argument('-d', '--delete', action='store_true', help='Deleting task from the sender')
+    share_task.add_argument('-t', '--track', action='store_true', help='if the user has completed the task, '
+                                                                       'complete own too')
 
     targets_calendar = subparser_targets.add_parser('calendar', help='Working with calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')

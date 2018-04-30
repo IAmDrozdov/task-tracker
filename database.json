@@ -1,0 +1,56 @@
+{
+  "py/object": "lib.database.Database",
+  "current_user": "maxim",
+  "users": [
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "sasha",
+      "plans": [],
+      "tasks": [
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-04-30 03:02:05",
+          "deadline": null,
+          "id": "1",
+          "indent": 0,
+          "info": "MIAXIM TRACK IT",
+          "last_change": "2018-04-30 03:02:05",
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "finished",
+          "subtasks": [],
+          "tags": []
+        }
+      ]
+    },
+    {
+      "py/object": "lib.user.User",
+      "archive": [],
+      "nickname": "maxim",
+      "plans": [],
+      "tasks": [
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-04-30 03:02:05",
+          "deadline": null,
+          "id": "1",
+          "indent": 0,
+          "info": "MIAXIM TRACK IT",
+          "last_change": "2018-04-30 03:02:52",
+          "owner": {
+            "id": "1",
+            "nickname": "sasha"
+          },
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "finished",
+          "subtasks": [],
+          "tags": []
+        }
+      ]
+    }
+  ]
+}

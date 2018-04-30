@@ -44,7 +44,8 @@ def main():
             co.operation_task_change(db, namespace.id, namespace.info, namespace.deadline, namespace.priority,
                                      namespace.status, namespace.append_tags, namespace.remove_tags)
         elif namespace.command == 'share':
-            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete)
+            print(namespace)
+            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete, namespace.track)
     #######################################
     elif namespace.target == 'calendar':
         co.operation_calendar_show(db.get_tasks(), namespace.date[0], namespace.date[1])
