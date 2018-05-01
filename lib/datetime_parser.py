@@ -1,11 +1,13 @@
 import re
 from datetime import datetime
+from lib.constants import Constants as const
 
 
 def get_deadline(deadline_string):
-    curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), '%d %B%Y')
+    input_format = '%d %B%Y'
+    curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), input_format)
     if curr_year_input < datetime.now():
-        return str(datetime.strptime(deadline_string + str(datetime.now().year + 1), '%d %B%Y'))
+        return str(datetime.strptime(deadline_string + str(datetime.now().year + 1), input_format))
     else:
         return str(curr_year_input)
 
@@ -15,7 +17,7 @@ def parse_iso_pretty(date_iso):
 
 
 def parse_iso(date_iso):
-    return datetime.strptime(date_iso, "%Y-%m-%d %H:%M:%S").date()
+    return datetime.strptime(date_iso, const.DATE_PATTERN).date()
 
 
 def get_first_weekday(month, year):
@@ -36,13 +38,13 @@ def get_weekday_word(number):
 
 def parse_period(period):
     if period.isdigit():
-        return [int(period), 'd']
+        return [int(period), const.REPEAT_DAY]
     else:
         weekdays_digits_list = []
         weekdays_list = re.sub("[^\w]", " ", period).split()
         for day in weekdays_list:
             weekdays_digits_list.append(get_weekday_number(day))
-        return [weekdays_digits_list, 'wd']
+        return [weekdays_digits_list, const.REPEAT_WEEKDAY]
 
 
 def parse_time(string_time):

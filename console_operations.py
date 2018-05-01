@@ -8,7 +8,6 @@ from colorama import Fore
 from lib import calendar_custom as cc
 from lib import datetime_parser as dp
 from lib.database import Database
-from lib.notification import call
 import lib.daemon as daemon
 from lib.plan import Plan
 from lib.task import Task
@@ -107,7 +106,7 @@ def operation_task_finish(db, id):
     task_finish = db.get_tasks(id)
     if hasattr(task_finish, 'owner'):
         user_owner = db.get_users(task_finish.owner['nickname'])
-        Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split('_')).finish()
+        Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
     db.change_task(id, status='finished')
 
 
@@ -185,7 +184,6 @@ def operation_plan_remove(db, id):
 
 def check_plans(db):
     while True:
-        call('work', 'dddd')
         for plan in db.get_plans():
             plan.check(db)
         time.sleep(10)

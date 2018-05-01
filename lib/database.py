@@ -2,7 +2,7 @@ import json
 import re
 
 import jsonpickle
-
+from lib.constants import Constants as const
 from lib import custom_exceptions
 from lib import datetime_parser
 
@@ -81,10 +81,10 @@ class Database:
             if len(list_to) == 0:
                 return '1'
             else:
-                pre_id = list_to[len(list_to) - 1].id.split('_')
-                return str(int(pre_id[len(pre_id) - 1]) + 1)
+                pre_id = list_to[-1].id.split(const.ID_DELIMITER)
+                return str(int(pre_id[-1]) + 1)
         else:
-            return str(int(list_to[len(list_to) - 1].id) + 1) if len(list_to) != 0 else '1'
+            return str(int(list_to[-1].id) + 1) if len(list_to) != 0 else '1'
 
     def check_current(self):
         if self.current_user:
@@ -132,7 +132,7 @@ class Database:
     @staticmethod
     def get_task_by_id(tasks, idx_mass):
         for task in tasks:
-            if int(task.id.split('_')[len(task.id.split('_')) - 1]) == int(idx_mass[0]):
+            if int(task.id.split(const.ID_DELIMITER)[-1]) == int(idx_mass[0]):
                 if len(idx_mass) > 1:
                     return Database.get_task_by_id(task.subtasks, idx_mass[1:])
                 else:
@@ -143,7 +143,7 @@ class Database:
         if id is None:
             return current.tasks
         else:
-            found_task = Database.get_task_by_id(current.tasks, id.split('_'))
+            found_task = Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER))
             if found_task:
                 return found_task
             else:
@@ -152,10 +152,10 @@ class Database:
     def add_task(self, new_task):
         current = self.check_current()
         if new_task.parent_id:
-            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split('_'))
+            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(const.ID_DELIMITER))
             if parent_task:
-                new_task.id = parent_task.id + '_' + Database.get_id(parent_task.subtasks, True)
-                new_task.indent = new_task.id.count('_')
+                new_task.id = parent_task.id + const.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
+                new_task.indent = new_task.id.count(const.ID_DELIMITER)
                 parent_task.subtasks.append(new_task)
             else:
                 raise custom_exceptions.TaskNotFound
@@ -178,16 +178,16 @@ class Database:
             found_task.deadline = datetime_parser.get_deadline(deadline)
         if priority:
             found_task.priority = priority
-        if status == 'finished':
+        if status == const.STATUS_FINISHED:
             found_task.finish()
         else:
             found_task.status = status
         if plus_tag:
-            for tag in re.sub("[^\w]", " ", plus_tag).split():
+            for tag in re.split("[^\w]", plus_tag):
                 found_task.tags.append(tag)
             found_task.tags = list(set(found_task.tags))
         if minus_tag:
-            for tag in re.sub("[^\w]", " ", minus_tag).split():
+            for tag in re.split("[^\w]", minus_tag):
                 found_task.tags.remove(tag)
         found_task.changed()
         self.serialize()

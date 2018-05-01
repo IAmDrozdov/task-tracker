@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+from lib.constants import Constants as const
 import lib.datetime_parser as dp
 from lib.notification import call
 from lib.task import Task
@@ -9,29 +9,29 @@ class Plan:
     def __init__(self, **kwargs):
         self.info = ''
         self.is_created = False
-        self.last_create = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.last_create = datetime.now().strftime(const.DATE_PATTERN)
         self.time_in = None
         self.period_type = None
         self.next_create = None
         self.id = None
         self.period = None
         self.__dict__.update(**kwargs)
-        if self.period_type == 'd':
+        if self.period_type == const.REPEAT_DAY:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
-                .strftime("%Y-%m-%d %H:%M:%S")
+                .strftime(const.DATE_PATTERN)
 
     def create_task(self):
         new_task = Task(info=self.info, plan=self.id, id=self.id + '_p')
         self.is_created = True
-        self.last_create = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.inc_next() if self.period_type == 'd' else None
+        self.last_create = datetime.now().strftime(const.DATE_PATTERN)
+        self.inc_next() if self.period_type == const.REPEAT_DAY else None
         return new_task
 
     def delta_period_next(self):
         return dp.parse_iso(self.next_create) - datetime.now().date()
 
     def check_uncreated(self):
-        if self.period_type == 'd':
+        if self.period_type == const.REPEAT_DAY:
             if self.delta_period_next() != timedelta(days=0):
                 if self.time_in:
                     if int(self.time_in) > datetime.now().hour:
@@ -48,10 +48,10 @@ class Plan:
 
     def inc_next(self):
         self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
-            .strftime("%Y-%m-%d %H:%M:%S")
+            .strftime(const.DATE_PATTERN)
 
     def check_created(self, tasks):
-        if self.period_type == 'd':
+        if self.period_type == const.REPEAT_DAY:
             return self.check_created_days(tasks)
         else:
             return self.check_created_wdays(tasks)
@@ -89,6 +89,6 @@ class Plan:
         else:
             to_remove = self.check_created(database.get_tasks())
             if to_remove:
-                if to_remove.status == "unfinished":
+                if to_remove.status == const.STATUS_UNFINISHED:
                     call('Lost task', to_remove.info)
                     database.remove_task(to_remove)
