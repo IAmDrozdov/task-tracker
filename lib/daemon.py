@@ -1,6 +1,7 @@
 import os
-from signal import SIGTERM
 import sys
+from signal import SIGTERM
+
 import lib.custom_exceptions as ce
 from lib.constants import Constants as const
 

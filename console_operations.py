@@ -1,14 +1,15 @@
+import calendar
 import copy
 import re
 import time
 from datetime import datetime
-import calendar
+
 from colorama import Fore, Back
 
-from lib import calendar_custom as cc
-from lib import datetime_parser as dp
-from lib.database import Database
 import lib.daemon as daemon
+from lib import datetime_parser as dp
+from lib.constants import Constants as const
+from lib.database import Database
 from lib.plan import Plan
 from lib.task import Task
 from lib.user import User
@@ -55,7 +56,7 @@ def operation_user_info(db):
 def operation_task_add(db, description, priority, deadline, tags, subtask):
     db.add_task(Task(info=description, priority=priority if priority else 1,
                      deadline=dp.get_deadline(deadline) if deadline else None,
-                     tags=re.sub("[^\w]", " ", tags).split() if tags else [],
+                     tags=re.split("[^\w]", tags) if tags else [],
                      parent_id=subtask))
 
 
@@ -71,7 +72,7 @@ def task_print(tasks, colored, short=True, tags=None):
 
     for task in tasks:
         if tags:
-            if all(elem in task.tags for elem in re.sub("[^\w]", " ", tags).split()):
+            if all(elem in task.tags for elem in re.split("[^\w]", tags)):
                 subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
                 print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
             task_print(task.subtasks, colored, tags=tags)
@@ -139,7 +140,7 @@ def operation_task_share(db, id_from, nickname_to, delete, track):
 
 def operation_calendar_show(tasks, month, year):
     cal = calendar.Calendar()
-    marked_dates = cc.mark_dates(tasks, month, year)
+    marked_dates = dp.mark_dates(tasks, month, year)
     first_day = dp.get_first_weekday(month, year)
     day_counter = 0
 
@@ -180,7 +181,7 @@ def operation_plan_show(db, id, colored):
         period_print = 'Period: every '
         time_print = 'in ' + plan.time_in + " o'clock" if plan.time_in else ''
         next_print = 'Next creating: '
-        if plan.period_type == 'd':
+        if plan.period_type == const.REPEAT_DAY:
             period_print += str(plan.period) + ' days'
             next_print += dp.parse_iso_pretty(plan.next_create)
         else:

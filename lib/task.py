@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from lib.database import Database
 from lib.constants import Constants as const
+from lib.database import Database
 
 
 class Task:

@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+
 from lib.constants import Constants as const
 
 
@@ -41,7 +42,7 @@ def parse_period(period):
         return [int(period), const.REPEAT_DAY]
     else:
         weekdays_digits_list = []
-        weekdays_list = re.sub("[^\w]", " ", period).split()
+        weekdays_list = re.split("[^\w]", period)
         for day in weekdays_list:
             weekdays_digits_list.append(get_weekday_number(day))
         return [weekdays_digits_list, const.REPEAT_WEEKDAY]
@@ -52,3 +53,21 @@ def parse_time(string_time):
         return string_time.split(':')
     else:
         return string_time
+
+
+def is_match(self, month, year):
+    if self.deadline:
+        return True if parse_iso(self.deadline).month == month and \
+                       parse_iso(self.deadline).year == year else False
+    else:
+        return False
+
+
+def mark_dates(tasks, month, year):
+    marked_dates = []
+    for task in tasks:
+        if is_match(task, month, year):
+            new_day = parse_iso(task.deadline).day
+            if new_day not in marked_dates:
+                marked_dates.append(new_day)
+    return marked_dates
