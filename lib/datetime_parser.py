@@ -39,20 +39,20 @@ def get_weekday_word(number):
 
 def parse_period(period):
     if period.isdigit():
-        return [int(period), const.REPEAT_DAY]
+        return {'period': int(period), 'type': const.REPEAT_DAY}
     else:
         weekdays_digits_list = []
         weekdays_list = re.split("[^\w]", period)
         for day in weekdays_list:
             weekdays_digits_list.append(get_weekday_number(day))
-        return [weekdays_digits_list, const.REPEAT_WEEKDAY]
+        return {'period': weekdays_digits_list, 'type': const.REPEAT_WEEKDAY}
 
 
 def parse_time(string_time):
     if ':' in string_time:
-        return string_time.split(':')
+        return {'hour': int(string_time.split(':')[0]), 'minutes': int(string_time.split(':')[1]), 'with_minutes': True}
     else:
-        return string_time
+        return {'hour': int(string_time), 'with_minutes': False}
 
 
 def is_match(self, month, year):

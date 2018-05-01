@@ -6,10 +6,11 @@ import argcomplete
 import console_operations as co
 from lib.database import Database
 from parser import create_parser
+from lib.constants import Constants as const
 
 
 def main():
-    db = Database('database.json')
+    db = Database(const.DATABASE_PATH)
     parser = create_parser()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()

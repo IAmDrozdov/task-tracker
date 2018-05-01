@@ -6,3 +6,4 @@ class Constants:
     REPEAT_DAY = 'd'
     REPEAT_WEEKDAY = 'wd'
     ID_DELIMITER = '_'
+    DATABASE_PATH = 'database.json'

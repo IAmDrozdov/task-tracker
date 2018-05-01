@@ -169,8 +169,8 @@ def operation_calendar_show(tasks, month, year):
 
 def operation_plan_add(db, description, period, time):
     period_options = dp.parse_period(period)
-    db.add_plan(Plan(info=description, period=period_options[0],
-                     period_type=period_options[1],
+    db.add_plan(Plan(info=description, period=period_options['period'],
+                     period_type=period_options['type'],
                      time_in=dp.parse_time(time) if time else None))
 
 

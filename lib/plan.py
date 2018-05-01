@@ -11,7 +11,7 @@ class Plan:
         self.info = ''
         self.is_created = False
         self.last_create = datetime.now().strftime(const.DATE_PATTERN)
-        self.time_in = None
+        self.time_at = None
         self.period_type = None
         self.next_create = None
         self.id = None
@@ -31,21 +31,28 @@ class Plan:
     def delta_period_next(self):
         return dp.parse_iso(self.next_create) - datetime.now().date()
 
-    def check_uncreated(self):
-        if self.period_type == const.REPEAT_DAY:
-            if self.delta_period_next() != timedelta(days=0):
-                if self.time_in:
-                    if int(self.time_in) > datetime.now().hour:
-                        return
-                return
+    def check_time(self):
+        if self.time_at:
+            if self.time_at['with_minutes']:
+                if self.time_at['hours'] >= datetime.now().hour:
+                    if self.time_at['minutes'] >= datetime.now().minute:
+                        return True
+            else:
+                if self.time_at['hours'] >= datetime.now().hour:
+                    return True
         else:
-            for wday in self.period:
-                if datetime.now().weekday() == wday:
-                    if self.time_in:
-                        if int(self.time_in) > datetime.now().hour:
-                            return
-                    return
-        return self.create_task()
+            return True
+
+    def check_uncreated(self):
+        if self.check_time():
+            if self.period_type == const.REPEAT_DAY:
+                if self.delta_period_next() != timedelta(days=0):
+                    return False
+            else:
+                for wday in self.period:
+                    if datetime.now().weekday() == wday:
+                        return False
+            return self.create_task()
 
     def inc_next(self):
         self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
