@@ -2,8 +2,8 @@ import copy
 import re
 import time
 from datetime import datetime
-
-from colorama import Fore
+import calendar
+from colorama import Fore, Back
 
 from lib import calendar_custom as cc
 from lib import datetime_parser as dp
@@ -138,7 +138,32 @@ def operation_task_share(db, id_from, nickname_to, delete, track):
 
 
 def operation_calendar_show(tasks, month, year):
-    cc.print_month_calendar(tasks, month, year)
+    cal = calendar.Calendar()
+    marked_dates = cc.mark_dates(tasks, month, year)
+    first_day = dp.get_first_weekday(month, year)
+    day_counter = 0
+
+    print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
+    for i in range(1, first_day + 1):
+        if i != first_day:
+            print('   ', end=' ')
+        day_counter = day_counter + 1
+    else:
+        print(' ', end='')
+
+    for day in cal.itermonthdays(year, month):
+        task_foreground = Fore.WHITE
+        if day in marked_dates:
+            task_foreground = Fore.RED
+
+        if day != 0:
+            if (day_counter % 7) == 0:
+                print(task_foreground + '{num:02d}'.format(num=day), end='\n ')
+            else:
+                print(task_foreground + '{num:02d}'.format(num=day), end='  ')
+            day_counter = day_counter + 1
+    else:
+        print()
 
 
 def operation_plan_add(db, description, period, time):
