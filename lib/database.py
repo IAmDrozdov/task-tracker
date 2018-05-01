@@ -1,6 +1,5 @@
 import json
 import re
-import copy
 
 import jsonpickle
 
@@ -11,6 +10,7 @@ from lib.constants import Constants as const
 
 class Database:
     def __init__(self, path):
+
         try:
             with open(path, mode='r', encoding='utf-8') as db:
                 json_file = db.read()
