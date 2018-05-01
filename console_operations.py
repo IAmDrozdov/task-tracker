@@ -108,14 +108,16 @@ def operation_task_finish(db, id):
     if hasattr(task_finish, 'owner'):
         user_owner = db.get_users(task_finish.owner['nickname'])
         Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
-    db.change_task(id, status='finished')
+        user_owner.archive_task(task_finish.owner['id'])
+    db.change_task(id, status=const.STATUS_FINISHED)
+    db.get_current_user().archive_task(id)
+    db.serialize()
 
 
 def operation_task_move(db, id_from, id_to):
     task_from = db.get_tasks(id_from)
-    send_task = copy.deepcopy(task_from)
     task_to = db.get_tasks(id_to)
-    task_to.append_task(send_task)
+    task_to.append_task(copy.deepcopy(task_from))
     db.remove_task(id_from)
 
 
@@ -171,7 +173,7 @@ def operation_plan_add(db, description, period, time):
     period_options = dp.parse_period(period)
     db.add_plan(Plan(info=description, period=period_options['period'],
                      period_type=period_options['type'],
-                     time_in=dp.parse_time(time) if time else None))
+                     time_at=dp.parse_time(time) if time else None))
 
 
 def operation_plan_show(db, id, colored):
@@ -179,7 +181,7 @@ def operation_plan_show(db, id, colored):
         plan = db.get_plans(id)
         created = 'Status: created' if plan.is_created else 'Status: not created'
         period_print = 'Period: every '
-        time_print = 'in ' + plan.time_in + " o'clock" if plan.time_in else ''
+        time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
         next_print = 'Next creating: '
         if plan.period_type == const.REPEAT_DAY:
             period_print += str(plan.period) + ' days'
@@ -221,3 +223,7 @@ def run_daemon(db):
 
 def stop_daemon():
     daemon.stop()
+
+
+def restart_daemon(db):
+    daemon.restart(check_plans, db)

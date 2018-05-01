@@ -25,3 +25,9 @@ def stop():
         os.kill(pid, SIGTERM)
     else:
         raise ce.DaemonIsNotStarted
+
+
+def restart(func, database):
+    if os.path.exists(const.PID_FILE):
+        stop()
+        run(func, database)

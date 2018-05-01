@@ -61,6 +61,7 @@ def main():
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
+    co.restart_daemon(db)
 
 
 if __name__ == '__main__':

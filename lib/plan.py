@@ -22,7 +22,7 @@ class Plan:
                 .strftime(const.DATE_PATTERN)
 
     def create_task(self):
-        new_task = Task(info=self.info, plan=self.id, id=self.id + '_p')
+        new_task = Task(info=self.info, plan=self.id)
         self.is_created = True
         self.last_create = datetime.now().strftime(const.DATE_PATTERN)
         self.inc_next() if self.period_type == const.REPEAT_DAY else None
@@ -34,11 +34,11 @@ class Plan:
     def check_time(self):
         if self.time_at:
             if self.time_at['with_minutes']:
-                if self.time_at['hours'] >= datetime.now().hour:
-                    if self.time_at['minutes'] >= datetime.now().minute:
+                if self.time_at['hour'] <= datetime.now().hour:
+                    if self.time_at['minutes'] <= datetime.now().minute:
                         return True
             else:
-                if self.time_at['hours'] >= datetime.now().hour:
+                if self.time_at['hour'] <= datetime.now().hour:
                     return True
         else:
             return True
@@ -50,7 +50,7 @@ class Plan:
                     return False
             else:
                 for wday in self.period:
-                    if datetime.now().weekday() == wday:
+                    if datetime.now().weekday() != wday:
                         return False
             return self.create_task()
 
@@ -99,4 +99,4 @@ class Plan:
             if to_remove:
                 if to_remove.status == const.STATUS_UNFINISHED:
                     call('Lost task', to_remove.info)
-                    database.remove_task(to_remove)
+                    database.remove_task(to_remove.id)

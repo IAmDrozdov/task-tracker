@@ -1,0 +1,56 @@
+{
+  "py/object": "lib.database.Database",
+  "current_user": "s",
+  "users": [
+    {
+      "py/object": "lib.user.User",
+      "archive": [
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-05-01 23:44:53",
+          "deadline": null,
+          "id": "1",
+          "indent": 0,
+          "info": "new",
+          "last_change": "2018-05-01 23:44:53",
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "finished",
+          "subtasks": [],
+          "tags": []
+        }
+      ],
+      "nickname": "f",
+      "plans": [],
+      "tasks": []
+    },
+    {
+      "py/object": "lib.user.User",
+      "archive": [
+        {
+          "py/object": "lib.task.Task",
+          "date": "2018-05-01 23:44:53",
+          "deadline": null,
+          "id": "1",
+          "indent": 0,
+          "info": "new",
+          "last_change": "2018-05-01 23:45:20",
+          "owner": {
+            "id": "1",
+            "nickname": "f"
+          },
+          "parent_id": null,
+          "plan": null,
+          "priority": 1,
+          "status": "finished",
+          "subtasks": [],
+          "tags": []
+        }
+      ],
+      "nickname": "s",
+      "plans": [],
+      "tasks": []
+    }
+  ]
+}

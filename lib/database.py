@@ -1,5 +1,6 @@
 import json
 import re
+import copy
 
 import jsonpickle
 
@@ -56,6 +57,7 @@ class Database:
         self.serialize()
 
     def remove_user(self, nickname):
+        self.check_current()
         for user in self.users:
             if user.nickname == nickname:
                 if self.current_user == nickname:
@@ -139,16 +141,18 @@ class Database:
                 else:
                     return task
 
-    def get_tasks(self, id=None):
+    def get_tasks(self, id=None, archive=False):
         current = self.check_current()
-        if id is None:
-            return current.tasks
-        else:
+        if id:
             found_task = Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER))
             if found_task:
                 return found_task
             else:
                 raise custom_exceptions.TaskNotFound
+        elif archive:
+            return current.archive
+        else:
+            return current.tasks
 
     def add_task(self, new_task):
         current = self.check_current()
@@ -168,10 +172,10 @@ class Database:
     def remove_task(self, id):
         current = self.check_current()
         Database.rec_del_task(current.tasks, id)
-
         self.serialize()
 
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
+        self.check_current()
         found_task = self.get_tasks(id)
         if info:
             found_task.info = info
