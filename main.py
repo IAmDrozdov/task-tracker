@@ -244,9 +244,10 @@ def operation_task_share(current_user_tasks, container, options):
 
 
 def operation_plan_add(container, options):
-    perion_options = datetime_parser.parse_period(options.period)
+    period_options = datetime_parser.parse_period(options.period)
+    p_time = datetime_parser.parse_time(options.time) if options.time else None
     new_plan = Plan(info=options.description, id=Task.get_actual_index(container),
-                    period=perion_options[0], period_type=perion_options[1])
+                    period=period_options[0], period_type=period_options[1], time_in=p_time)
     container.append(new_plan)
 
 

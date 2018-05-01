@@ -42,3 +42,10 @@ def parse_period(period):
             weekdays_digits_list.append(get_weekday(day))
         return [weekdays_digits_list, 'wd']
 
+
+def parse_time(string_time):
+    if ':' in string_time:
+        return string_time.split(':')
+    else:
+        return string_time
+
