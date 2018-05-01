@@ -5,7 +5,7 @@ def create_parser():
     parser = argparse.ArgumentParser()
     subparser_targets = parser.add_subparsers(dest='target')
     parser.add_argument('-d', '--daemon', action='store_true', help='Running program as daemon')
-    parser.add_argument('-sd','--stop_daemon', action='store_true', help='Stop daemon')
+    parser.add_argument('-sd', '--stop_daemon', action='store_true', help='Stop daemon')
 
     targets_task = subparser_targets.add_parser('task', help='Working with tasks')
     task_parser = targets_task.add_subparsers(dest='command')

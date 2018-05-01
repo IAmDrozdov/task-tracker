@@ -1,15 +1,17 @@
 import copy
 import re
-from datetime import datetime
-from colorama import Fore
 import time
-import threading
+from datetime import datetime
+
+from colorama import Fore
+
 from lib import calendar_custom as cc
 from lib import datetime_parser as dp
 from lib.database import Database
+from lib.notification import call
+import lib.daemon as daemon
 from lib.plan import Plan
 from lib.task import Task
-from lib.notification import call
 from lib.user import User
 
 
@@ -186,9 +188,12 @@ def check_plans(db):
         call('work', 'dddd')
         for plan in db.get_plans():
             plan.check(db)
-        time.sleep(5)
+        time.sleep(10)
 
 
-def daemon(db, end=False):
-    d = threading.Thread(name='daemon', daemon=True, target=check_plans(db))
-    d.start()
+def run_daemon(db):
+    daemon.run(check_plans, db)
+
+
+def stop_daemon():
+    daemon.stop()

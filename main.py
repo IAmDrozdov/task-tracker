@@ -27,8 +27,10 @@ def main():
             co.operation_user_info(db)
     #######################################
     if namespace.daemon:
-        co.daemon(db)
+        co.run_daemon(db)
         return
+    elif namespace.stop_daemon:
+        co.stop_daemon()
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':

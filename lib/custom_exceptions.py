@@ -16,3 +16,11 @@ class PlanNotFound(Exception):
 
 class TaskNotFound(Exception):
     pass
+
+
+class DaemonAlreadyStarted(Exception):
+    pass
+
+
+class DaemonIsNotStarted(Exception):
+    pass
