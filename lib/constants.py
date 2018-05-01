@@ -2,6 +2,9 @@ from lib.config import Config
 
 
 class Constants:
+    """
+    Usefull for project constants
+    """
     config = Config('config.ini')
     PID_FILE = config.get_config_field('pid')
     STATUS_FINISHED = config.get_config_field('status_finished')
