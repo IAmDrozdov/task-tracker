@@ -1,7 +1,7 @@
 import os
 import sys
 from signal import SIGTERM
-
+import tempfile
 import lib.custom_exceptions as ce
 from lib.constants import Constants as const
 
@@ -15,24 +15,38 @@ def run(func, database):
     pid = os.fork()
     if pid > 0:
         sys.exit(0)
-    if os.path.exists(const.PID_FILE):
-        raise ce.DaemonAlreadyStarted
-    with open(const.PID_FILE, 'w') as f:
+    try:
+        if os.path.exists(read_from_file(const.PID_PATH_FILE)):
+            raise ce.DaemonAlreadyStarted
+    except FileNotFoundError:
+        open(const.PID_PATH_FILE, 'a').close()
+    with tempfile.TemporaryFile('w') as f:
         f.write(str(os.getpid()))
+    tmp = tempfile.NamedTemporaryFile()
+    write_to_file(tmp.name, str(os.getpid()))
+    write_to_file(const.PID_PATH_FILE, tmp.name)
     func(database)
+
+
+def read_from_file(path: str):
+    with open(path, 'r') as file:
+        return file.read()
+
+
+def write_to_file(path: str, value: str):
+    with open(path, 'w') as file:
+        file.write(value)
 
 
 def stop():
     """
     Stop daemon via PID
     """
-    if os.path.exists(const.PID_FILE):
-        with open(const.PID_FILE, 'r') as f:
-            pid = int(f.read())
-        os.remove(const.PID_FILE)
+    pid_path = read_from_file(const.PID_PATH_FILE)
+    with open(pid_path) as pid_file:
+        pid = int(pid_file.read())
+        os.remove(const.PID_PATH_FILE)
         os.kill(pid, SIGTERM)
-    else:
-        raise ce.DaemonIsNotStarted
 
 
 def restart(func, database):
@@ -41,6 +55,6 @@ def restart(func, database):
     :param func: function to run in background
     :param database: argument of function
     """
-    if os.path.exists(const.PID_FILE):
+    if os.path.exists(const.PID_PATH_FILE):
         stop()
         run(func, database)

@@ -10,7 +10,7 @@ from lib.constants import Constants as const
 
 
 def main():
-    db = Database(const.DATABASE_PATH)
+    db = Database()
     parser = create_parser()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()

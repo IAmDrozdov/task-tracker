@@ -214,7 +214,7 @@ def check_plans(db):
     while True:
         for plan in db.get_plans():
             plan.check(db)
-        time.sleep(10)
+        time.sleep(5)
 
 
 def run_daemon(db):
