@@ -4,3 +4,5 @@ lib/__pycache__/
 venv/
 pid.ini
 database.json
+logging.log
+config.ini

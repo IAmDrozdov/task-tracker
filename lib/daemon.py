@@ -62,3 +62,4 @@ def restart(func, database):
     if os.path.exists(const.PID_PATH_FILE):
         stop()
         run(func, database)
+
