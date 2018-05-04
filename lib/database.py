@@ -199,7 +199,7 @@ class Database:
                     else:
                         return task
 
-    def get_tasks(self, id=None, archive=False):
+    def get_tasks(self, id=None, archive=None):
         """
         Get list of tasks or task by id or archve tasks
         :param id: id of task to return
@@ -207,14 +207,19 @@ class Database:
         :return: list of tasks, archive tasks or task with this id
         """
         current = self.check_current()
-        if id:
+        if id and archive is None:
             found_task = Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER))
             if found_task:
                 return found_task
             else:
                 raise ce.TaskNotFound
         elif archive:
-            return current.archive
+            if id is None:
+                return current.archive
+            else:
+                for task in current.archive:
+                    if task.id == id:
+                        return task
         else:
             return current.tasks
 
@@ -237,14 +242,20 @@ class Database:
             current.tasks.append(new_task)
         self.serialize()
 
-    def remove_task(self, id):
+    def remove_task(self, id, archive=None):
         """
         remove task from current user tasks
+        :param archive: remove from archive if "true"
         :param id: id of task to delete
         """
         current = self.check_current()
-        if not Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER), True):
-            raise ce.TaskNotFound
+        if not archive:
+            if not Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER), True):
+                raise ce.TaskNotFound
+        else:
+            to_remove = self.get_tasks(id, True)
+            if to_remove:
+                current.archive.remove(to_remove)
         self.serialize()
 
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):

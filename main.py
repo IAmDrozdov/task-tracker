@@ -14,8 +14,6 @@ def main():
     parser = create_parser()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
-
-    print(namespace)
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
@@ -52,6 +50,8 @@ def main():
                                      namespace.status, namespace.append_tags, namespace.remove_tags)
         elif namespace.command == 'share':
             co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete, namespace.track)
+        elif namespace.command == 'restore':
+            co.operation_task_restore(db, namespace.id)
     #######################################
     elif namespace.target == 'calendar':
         co.operation_calendar_show(db.get_tasks(), namespace.date[0], namespace.date[1])

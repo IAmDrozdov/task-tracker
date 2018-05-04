@@ -4,7 +4,7 @@ import argparse
 def create_parser():
     parser = argparse.ArgumentParser()
     subparser_targets = parser.add_subparsers(dest='target')
-    parser.add_argument('-d', '--daemon', action='store_true', help='Running program as daemon')
+    parser.add_argument('-d', '--daemon', action='store_true', help='Running prdogram as daemon')
     parser.add_argument('-sd', '--stop_daemon', action='store_true', help='Stop daemon')
 
     targets_task = subparser_targets.add_parser('task', help='Working with tasks')
@@ -52,6 +52,8 @@ def create_parser():
     share_task.add_argument('-d', '--delete', action='store_true', help='Deleting task from the sender')
     share_task.add_argument('-t', '--track', action='store_true', help='if the user has completed the task, '
                                                                        'complete own too')
+    restore_task = task_parser.add_parser('restore', help='Restore task from archive')
+    restore_task.add_argument('id', type=str, help='ID of task to restore')
 
     targets_calendar = subparser_targets.add_parser('calendar', help='Working with calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')

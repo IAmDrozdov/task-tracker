@@ -47,7 +47,14 @@ class Task:
         """
         self.status = const.STATUS_FINISHED
         for task in self.subtasks:
-            task.status = const.STATUS_FINISHED
+            task.finish()
+
+    def unfinish(self):
+        """
+         Unfinish self and all subtasks
+         """
+        self.status = const.STATUS_UNFINISHED
+        for task in self.subtasks:
             task.finish()
 
     def reset_sub_id(self):

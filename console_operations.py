@@ -375,3 +375,12 @@ def stop_daemon():
 
 def restart_daemon(db):
     daemon.restart(check_plans, db)
+
+
+def operation_task_restore(db, id):
+    restore_task = copy.deepcopy(db.get_tasks(id, True))
+    restore_task.id = Database.get_id(db.get_tasks())
+    restore_task.reset_sub_id()
+    restore_task.unfinish()
+    db.add_task(restore_task)
+    db.remove_task(id, True)
