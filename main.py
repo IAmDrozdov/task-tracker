@@ -3,10 +3,10 @@
 
 
 import argcomplete
+
 import console_operations as co
 from lib.database import Database
 from parser import create_parser
-from lib.constants import Constants as const
 
 
 def main():

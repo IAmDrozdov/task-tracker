@@ -91,7 +91,11 @@ def parse_time(string_time):
     :return: depending on param return dict with type and value of time
     """
     if ':' in string_time:
-        return {'hour': int(string_time.split(':')[0]), 'minutes': int(string_time.split(':')[1]), 'with_minutes': True}
+        hm_time = {'hour': int(string_time.split(':')[0]), 'minutes': int(string_time.split(':')[1]),
+                   'with_minutes': True}
+        if hm_time['hour'] > 24 or hm_time['hour'] < 0 or hm_time['minutes'] > 60 or hm_time['minutes'] < 0:
+            raise ValueError
+        return hm_time
     else:
         return {'hour': int(string_time), 'with_minutes': False}
 

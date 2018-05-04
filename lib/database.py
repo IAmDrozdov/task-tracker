@@ -3,7 +3,7 @@ import re
 
 import jsonpickle
 
-from lib import custom_exceptions
+from lib import custom_exceptions as ce
 from lib import datetime_parser
 from lib.constants import Constants as const
 
@@ -42,7 +42,7 @@ class Database:
         """
         for user in self.users:
             if user.nickname == nickname:
-                raise custom_exceptions.UserAlreadyExist
+                raise ce.UserAlreadyExist
 
     def add_user(self, new_user):
         """
@@ -64,7 +64,7 @@ class Database:
                 self.serialize()
                 break
         else:
-            raise custom_exceptions.UserNotFound
+            raise ce.UserNotFound
 
     def get_current_user(self):
         """
@@ -94,7 +94,7 @@ class Database:
                 self.serialize()
                 break
         else:
-            raise custom_exceptions.UserNotFound
+            raise ce.UserNotFound
 
     def get_users(self, nickname=None):
         """
@@ -109,7 +109,7 @@ class Database:
                 if user.nickname == nickname:
                     return user
             else:
-                raise custom_exceptions.UserNotFound
+                raise ce.UserNotFound
 
     @staticmethod
     def get_id(list_to, sub=False):
@@ -138,7 +138,7 @@ class Database:
                 if user.nickname == self.current_user:
                     return user
         else:
-            raise custom_exceptions.UserNotAuthorized
+            raise ce.UserNotAuthorized
 
     def add_plan(self, new_plan):
         """
@@ -160,6 +160,7 @@ class Database:
         for task in self.get_tasks():
             if task.plan == id:
                 self.remove_task(task.id)
+                break
         self.serialize()
 
     def get_plans(self, id=None):
@@ -170,44 +171,33 @@ class Database:
         """
         current = self.check_current()
         if id is None:
-            return [plan for plan in current.plans]
+            return current.plans
         else:
             for plan in current.plans:
                 if plan.id == id:
                     return plan
             else:
-                raise custom_exceptions.PlanNotFound
+                raise ce.PlanNotFound
 
     @staticmethod
-    def rec_del_task(tasks, id):
-        """
-        Recursively delete task
-        :param tasks: list of tasks where should delete
-        :param id: id of task to delete
-        :return: just to stop recursion
-        """
-        if len(tasks) > 0:
-            for task in tasks:
-                if task.id == id:
-                    tasks.remove(task)
-                    return
-                else:
-                    Database.rec_del_task(task.subtasks, id)
-
-    @staticmethod
-    def get_task_by_id(tasks, idx_mass):
+    def get_task_by_id(tasks, idx_mass, remove=False):
         """
         Recursively search task in list of tasks via id. Comparing each level of tasks with each number in massive of id
         :param tasks: list of tasks
         :param idx_mass: splitted id of task to search
+        :param remove: if True delete founded task
         :return: object task with this id
         """
         for task in tasks:
             if int(task.id.split(const.ID_DELIMITER)[-1]) == int(idx_mass[0]):
                 if len(idx_mass) > 1:
-                    return Database.get_task_by_id(task.subtasks, idx_mass[1:])
+                    return Database.get_task_by_id(task.subtasks, idx_mass[1:], remove)
                 else:
-                    return task
+                    if remove:
+                        tasks.remove(task)
+                        return True
+                    else:
+                        return task
 
     def get_tasks(self, id=None, archive=False):
         """
@@ -222,7 +212,7 @@ class Database:
             if found_task:
                 return found_task
             else:
-                raise custom_exceptions.TaskNotFound
+                raise ce.TaskNotFound
         elif archive:
             return current.archive
         else:
@@ -241,7 +231,7 @@ class Database:
                 new_task.indent = new_task.id.count(const.ID_DELIMITER)
                 parent_task.subtasks.append(new_task)
             else:
-                raise custom_exceptions.TaskNotFound
+                raise ce.TaskNotFound
         else:
             new_task.id = Database.get_id(current.tasks)
             current.tasks.append(new_task)
@@ -253,7 +243,8 @@ class Database:
         :param id: id of task to delete
         """
         current = self.check_current()
-        Database.rec_del_task(current.tasks, id)
+        if not Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER), True):
+            raise ce.TaskNotFound
         self.serialize()
 
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):

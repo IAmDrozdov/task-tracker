@@ -14,3 +14,4 @@ class Constants:
     REPEAT_WEEKDAY = 'wd'
     ID_DELIMITER = config.get_config_field('delimiter')
     DATABASE_PATH = config.get_config_field('database')
+    LOGGING_PATH = config.get_config_field('logger_output')

@@ -95,6 +95,5 @@ def create_parser():
 
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
     remove_plan.add_argument('id', type=str, help='ID of plan to delete')
-    remove_plan.add_argument('id', type=str, help='ID of plan to delete')
 
     return parser

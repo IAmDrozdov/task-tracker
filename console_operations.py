@@ -6,62 +6,118 @@ from datetime import datetime
 
 from colorama import Fore, Back
 
+import lib.custom_exceptions as ce
 import lib.daemon as daemon
 from lib import datetime_parser as dp
 from lib.constants import Constants as const
 from lib.database import Database
+from lib.loger import logger
 from lib.plan import Plan
 from lib.task import Task
 from lib.user import User
 
 
 def operation_user_add(db, nickname, force):
-    db.add_user(User(nickname=nickname))
-    if force:
-        db.set_current_user(nickname)
+    try:
+        db.add_user(User(nickname=nickname))
+        if force:
+            db.set_current_user(nickname)
+    except ce.UserAlreadyExist:
+        print('User with nickname "{}" already exist'.format(nickname))
+        logger().error('Tried to add existing user with nickname "{}"'.format(nickname))
+    except ce.UserNotAuthorized:
+        print('Use login to sign in or add new user')
+        logger().error('Tried to work without authorization')
+    else:
+        logger().debug('Created user "{}"'.format(nickname))
+        if force:
+            logger().debug('Current user switched to "{}"'.format(nickname))
 
 
 def operation_user_login(db, nickname):
-    db.set_current_user(nickname)
+    try:
+        db.set_current_user(nickname)
+    except ce.UserNotFound:
+        print('User with nickname "{}" not exist'.format(nickname))
+        logger().error('User with nickname "{}" not found'.format(nickname))
+    else:
+        logger().debug('Current user switched to "{}"'.format(nickname))
 
 
 def operation_user_logout(db):
     db.remove_current_user()
+    logger().debug('Deleted current user')
 
 
 def operation_user_remove(db, nickname):
-    db.remove_user(nickname)
+    try:
+        db.remove_user(nickname)
+    except ce.UserNotFound:
+        print('User with nickname "{}" not exist'.format(nickname))
+        logger().error('User with nickname "{}" not found'.format(nickname))
+    except ce.UserNotAuthorized:
+        print('Use login to sign in or add new user')
+        logger().error('Tried to work without authorization')
+    else:
+        logger().debug('Current user switched to "{}"'.format(nickname))
 
 
 def operation_user_info(db):
-    user = db.get_current_user()
-    tasks_print = []
-    plans_print = []
-    if user.tasks:
-        for task in user.tasks:
-            tasks_print.append(task.info)
-        tasks_print = 'tasks:\n' + ', '.join(tasks_print)
+    try:
+        user = db.get_current_user()
+    except ce.UserNotFound:
+        print('You did not sign in')
+        logger().error('Tried to print not logged in user')
     else:
-        tasks_print = 'No tasks'
+        tasks_print = []
+        plans_print = []
+        if user.tasks:
+            for task in user.tasks:
+                tasks_print.append(task.info)
+            tasks_print = 'tasks:\n' + ', '.join(tasks_print)
+        else:
+            tasks_print = 'No tasks'
 
-    if user.plans:
-        for plan in user.plans:
-            plans_print.append(plan.info)
-        plans_print = 'plans:\n' + ', '.join(plans_print)
+        if user.plans:
+            for plan in user.plans:
+                plans_print.append(plan.info)
+            plans_print = 'plans:\n' + ', '.join(plans_print)
+        else:
+            plans_print = 'No plans'
+        print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
+        logger().debug('Printed information about current user')
+
+
+def operation_task_add(db, description, priority, deadline, tags, parent_task_id):
+    try:
+        db.add_task(Task(info=description, priority=priority if priority else 1,
+                         deadline=dp.get_deadline(deadline) if deadline else None,
+                         tags=re.split("[^\w]", tags) if tags else [],
+                         parent_id=parent_task_id))
+    except ce.TaskNotFound:
+        print('task with id {} does not exist'.format(parent_task_id))
+        logger().error('Tried to add task as subtask to not existing task with id "{}"'.format(parent_task_id))
+    except ValueError:
+        print('Incorrect input date')
+        logger().error('Entered incorrect deadline')
+    except ce.UserNotAuthorized:
+        print('Use login to sign in or add new user')
+        logger().error('Tried to work without authorization')
     else:
-        plans_print = 'No plans'
-    print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
-
-
-def operation_task_add(db, description, priority, deadline, tags, subtask):
-    db.add_task(Task(info=description, priority=priority if priority else 1,
-                     deadline=dp.get_deadline(deadline) if deadline else None,
-                     tags=re.split("[^\w]", tags) if tags else [],
-                     parent_id=subtask))
+        logger().debug('Created new task')
 
 
 def operation_task_remove(db, id):
-    db.remove_task(id)
+    try:
+        db.remove_task(id)
+    except ce.TaskNotFound:
+        print('task with id {} does not exist'.format(id))
+        logger().error('Tried to remove not existing task with id "{}"'.format(id))
+    except ce.UserNotAuthorized:
+        print('Use login to sign in or add new user')
+        logger().error('Tried to work without authorization')
+    else:
+        logger().debug('Deleted task with id "{}"'.format(id))
 
 
 def task_print(tasks, colored, short=True, tags=None):
@@ -69,7 +125,6 @@ def task_print(tasks, colored, short=True, tags=None):
         priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
     else:
         priority_colors = [Fore.RESET] * 6
-
     for task in tasks:
         if tags:
             if all(elem in task.tags for elem in re.split("[^\w]", tags)):
@@ -86,58 +141,108 @@ def task_print(tasks, colored, short=True, tags=None):
 
 
 def operation_task_show(db, choice, selected, all, colored):
-    if choice == 'id':
-        task = db.get_tasks(selected)
-        deadline_print = dp.parse_iso_pretty(task.deadline) if task.deadline else 'No deadline'
-        tags_print = ', '.join(task.tags) if len(task.tags) > 0 else 'No tags'
-        print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nCreated: {}\nLast change: {}\nTags: {}'
-              .format(task.info, task.id, deadline_print, task.status,
-                      dp.parse_iso_pretty(task.date), dp.parse_iso_pretty(task.last_change), tags_print))
-        print('Subtasks:')
-        task_print(task.subtasks, colored)
-    elif choice == 'tags':
-        task_print(db.get_tasks(), colored, tags=selected)
-    elif all:
-        task_print(db.get_tasks(), colored, False)
-    elif not choice:
-        task_print(db.get_tasks(), colored)
-
+    try:
+        if choice == 'id':
+            task = db.get_tasks(selected)
+            deadline_print = dp.parse_iso_pretty(task.deadline) if task.deadline else 'No deadline'
+            tags_print = ', '.join(task.tags) if len(task.tags) > 0 else 'No tags'
+            print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nCreated: {}\nLast change: {}\nTags: {}'
+                  .format(task.info, task.id, deadline_print, task.status,
+                          dp.parse_iso_pretty(task.date), dp.parse_iso_pretty(task.last_change), tags_print))
+            print('Subtasks:')
+            task_print(task.subtasks, colored)
+        elif choice == 'tags':
+            task_print(db.get_tasks(), colored, tags=selected)
+        elif all:
+            task_print(db.get_tasks(), colored, False)
+        elif not choice:
+            task_print(db.get_tasks(), colored)
+    except ce.TaskNotFound:
+        print('Task with id {} does not exist'.format(choice.id))
+        logger().error('Tried to print not existing task with id "{}"'.format(choice.id))
+    except ce.UserNotAuthorized:
+        print('Use login to sign in or add new user')
+        logger().error('Tried to work without authorization')
+    else:
+        if choice == 'id':
+            logger().debug('Printed task with id "{}"'.format(selected))
+        elif choice == 'tags':
+            logger().debug('Printed tasks with tags "{}"'.format(re.sub('[^\w]', ', ',selected)))
+        else:
+            logger().debug('Printed all tasks')
 
 def operation_task_finish(db, id):
-    task_finish = db.get_tasks(id)
-    if hasattr(task_finish, 'owner'):
-        user_owner = db.get_users(task_finish.owner['nickname'])
-        Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
-        user_owner.archive_task(task_finish.owner['id'])
-    db.change_task(id, status=const.STATUS_FINISHED)
-    db.get_current_user().archive_task(id)
-    db.serialize()
+    try:
+        task_finish = db.get_tasks(id)
+    except ce.TaskNotFound:
+        print('task with id {} does not exist'.format(id))
+        logger().error('Tried to finish not existing task with id "{}"'.format(id))
+    else:
+        if hasattr(task_finish, 'owner'):
+            user_owner = db.get_users(task_finish.owner['nickname'])
+            Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
+            user_owner.archive_task(task_finish.owner['id'])
+        db.change_task(id, status=const.STATUS_FINISHED)
+        db.get_current_user().archive_task(id)
+        db.serialize()
+        logger().debug('Finished task with id "{}"'.format(id))
 
 
 def operation_task_move(db, id_from, id_to):
-    task_from = db.get_tasks(id_from)
-    task_to = db.get_tasks(id_to)
-    task_to.append_task(copy.deepcopy(task_from))
-    db.remove_task(id_from)
+    try:
+        task_from = db.get_tasks(id_from)
+    except ce.TaskNotFound:
+        print('task with id {} does not exist'.format(id))
+        logger().error('Tried to get not existing task with id "{}"'.format(id))
+    else:
+        try:
+            task_to = db.get_tasks(id_to)
+        except ce.TaskNotFound:
+            print('task with id {} does not exist'.format(id))
+            logger().error('Tried to move not existing task with id "{}"'.format(id))
+        else:
+            task_to.append_task(copy.deepcopy(task_from))
+            db.remove_task(id_from)
+            logger().debug('Task with id "{}" became subtask "{}"'.format(id_to, id_from))
 
 
 def operation_task_change(db, id, info, deadline, priority, status, append_tags, remove_tags):
-    db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
-                   minus_tag=remove_tags)
+    try:
+        db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
+                       minus_tag=remove_tags)
+    except ce.TaskNotFound:
+        print('Task with id "{}" does not exist'.format(id))
+        logger().error('Tried to access to not existing task with id "{}"'.format(id))
+    except ValueError:
+        print('Incorrect input date')
+        logger().error('Entered incorrect deadline')
+    else:
+        logger().debug('Changed information about task with id "{}"'.format(id))
 
 
 def operation_task_share(db, id_from, nickname_to, delete, track):
-    task_from = db.get_tasks(id_from)
-    user_to = db.get_users(nickname_to)
-    task_send = copy.deepcopy(task_from)
-    task_send.id = Database.get_id(user_to.tasks)
-    task_send.reset_sub_id()
-    if track:
-        task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
-    user_to.tasks.append(task_send)
-    db.serialize()
-    if delete:
-        db.remove_task(id_from)
+    try:
+        task_from = db.get_tasks(id_from)
+    except ce.TaskNotFound:
+        print('User with id "{}" does not exist'.format(id_from))
+        logger().error('Tried to access to not existing tas kwith id "{}"'.format(id_from))
+    else:
+        try:
+            user_to = db.get_users(nickname_to)
+        except ce.UserNotFound:
+            print('User with nickname "{}" does not exist'.format(nickname_to))
+            logger().error('Tried to access to not existing user with nickname'.format(nickname_to))
+        else:
+            task_send = copy.deepcopy(task_from)
+            task_send.id = Database.get_id(user_to.tasks)
+            task_send.reset_sub_id()
+            if track:
+                task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
+            user_to.tasks.append(task_send)
+            db.serialize()
+            if delete:
+                db.remove_task(id_from)
+            logger().debug('Shared task with id "{}" to user with nickname "{}"'.format(id_from, nickname_to))
 
 
 def operation_calendar_show(tasks, month, year):
@@ -170,44 +275,61 @@ def operation_calendar_show(tasks, month, year):
 
 
 def operation_plan_add(db, description, period, time):
-    period_options = dp.parse_period(period)
-    db.add_plan(Plan(info=description, period=period_options['period'],
-                     period_type=period_options['type'],
-                     time_at=dp.parse_time(time) if time else None))
+    try:
+        period_options = dp.parse_period(period)
+        db.add_plan(Plan(info=description, period=period_options['period'],
+                         period_type=period_options['type'],
+                         time_at=dp.parse_time(time) if time else None))
+    except ValueError:
+        print('Incorrect input date')
+        logger().error('Entered incorrect weekday')
+    else:
+        logger().debug('Created plan')
 
 
 def operation_plan_show(db, id, colored):
-    if id:
-        plan = db.get_plans(id)
-        created = 'Status: created' if plan.is_created else 'Status: not created'
-        period_print = 'Period: every '
-        time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
-        next_print = 'Next creating: '
-        if plan.period_type == const.REPEAT_DAY:
-            period_print += str(plan.period) + ' days'
-            next_print += dp.parse_iso_pretty(plan.next_create)
+    try:
+        if id:
+            plan = db.get_plans(id)
+            created = 'Status: created' if plan.is_created else 'Status: not created'
+            period_print = 'Period: every '
+            time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
+            next_print = 'Next creating: '
+            if plan.period_type == const.REPEAT_DAY:
+                period_print += str(plan.period) + ' days'
+                next_print += dp.parse_iso_pretty(plan.next_create)
+            else:
+                weekdays = []
+                for day in plan.period:
+                    weekdays.append(dp.get_weekday_word(day))
+                period_print += ', '.join(weekdays)
+                if len(plan.period) > 1:
+                    next_print += dp.get_weekday_word(min(filter(lambda x: x > datetime.now().weekday(), plan.period)))
+                else:
+                    next_print += dp.get_weekday_word(plan.period[0])
+            print('Information: {}\n{}\nID: {}\n{}\n{} {}'
+                  .format(plan.info, created, plan.id, next_print, period_print, time_print))
         else:
-            weekdays = []
-            for day in plan.period:
-                weekdays.append(dp.get_weekday_word(day))
-            period_print += ', '.join(weekdays)
-            if len(plan.period) > 1:
-                next_print += dp.get_weekday_word(min(filter(lambda x: x > datetime.now().weekday(), plan.period)))
-            else:
-                next_print += dp.get_weekday_word(plan.period[0])
-        print('Information: {}\n{}\nID: {}\n{}\n{} {}'
-              .format(plan.info, created, plan.id, next_print, period_print, time_print))
+            for plan in db.get_plans():
+                if colored:
+                    color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
+                else:
+                    color = Fore.RESET
+                print(color + '|ID {}| {}'.format(plan.id, plan.info))
+    except ce.PlanNotFound:
+        logger().error('Tried to print not existing plan with id "{}"'.format(id))
     else:
-        for plan in db.get_plans():
-            if colored:
-                color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
-            else:
-                color = Fore.RESET
-            print(color + '|ID {}| {}'.format(plan.id, plan.info))
+        logger().debug('Printed plan with id "{}"'.format(id))
 
 
 def operation_plan_remove(db, id):
-    db.remove_plan(id)
+    try:
+        db.remove_plan(id)
+    except ce.PlanNotFound:
+        print('Plan with id "{}" does nit exist'.format(id))
+        logger().error('Tried to remove not existing plan with id "{{"'.format(id))
+    else:
+        logger().debug('Removed plan with id "{}"'.format(id))
 
 
 def check_plans(db):
@@ -218,11 +340,23 @@ def check_plans(db):
 
 
 def run_daemon(db):
-    daemon.run(check_plans, db)
+    try:
+        daemon.run(check_plans, db)
+    except ce.DaemonAlreadyStarted:
+        print('Daemon already started')
+        logger().error('Tried to run already started daemon')
+    else:
+        logger().debug('Started daemon')
 
 
 def stop_daemon():
-    daemon.stop()
+    try:
+        daemon.stop()
+    except FileNotFoundError:
+        print('Daemon did not started yet')
+        logger().error('Tried to stop not yet started daemon')
+    else:
+        logger().debug('Stopped daemon')
 
 
 def restart_daemon(db):

@@ -24,6 +24,7 @@ class Config:
         config.set(self.section, 'pid', 'pid.ini')
         config.set(self.section, 'status_finished', 'finished')
         config.set(self.section, 'status_unfinished', 'unfinished')
+        config.set(self.section, 'logger_output', 'logging.log')
 
         with open(self.path, 'w') as config_file:
             config.write(config_file)
