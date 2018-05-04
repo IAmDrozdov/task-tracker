@@ -14,6 +14,8 @@ def main():
     parser = create_parser()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
+
+    print(namespace)
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':

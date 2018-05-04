@@ -247,7 +247,7 @@ class Database:
             raise ce.TaskNotFound
         self.serialize()
 
-    def change_task(self, id, info, deadline, priority, status, plus_tag, minus_tag):
+    def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
         """
         Change information about task
         :param id: change id

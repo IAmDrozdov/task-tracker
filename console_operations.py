@@ -153,13 +153,15 @@ def operation_task_show(db, choice, selected, all, colored):
             task_print(task.subtasks, colored)
         elif choice == 'tags':
             task_print(db.get_tasks(), colored, tags=selected)
+        elif choice == 'archive':
+            task_print(db.get_tasks(archive=True), colored)
         elif all:
             task_print(db.get_tasks(), colored, False)
         elif not choice:
             task_print(db.get_tasks(), colored)
     except ce.TaskNotFound:
-        print('Task with id {} does not exist'.format(choice.id))
-        logger().error('Tried to print not existing task with id "{}"'.format(choice.id))
+        print('Task with id {} does not exist'.format(selected))
+        logger().error('Tried to print not existing task with id "{}"'.format(selected))
     except ce.UserNotAuthorized:
         print('Use login to sign in or add new user')
         logger().error('Tried to work without authorization')
@@ -184,7 +186,7 @@ def operation_task_finish(db, id):
             Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
             user_owner.archive_task(task_finish.owner['id'])
         db.change_task(id, status=const.STATUS_FINISHED)
-        if not hasattr(task_finish, 'plan'):
+        if task_finish.plan is None:
             db.get_current_user().archive_task(id)
         db.serialize()
         logger().debug('Finished task with id "{}"'.format(id))
