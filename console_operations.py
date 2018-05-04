@@ -194,14 +194,20 @@ def operation_task_move(db, id_from, id_to):
     try:
         task_from = db.get_tasks(id_from)
     except ce.TaskNotFound:
-        print('task with id {} does not exist'.format(id))
-        logger().error('Tried to get not existing task with id "{}"'.format(id))
+        print('task with id {} does not exist'.format(id_from))
+        logger().error('Tried to get not existing task with id "{}"'.format(id_from))
     else:
         try:
             task_to = db.get_tasks(id_to)
         except ce.TaskNotFound:
-            print('task with id {} does not exist'.format(id))
-            logger().error('Tried to move not existing task with id "{}"'.format(id))
+            if id_to == '0':
+                task_from.parent_id = None
+                db.add_task(copy.deepcopy(task_from))
+                db.remove_task(task_from.id)
+                logger().debug('Task with id "{}" became primary'.format(id_from))
+            else:
+                print('task with id {} does not exist'.format(id_to))
+                logger().error('Tried to move not existing task with id "{}"'.format(id_to))
         else:
             task_to.append_task(copy.deepcopy(task_from))
             db.remove_task(id_from)

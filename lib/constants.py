@@ -3,7 +3,7 @@ from lib.config import Config
 
 class Constants:
     """
-    Usefull for project constants
+    Project constants
     """
     config = Config('config.ini')
     PID_PATH_FILE = config.get_config_field('pid')

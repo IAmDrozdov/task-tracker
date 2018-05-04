@@ -43,10 +43,14 @@ def stop():
     Stop daemon via PID
     """
     pid_path = read_from_file(const.PID_PATH_FILE)
-    with open(pid_path) as pid_file:
-        pid = int(pid_file.read())
+    try:
+        with open(pid_path) as pid_file:
+            pid = int(pid_file.read())
+            os.kill(pid, SIGTERM)
+    except FileNotFoundError:
+        pass
+    finally:
         os.remove(const.PID_PATH_FILE)
-        os.kill(pid, SIGTERM)
 
 
 def restart(func, database):
