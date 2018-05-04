@@ -1,9 +1,9 @@
 #!/usr/bin/env python3.6
+# PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
 
 
 import argcomplete
-
 import console_operations as co
 from lib.database import Database
 from parser import create_parser
