@@ -2,6 +2,8 @@ from datetime import datetime
 
 from lib.constants import Constants as const
 from lib.database import Database
+import lib.datetime_parser as dp
+import re
 
 
 class Task:
@@ -69,3 +71,23 @@ class Task:
         task_from.parent_id = self.id
         task_from.reset_sub_id()
         self.subtasks.append(task_from)
+
+    def change(self, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
+        if info:
+            self.info = info
+        if deadline:
+            self.deadline = dp.get_deadline(deadline)
+        if priority:
+            self.priority = priority
+        if status == const.STATUS_FINISHED:
+            self.finish()
+        else:
+            self.status = status
+        if plus_tag:
+            for tag in re.split("[^\w]", plus_tag):
+                self.tags.append(tag)
+            self.tags = list(set(self.tags))
+        if minus_tag:
+            for tag in re.split("[^\w]", minus_tag):
+                self.tags.remove(tag)
+        self.changed()

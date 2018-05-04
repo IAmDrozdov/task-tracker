@@ -1,10 +1,8 @@
 import json
-import re
 
 import jsonpickle
 
 from lib import custom_exceptions as ce
-from lib import datetime_parser
 from lib.constants import Constants as const
 
 
@@ -17,7 +15,9 @@ class Database:
             with open(const.DATABASE_PATH, mode='r', encoding='utf-8') as db:
                 json_file = db.read()
             full = jsonpickle.decode(json_file)
-        except json.decoder.JSONDecodeError or FileNotFoundError:
+        except json.decoder.JSONDecodeError:
+            full = None
+        except FileNotFoundError:
             full = None
 
         self.users = full.users if full else []
@@ -247,7 +247,7 @@ class Database:
             raise ce.TaskNotFound
         self.serialize()
 
-    def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
+    def change_task(self, id, info, deadline, priority, status, plus_tag, minus_tag):
         """
         Change information about task
         :param id: change id
@@ -259,23 +259,12 @@ class Database:
         :param minus_tag: remove tags
         """
         self.check_current()
-        found_task = self.get_tasks(id)
-        if info:
-            found_task.info = info
-        if deadline:
-            found_task.deadline = datetime_parser.get_deadline(deadline)
-        if priority:
-            found_task.priority = priority
-        if status == const.STATUS_FINISHED:
-            found_task.finish()
-        else:
-            found_task.status = status
-        if plus_tag:
-            for tag in re.split("[^\w]", plus_tag):
-                found_task.tags.append(tag)
-            found_task.tags = list(set(found_task.tags))
-        if minus_tag:
-            for tag in re.split("[^\w]", minus_tag):
-                found_task.tags.remove(tag)
-        found_task.changed()
+        task = self.get_tasks(id)
+        task.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
+                    minus_tag=minus_tag)
+        if hasattr(task, 'owner'):
+            owner = self.get_users(task.owner['nickname'])
+            task_owner = Database.get_task_by_id(owner.tasks, id.split(const.ID_DELIMITER))
+            task_owner.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
+                              minus_tag=minus_tag)
         self.serialize()

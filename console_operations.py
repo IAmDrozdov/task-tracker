@@ -171,6 +171,7 @@ def operation_task_show(db, choice, selected, all, colored):
         else:
             logger().debug('Printed all tasks')
 
+
 def operation_task_finish(db, id):
     try:
         task_finish = db.get_tasks(id)
@@ -183,7 +184,8 @@ def operation_task_finish(db, id):
             Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
             user_owner.archive_task(task_finish.owner['id'])
         db.change_task(id, status=const.STATUS_FINISHED)
-        db.get_current_user().archive_task(id)
+        if not hasattr(task_finish, 'plan'):
+            db.get_current_user().archive_task(id)
         db.serialize()
         logger().debug('Finished task with id "{}"'.format(id))
 
@@ -208,6 +210,10 @@ def operation_task_move(db, id_from, id_to):
 
 def operation_task_change(db, id, info, deadline, priority, status, append_tags, remove_tags):
     try:
+        if status == const.STATUS_FINISHED:
+            print('You can not finish task using changing. Use "task finish"')
+            logger().warning('Tried to finish task from changing function')
+            return
         db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
                        minus_tag=remove_tags)
     except ce.TaskNotFound:
