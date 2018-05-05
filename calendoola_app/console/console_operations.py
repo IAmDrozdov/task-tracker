@@ -251,7 +251,11 @@ def operation_task_share(db, id_from, nickname_to, delete, track):
             task_send.id = Database.get_id(user_to.tasks)
             task_send.reset_sub_id()
             if track:
-                task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
+                if not hasattr(task_send.owner, 'owner'):
+                    task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
+                else:
+                    print('This task cant be tracked')
+                    logger().warning('Tried to track task which already has owner')
             user_to.tasks.append(task_send)
             db.serialize()
             if delete:

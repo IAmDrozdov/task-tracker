@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from calendoola_app import lib as dp
+import calendoola_app.lib.datetime_parser as dp
 from calendoola_app.lib.constants import Constants as const
 from calendoola_app.lib.notification import call
 from calendoola_app.lib.models.task import Task
