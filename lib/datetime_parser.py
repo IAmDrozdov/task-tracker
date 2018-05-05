@@ -77,10 +77,8 @@ def parse_period(period):
     if period.isdigit():
         return {'period': int(period), 'type': const.REPEAT_DAY}
     else:
-        weekdays_digits_list = []
         weekdays_list = re.split("[^\w]", period)
-        for day in weekdays_list:
-            weekdays_digits_list.append(get_weekday_number(day))
+        weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
         return {'period': weekdays_digits_list, 'type': const.REPEAT_WEEKDAY}
 
 
