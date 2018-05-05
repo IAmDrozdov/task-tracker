@@ -2,8 +2,8 @@ import os
 import sys
 from signal import SIGTERM
 import tempfile
-import lib.custom_exceptions as ce
-from lib.constants import Constants as const
+import calendoola_app.lib.custom_exceptions as ce
+from calendoola_app.lib.constants import Constants as const
 
 
 def run(func, database):

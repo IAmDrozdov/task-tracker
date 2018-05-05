@@ -6,15 +6,15 @@ from datetime import datetime
 
 from colorama import Fore, Back
 
-import lib.custom_exceptions as ce
-import lib.daemon as daemon
-from lib import datetime_parser as dp
-from lib.constants import Constants as const
-from lib.database import Database
-from lib.loger import logger
-from lib.plan import Plan
-from lib.task import Task
-from lib.user import User
+import calendoola_app.lib.custom_exceptions as ce
+import calendoola_app.lib.daemon as daemon
+from calendoola_app.lib import datetime_parser as dp
+from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.database import Database
+from calendoola_app.lib.loger import logger
+from calendoola_app.lib.models.plan import Plan
+from calendoola_app.lib.models.task import Task
+from calendoola_app.lib.models.user import User
 
 
 def operation_user_add(db, nickname, force):
@@ -65,7 +65,7 @@ def operation_user_remove(db, nickname):
 def operation_user_info(db):
     try:
         user = db.get_current_user()
-    except ce.UserNotFound:
+    except ce.UserNotAuthorized:
         print('You did not sign in')
         logger().error('Tried to print not logged in user')
     else:

@@ -1,5 +1,5 @@
 import logging, logging.config
-from lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants as const
 
 
 def logger():

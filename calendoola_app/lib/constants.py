@@ -1,4 +1,4 @@
-from lib.config import Config
+from calendoola_app.lib.config import Config
 
 
 class Constants:

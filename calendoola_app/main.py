@@ -3,10 +3,14 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
 import argcomplete
-import console_operations as co
-from lib.database import Database
-from parser import create_parser
+
+sys.path.append('../')
+from calendoola_app.console import console_operations as co
+from calendoola_app.lib.database import Database
+from calendoola_app.console.parser import create_parser
 
 
 def main():

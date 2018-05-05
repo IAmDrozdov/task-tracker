@@ -2,8 +2,8 @@ import json
 
 import jsonpickle
 
-from lib import custom_exceptions as ce
-from lib.constants import Constants as const
+from calendoola_app.lib import custom_exceptions as ce
+from calendoola_app.lib.constants import Constants as const
 
 
 class Database:
@@ -71,6 +71,7 @@ class Database:
         Get current user object
         :return: current user object
         """
+        self.check_current()
         return self.get_users(self.current_user)
 
     def remove_current_user(self):

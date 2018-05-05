@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from lib.constants import Constants as const
-from lib.database import Database
-import lib.datetime_parser as dp
+from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.database import Database
+from calendoola_app import lib as dp
 import re
 
 

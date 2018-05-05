@@ -1,6 +1,5 @@
 import copy
-from lib.database import Database
-
+from calendoola_app.lib.database import Database
 
 
 class User:
