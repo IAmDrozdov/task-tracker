@@ -23,7 +23,7 @@ def mark_dates(container, month, year):
 def print_month_calendar(container, month, year):
     cal = calendar.Calendar()
     marked_dates = mark_dates(container, month, year)
-    first_day = datetime_parser.get_weekday(month, year)
+    first_day = datetime_parser.get_first_weekday(month, year)
     day_counter = 0
 
     print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)

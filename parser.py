@@ -4,6 +4,7 @@ import argparse
 def create_parser():
     parser = argparse.ArgumentParser()
     subparser_targets = parser.add_subparsers(dest='target')
+    parser.add_argument('-d', '--daemon', action='store_true', help='For running program as daemon')
 
     targets_task = subparser_targets.add_parser('task', help='Working with tasks')
     task_parser = targets_task.add_subparsers(dest='command')
@@ -82,6 +83,9 @@ def create_parser():
 
     add_plan = plan_parser.add_parser('add', help='Create plan, what will create periodic')
     add_plan.add_argument('description', help='Information for task')
+    add_plan.add_argument('period', type=str, help='Period of recreating task. The first way is to enter number, what '
+                                                   'will mean "every N days". The second is to enter list of weekdays'
+                                                   ', what will mean "every N1, N2..."')
     add_plan.add_argument('-pd', '--period_day', help='Recreate task every entered day from today')
     add_plan.add_argument('-pw', '--period_weekday', help='Recreate task avery entered weekdays')
     add_plan.add_argument('-t', '--time', help='time when task will be created. Default is 00:00')
@@ -92,4 +96,5 @@ def create_parser():
 
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
     remove_plan.add_argument('id', type=str, help='ID of plan to delete')
+
     return parser

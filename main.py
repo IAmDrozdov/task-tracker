@@ -8,7 +8,7 @@ from lib.task import Task
 from lib.user import User
 from lib.plan import Plan
 import re
-from _datetime import datetime
+from datetime import datetime
 import copy
 
 
@@ -65,10 +65,9 @@ def operation_task_add(options, container):
                         tags=re.sub("[^\w]", " ",  options.tags).split() if options.tags else [],
                         priority=options.priority if options.priority else 1)
         container.append(new_task)
-    database.serialize(container, 'database.json')
 
 
-def operation_taks_show(container, options):
+def operation_task_show(container, options):
     if len(container) == 0:
         print('Nothing to show')
     if options.to_show == 'id':
@@ -90,10 +89,10 @@ def rec_task_delete(container, options):
             if task.id == options.id:
                 container.remove(task)
                 return
-            operation_remove(task.subtasks, options)
+            operation_user_remove(task.subtasks, options)
 
 
-def operation_remove(container, options):
+def operation_user_remove(container, options):
     rec_task_delete(container, options)
     database.serialize(container, 'database.json')
 
@@ -200,7 +199,7 @@ def operation_login_user(container, options):
         print('User does not exist')
 
 
-def operation_logout_user(container):
+def operation_user_logout(container):
     for user in container['users']:
         if user.nickname == container['current_user']:
             container['current_user'] = None
@@ -245,15 +244,19 @@ def operation_task_share(current_user_tasks, container, options):
 
 
 def operation_plan_add(container, options):
-    new_plan = Plan(info=options.description, id=Task.get_actual_index(container))
+    perion_options = datetime_parser.parse_period(options.period)
+    new_plan = Plan(info=options.description, id=Task.get_actual_index(container),
+                    period=perion_options[0], period_type=perion_options[1])
     container.append(new_plan)
-    Plan.check(container)
 
 
 def operation_plan_remove(container, options):
-    for plan in container:
+    for task in container.tasks:
+        if task.plan == options.id:
+            container.tasks.remove(task)
+    for plan in container.plans:
         if plan.id == options.id:
-            container.remove(plan)
+            container.plans.remove(plan)
             return
     else:
         print('Nothing to delete.')
@@ -301,14 +304,21 @@ def main():
     else:
         print('use "user login" to sight in, or create new user using "user create"')
         return
-    ######################################
+    #####################################
+    if namespace.daemon:
+        for plan in user.plans:
+            plan.check(user.tasks)
+
+        database.serialize(db, 'database.json')
+        return
+        ######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
             operation_task_add(namespace, current.tasks)
         elif namespace.command == 'remove':
-            operation_remove(current.tasks, namespace)
+            operation_user_remove(current.tasks, namespace)
         elif namespace.command == 'show':
-            operation_taks_show(current.tasks, namespace)
+            operation_task_show(current.tasks, namespace)
         elif namespace.command == 'finish':
             operation_task_finish(current.tasks, namespace)
         elif namespace.command == 'move':
@@ -323,9 +333,9 @@ def main():
     #######################################
     elif namespace.target == 'user':
         if namespace.command == 'logout':
-            operation_logout_user(db)
+            operation_user_logout(db)
         elif namespace.command == 'remove':
-            operation_remove(db, namespace)
+            operation_user_remove(db, namespace)
         elif namespace.command == 'info':
             current.print()
     elif namespace.target == 'plan':
@@ -337,7 +347,7 @@ def main():
             else:
                 operation_plan_show_all(user.plans, namespace)
         elif namespace.command == 'remove':
-            operation_plan_remove(user.plans, namespace)
+            operation_plan_remove(user, namespace)
     database.serialize(db, 'database.json')
 
 
