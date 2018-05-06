@@ -169,7 +169,7 @@ def operation_task_show(db, choice, selected, all, colored):
         if choice == 'id':
             logger().debug('Printed task with id "{}"'.format(selected))
         elif choice == 'tags':
-            logger().debug('Printed tasks with tags "{}"'.format(re.sub('[^\w]', ', ',selected)))
+            logger().debug('Printed tasks with tags "{}"'.format(re.sub('[^\w]', ', ', selected)))
         else:
             logger().debug('Printed all tasks')
 

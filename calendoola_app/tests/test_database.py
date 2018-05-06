@@ -1,12 +1,12 @@
 import os
 import unittest
 
-from calendoola_app.lib.database import Database
-from calendoola_app.lib.models.user import User
 import calendoola_app.lib.custom_exceptions as ce
-from calendoola_app.lib.models.task import Task
-from calendoola_app.lib.models.plan import Plan
 from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.database import Database
+from calendoola_app.lib.models.plan import Plan
+from calendoola_app.lib.models.task import Task
+from calendoola_app.lib.models.user import User
 
 
 class DatabaseTests(unittest.TestCase):

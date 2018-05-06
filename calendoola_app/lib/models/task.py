@@ -1,9 +1,9 @@
+import re
 from datetime import datetime
 
+import calendoola_app.lib.datetime_parser as dp
 from calendoola_app.lib.constants import Constants as const
 from calendoola_app.lib.database import Database
-from calendoola_app import lib as dp
-import re
 
 
 class Task:

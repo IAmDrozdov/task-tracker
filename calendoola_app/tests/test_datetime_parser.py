@@ -1,7 +1,9 @@
+import os
 import unittest
+from datetime import datetime
+
 import calendoola_app.lib.datetime_parser as dp
 from calendoola_app.lib.constants import Constants as const
-from datetime import datetime
 from calendoola_app.lib.models.task import Task
 
 
@@ -40,3 +42,7 @@ class DatetimeParserTests(unittest.TestCase):
         first_task = Task(info='no deadline')
         second_task = Task(info='with deadline', deadline='2018-05-08 00:00:00')
         self.assertEqual(dp.mark_dates([first_task, second_task], 5, 2018), [8])
+
+    def tearDown(self):
+        if os.path.exists(const.CONFIG_FILE_PATH):
+            os.remove(const.CONFIG_FILE_PATH)

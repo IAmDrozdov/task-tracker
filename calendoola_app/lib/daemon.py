@@ -1,7 +1,8 @@
 import os
 import sys
-from signal import SIGTERM
 import tempfile
+from signal import SIGTERM
+
 import calendoola_app.lib.custom_exceptions as ce
 from calendoola_app.lib.constants import Constants as const
 
@@ -62,4 +63,3 @@ def restart(func, database):
     if os.path.exists(const.PID_PATH_FILE):
         stop()
         run(func, database)
-

@@ -1,4 +1,6 @@
-import logging, logging.config
+import logging
+import logging.config
+
 from calendoola_app.lib.constants import Constants as const
 
 
