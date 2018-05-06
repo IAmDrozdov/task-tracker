@@ -6,3 +6,6 @@ pid.ini
 database.json
 logging.log
 config.ini
+Calendoola.egg-info/
+build/
+dist/

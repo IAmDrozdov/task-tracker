@@ -98,7 +98,7 @@ def parse_time(string_time):
         return {'hour': int(string_time), 'with_minutes': False}
 
 
-def is_match(task, month, year):
+def is_match(deadline, month, year):
     """
     Comparing this month and year with task deadline date
     :param self: task obgect
@@ -106,9 +106,9 @@ def is_match(task, month, year):
     :param year: year to compare
     :return: True if all is good else False
     """
-    if task.deadline:
-        return True if parse_iso(task.deadline).month == month and \
-                       parse_iso(task.deadline).year == year else False
+    if deadline:
+        return True if parse_iso(deadline).month == month and \
+                       parse_iso(deadline).year == year else False
     else:
         return False
 
@@ -123,7 +123,7 @@ def mark_dates(tasks, month, year):
     """
     marked_dates = []
     for task in tasks:
-        if is_match(task, month, year):
+        if is_match(task.deadline, month, year):
             new_day = parse_iso(task.deadline).day
             if new_day not in marked_dates:
                 marked_dates.append(new_day)
