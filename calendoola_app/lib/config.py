@@ -20,7 +20,6 @@ class Config:
         config = configparser.ConfigParser()
         config.add_section(self.section)
         config.set(self.section, 'database', 'database.json')
-        config.set(self.section, 'delimiter', '1')
         config.set(self.section, 'pid', 'pid.ini')
         config.set(self.section, 'status_finished', 'finished')
         config.set(self.section, 'status_unfinished', 'unfinished')

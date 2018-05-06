@@ -17,12 +17,19 @@ class Database:
             full = jsonpickle.decode(json_file)
         except json.decoder.JSONDecodeError:
             full = None
+            Database.create_empty()
         except FileNotFoundError:
             full = None
+            Database.create_empty()
 
         self.users = full.users if full else []
         self.current_user = full.current_user if full else None
         self.path = const.DATABASE_PATH
+
+    @staticmethod
+    def create_empty():
+        with open(const.DATABASE_PATH, mode='w', encoding='utf-8'):
+            pass
 
     def serialize(self):
         """
