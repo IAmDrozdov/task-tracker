@@ -4,6 +4,7 @@ import unittest
 import calendoola_app.lib.custom_exceptions as ce
 from calendoola_app.lib.constants import Constants as const
 from calendoola_app.lib.database import Database
+from calendoola_app.lib.config import Config
 from calendoola_app.lib.models.plan import Plan
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.models.user import User
@@ -11,12 +12,14 @@ from calendoola_app.lib.models.user import User
 
 class DatabaseTests(unittest.TestCase):
     def setUp(self):
+        cfg = Config(const.CONFIG_FILE_PATH)
+        self.db_path = cfg.get_config_field('database_path')
         self.test_user = User(nickname='test')
         self.test_task = Task(info='test_task')
         self.test_subtask = Task(info='sub_test')
         self.test_subtask.parent_id = '1'
         self.test_plan = Plan(info='test_plan', period=5, period_type='d')
-        self.db = Database()
+        self.db = Database(self.db_path)
 
     def test_get(self):
         self.db.add_user(self.test_user)
@@ -105,6 +108,6 @@ class DatabaseTests(unittest.TestCase):
         self.assertNotIn(self.test_plan, self.db.get_plans())
 
     def tearDown(self):
-        os.remove(const.DATABASE_PATH)
+        os.remove(self.db_path)
         if os.path.exists(const.CONFIG_FILE_PATH):
             os.remove(const.CONFIG_FILE_PATH)

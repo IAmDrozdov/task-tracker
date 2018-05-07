@@ -2,8 +2,9 @@ import re
 from datetime import datetime
 
 import calendoola_app.lib.datetime_parser as dp
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Status, Constants
 from calendoola_app.lib.database import Database
+from calendoola_app.lib.notification import call
 
 
 class Task:
@@ -25,27 +26,27 @@ class Task:
         self.id = None
         self.info = None
         self.tags = []
-        self.status = const.STATUS_UNFINISHED
+        self.status = Status.UNFINISHED
         self.deadline = None
         self.priority = 1
         self.parent_id = None
         self.indent = 0
         self.plan = None
-        self.last_change = datetime.now().strftime(const.DATE_PATTERN)
-        self.date = datetime.now().strftime(const.DATE_PATTERN)
+        self.last_change = datetime.now().strftime(Constants.DATE_PATTERN)
+        self.date = datetime.now().strftime(Constants.DATE_PATTERN)
         self.__dict__.update(kwargs)
 
     def changed(self):
         """
         Updating field last_cgange
         """
-        self.last_change = datetime.now().strftime(const.DATE_PATTERN)
+        self.last_change = datetime.now().strftime(Constants.DATE_PATTERN)
 
     def finish(self):
         """
         Finish self and all subtasks
         """
-        self.status = const.STATUS_FINISHED
+        self.status = Status.FINISHED
         for task in self.subtasks:
             task.finish()
 
@@ -53,7 +54,7 @@ class Task:
         """
          Unfinish self and all subtasks
          """
-        self.status = const.STATUS_UNFINISHED
+        self.status = Status.UNFINISHED
         for task in self.subtasks:
             task.finish()
 
@@ -63,8 +64,8 @@ class Task:
         """
         if self.subtasks:
             for task in self.subtasks:
-                task.id = self.id + const.ID_DELIMITER + str(int(Database.get_id(self.subtasks, True)) - 1)
-                task.indent = self.id.count(const.ID_DELIMITER) + 1
+                task.id = self.id + Constants.ID_DELIMITER + str(int(Database.get_id(self.subtasks, True)) - 1)
+                task.indent = self.id.count(Constants.ID_DELIMITER) + 1
                 task.parent_id = self.id
                 Task.reset_sub_id(task)
 
@@ -73,8 +74,8 @@ class Task:
         Adding task_from to self subtasks
         :param task_from: task to attach to self
         """
-        task_from.id = self.id + const.ID_DELIMITER + Database.get_id(self.subtasks, True)
-        task_from.indent = task_from.id.count(const.ID_DELIMITER)
+        task_from.id = self.id + Constants.ID_DELIMITER + Database.get_id(self.subtasks, True)
+        task_from.indent = task_from.id.count(Constants.ID_DELIMITER)
         task_from.parent_id = self.id
         task_from.reset_sub_id()
         self.subtasks.append(task_from)
@@ -86,7 +87,7 @@ class Task:
             self.deadline = dp.get_deadline(deadline)
         if priority:
             self.priority = priority
-        if status == const.STATUS_FINISHED:
+        if status == Status.FINISHED:
             self.finish()
         else:
             self.status = status
@@ -98,3 +99,10 @@ class Task:
             for tag in re.split("[^\w]", minus_tag):
                 self.tags.remove(tag)
         self.changed()
+    
+    def check(self, db):
+        if self.deadline:
+            if dp.parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:
+                self.status = Status.OVERDUE
+                call(self.info, 'Lost deadline')
+                db.serialize()

@@ -7,28 +7,27 @@ from calendoola_app.lib.constants import Constants as const
 
 
 class Database:
-    def __init__(self):
+    def __init__(self, path):
         """
         Class for working with database
         """
+        self.path = path
         try:
-            with open(const.DATABASE_PATH, mode='r', encoding='utf-8') as db:
+            with open(self.path, mode='r', encoding='utf-8') as db:
                 json_file = db.read()
             full = jsonpickle.decode(json_file)
         except json.decoder.JSONDecodeError:
             full = None
-            Database.create_empty()
+            self.create_empty()
         except FileNotFoundError:
             full = None
-            Database.create_empty()
+            self.create_empty()
 
         self.users = full.users if full else []
         self.current_user = full.current_user if full else None
-        self.path = const.DATABASE_PATH
 
-    @staticmethod
-    def create_empty():
-        with open(const.DATABASE_PATH, mode='w', encoding='utf-8'):
+    def create_empty(self):
+        with open(self.path, mode='w', encoding='utf-8'):
             pass
 
     def serialize(self):
@@ -239,7 +238,7 @@ class Database:
         current = self.check_current()
         if new_task.parent_id:
             parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(const.ID_DELIMITER))
-            if parent_task:
+            if parent_task is  not None:
                 new_task.id = parent_task.id + const.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
                 new_task.indent = new_task.id.count(const.ID_DELIMITER)
                 parent_task.subtasks.append(new_task)

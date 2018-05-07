@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import calendoola_app.lib.datetime_parser as dp
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants, Status
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.notification import call
 
@@ -21,16 +21,16 @@ class Plan:
         """
         self.info = ''
         self.is_created = False
-        self.last_create = datetime.now().strftime(const.DATE_PATTERN)
+        self.last_create = datetime.now().strftime(Constants.DATE_PATTERN)
         self.time_at = None
         self.period_type = None
         self.next_create = None
         self.id = None
         self.period = None
         self.__dict__.update(**kwargs)
-        if self.period_type == const.REPEAT_DAY:
+        if self.period_type == Constants.REPEAT_DAY:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
-                .strftime(const.DATE_PATTERN)
+                .strftime(Constants.DATE_PATTERN)
 
     def create_task(self):
         """
@@ -39,8 +39,8 @@ class Plan:
         """
         new_task = Task(info=self.info, plan=self.id)
         self.is_created = True
-        self.last_create = datetime.now().strftime(const.DATE_PATTERN)
-        self.inc_next() if self.period_type == const.REPEAT_DAY else None
+        self.last_create = datetime.now().strftime(Constants.DATE_PATTERN)
+        self.inc_next() if self.period_type == Constants.REPEAT_DAY else None
         return new_task
 
     def delta_period_next(self):
@@ -72,7 +72,7 @@ class Plan:
         :return: If all dates are food returns task
         """
         if self.check_time():
-            if self.period_type == const.REPEAT_DAY:
+            if self.period_type == Constants.REPEAT_DAY:
                 if self.delta_period_next() != timedelta(days=0):
                     return False
             else:
@@ -86,7 +86,7 @@ class Plan:
         Increment of next create dates
         """
         self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
-            .strftime(const.DATE_PATTERN)
+            .strftime(Constants.DATE_PATTERN)
 
     def check_created(self, tasks):
         """
@@ -94,7 +94,7 @@ class Plan:
         :param tasks: List of tasks
         :return: function what checking dependents on type of plan
         """
-        if self.period_type == const.REPEAT_DAY:
+        if self.period_type == Constants.REPEAT_DAY:
             return self.check_created_days(tasks)
         else:
             return self.check_created_wdays(tasks)
@@ -155,6 +155,6 @@ class Plan:
         else:
             to_remove = self.check_created(database.get_tasks())
             if to_remove:
-                if to_remove.status == const.STATUS_UNFINISHED:
+                if to_remove.status == Status.UNFINISHED:
                     call('Lost task', to_remove.info)
                     database.remove_task(to_remove.id)

@@ -10,7 +10,7 @@ from calendoola_app.lib.models.task import Task
 class DatetimeParserTests(unittest.TestCase):
     def test_get_deadline(self):
         self.assertEqual(dp.get_deadline('5 May'), '2019-05-05 00:00:00')
-        self.assertEqual(dp.get_deadline('8 May'), '2018-05-08 00:00:00')
+        self.assertEqual(dp.get_deadline('30 May'), '2018-05-30 00:00:00')
 
     def test_parse_iso_pretty(self):
         self.assertEquals(dp.parse_iso_pretty('2018-05-08 00:00:00'), '08 May')

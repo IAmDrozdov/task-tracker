@@ -7,9 +7,8 @@ from datetime import datetime
 from colorama import Fore, Back
 
 import calendoola_app.lib.custom_exceptions as ce
-import calendoola_app.lib.daemon as daemon
 from calendoola_app.lib import datetime_parser as dp
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants as const, Status
 from calendoola_app.lib.database import Database
 from calendoola_app.lib.loger import logger
 from calendoola_app.lib.models.plan import Plan
@@ -185,7 +184,7 @@ def operation_task_finish(db, id):
             user_owner = db.get_users(task_finish.owner['nickname'])
             Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
             user_owner.archive_task(task_finish.owner['id'])
-        db.change_task(id, status=const.STATUS_FINISHED)
+        db.change_task(id, status=Status.FINISHED)
         if task_finish.plan is None:
             db.get_current_user().archive_task(id)
         db.serialize()
@@ -218,7 +217,7 @@ def operation_task_move(db, id_from, id_to):
 
 def operation_task_change(db, id, info, deadline, priority, status, append_tags, remove_tags):
     try:
-        if status == const.STATUS_FINISHED:
+        if status == Status.FINISHED:
             print('You can not finish task using changing. Use "task finish"')
             logger().warning('Tried to finish task from changing function')
             return
@@ -354,31 +353,9 @@ def check_plans(db):
     while True:
         for plan in db.get_plans():
             plan.check(db)
+        for task in db.get_tasks():
+            task.check(db)
         time.sleep(5)
-
-
-def run_daemon(db):
-    try:
-        daemon.run(check_plans, db)
-    except ce.DaemonAlreadyStarted:
-        print('Daemon already started')
-        logger().error('Tried to run already started daemon')
-    else:
-        logger().debug('Started daemon')
-
-
-def stop_daemon():
-    try:
-        daemon.stop()
-    except FileNotFoundError:
-        print('Daemon did not started yet')
-        logger().error('Tried to stop not yet started daemon')
-    else:
-        logger().debug('Stopped daemon')
-
-
-def restart_daemon(db):
-    daemon.restart(check_plans, db)
 
 
 def operation_task_restore(db, id):
