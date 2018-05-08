@@ -8,8 +8,9 @@ import calendoola_app.lib.custom_exceptions as ce
 
 class Daemon:
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, pid_path, log_path):
+        self.path = pid_path
+        self.log = log_path
 
     def run(self, func, database):
         """
@@ -45,7 +46,10 @@ class Daemon:
         """
         Stop daemon via PID
         """
-        pid_path = self.read_from_file()
+        try:
+            pid_path = self.read_from_file()
+        except FileNotFoundError:
+            raise ce.DaemonIsNotStarted
         try:
             with open(pid_path) as pid_file:
                 pid = int(pid_file.read())

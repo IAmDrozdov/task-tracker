@@ -9,17 +9,16 @@ from calendoola_app.console.console_operations import ConsoleOperations
 from calendoola_app.console.parser import create_parser
 from calendoola_app.lib.config import Config
 from calendoola_app.lib.constants import Constants as const
-from calendoola_app.lib.daemon import Daemon
 from calendoola_app.lib.database import Database
 
 
 def main():
     cfg = Config(const.CONFIG_FILE_PATH)
     db = Database(cfg.get_config_field('database_path'))
-    daemon = Daemon(cfg.get_config_field('pid_path'))
     log_path = cfg.get_config_field('logger_output_path')
+    pid_path = cfg.get_config_field('pid_path')
     parser = create_parser()
-    co = ConsoleOperations(log_path)
+    co = ConsoleOperations(log_path, pid_path)
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
@@ -36,10 +35,10 @@ def main():
             co.operation_user_info(db)
     #######################################
     if namespace.daemon:
-        daemon.run(co.check_plans, db)
+        co.run_daemon(db)
         return
     elif namespace.stop_daemon:
-        daemon.stop()
+        co.stop_daemon()
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
@@ -71,7 +70,7 @@ def main():
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
-    daemon.restart(co.check_plans, db)
+    co.restart_daemon(db)
 
 
 if __name__ == '__main__':

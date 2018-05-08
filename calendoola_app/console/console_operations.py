@@ -12,13 +12,15 @@ from calendoola_app.lib.constants import Constants as const, Status
 from calendoola_app.lib.database import Database
 from calendoola_app.lib.loger import logger
 from calendoola_app.lib.models.plan import Plan
+from calendoola_app.lib.daemon import Daemon
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.models.user import User
 
 
 class ConsoleOperations:
-    def __init__(self, logger_path):
+    def __init__(self, logger_path, pid_path):
         self.log = logger_path
+        self.daemon = Daemon(pid_path, logger_path)
 
     def operation_user_add(self, db, nickname, force):
 
@@ -378,4 +380,25 @@ class ConsoleOperations:
             print('Task with id "{}" does not exists'.format(id))
             logger(self.log).error('Tried ti restore not existing task with id "{}"'.format(id))
         else:
-            logger('Restored task with id "{}"'.format(id))
+            logger(self.path).debug('Restored task with id "{}"'.format(id))
+
+    def run_daemon(self, db):
+        try:
+            self.daemon.run(self.check_plans, db)
+        except ce.DaemonAlreadyStarted:
+            print('Daemon already started')
+            logger(self.log).error('Tried to run already started deemon')
+        else:
+            logger(self.log).debug('')
+
+    def stop_daemon(self):
+        try:
+            self.daemon.stop()
+        except ce.DaemonIsNotStarted:
+            print('Daemon is not started')
+            logger(self.log).error("Tried to stop unstarted daemon")
+        else:
+            logger(self.log).debug('Stopped daemon')
+
+    def restart_daemon(self, db):
+        self.daemon.restart(self.check_plans, db)
