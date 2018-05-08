@@ -48,7 +48,7 @@ class Database:
         """
         for user in self.users:
             if user.nickname == nickname:
-                raise ce.UserAlreadyExist
+                raise ce.UserAlreadyExists
 
     def add_user(self, new_user):
         """

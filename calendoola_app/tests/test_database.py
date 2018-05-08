@@ -42,7 +42,7 @@ class DatabaseTests(unittest.TestCase):
 
     def test_check_exist(self):
         self.db.add_user(self.test_user)
-        self.assertRaises(ce.UserAlreadyExist, self.db.check_user_exist, nickname=self.test_user.nickname)
+        self.assertRaises(ce.UserAlreadyExists, self.db.check_user_exist, nickname=self.test_user.nickname)
 
     def test_remove_current_user(self):
         self.db.add_user(self.test_user)

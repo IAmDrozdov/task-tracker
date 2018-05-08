@@ -1,4 +1,4 @@
-class UserAlreadyExist(Exception):
+class UserAlreadyExists(Exception):
     pass
 
 
