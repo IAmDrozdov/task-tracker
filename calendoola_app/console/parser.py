@@ -56,6 +56,9 @@ def create_parser():
     restore_task = task_parser.add_parser('restore', help='Restore task from archive')
     restore_task.add_argument('id', type=str, help='ID of task to restore')
 
+    unshare_task = task_parser.add_parser('unshare', help='Unshare task by id')
+    unshare_task.add_argument('id', type=str, help='Task to unshare')
+
     targets_calendar = subparser_targets.add_parser('calendar', help='Working with calendar')
     calendar_parser = targets_calendar.add_subparsers(dest='command')
 

@@ -59,6 +59,8 @@ def main():
             co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete, namespace.track)
         elif namespace.command == 'restore':
             co.operation_task_restore(db, namespace.id)
+        elif namespace.command == 'unshare':
+            co.operation_task_unshare(db, namespace.id)
     #######################################
     elif namespace.target == 'calendar':
         co.operation_calendar_show(db.get_tasks(), namespace.date[0], namespace.date[1])

@@ -259,7 +259,7 @@ class ConsoleOperations:
                 task_send.id = Database.get_id(user_to.tasks)
                 task_send.reset_sub_id()
                 if track:
-                    if not hasattr(task_send.owner, 'owner') and not hasattr(task_send, 'user'):
+                    if not hasattr(task_send, 'owner'):
                         task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
                         task_from.user = {'nickname': user_to.nickname, 'id': task_send.id}
                     else:
@@ -272,19 +272,31 @@ class ConsoleOperations:
                 logger(self.log).debug(
                     'Shared task with id "{}" to user with nickname "{}"'.format(id_from, nickname_to))
 
-    def operation_task_unshare(self, id, db):
+    def operation_task_unshare(self, db, id):
+        """
+        Unshare task from all users
+        :param id: id of task to unshare
+        :param db: param for serialization
+        """
         try:
-            current_user = db.get_current_user()
-            user_with_task = db.get_tasks(id).user['nickname']
-            # user_with_task.tasks.
+            task_to_unshare = db.get_tasks(id)
+            user_with_task = db.get_users(task_to_unshare.user['nickname'])
+            for task in user_with_task.tasks:
+                if task.id == task_to_unshare.user['id']:
+                    user_with_task.tasks.remove(task)
+                    del task_to_unshare.user
+                    db.serialize()
+                    break
+            logger(self.log).debug('Unshared task with id {}'.format(id))
             """
             переместить удаление задачи непосредтсвенно в класс юзера, и все входждения почистить, атк же пересмотреть
             ахивацию задач при проверке задач. 
             Доделать аншеер, постараться все функции, связанные с юзером задачей и плано пернести непосредственно в сами
             их классы.
             """
-        except ce.UserNotFound:
-            pass
+        except ce.TaskNotFound:
+            print('Task with id {} not found'.format(id))
+            logger(self.log).error('Tried ti unshared not existing task with id  {}'.format(id))
 
     def operation_calendar_show(self, tasks, month, year):
 
