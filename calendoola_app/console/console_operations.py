@@ -259,11 +259,12 @@ class ConsoleOperations:
                 task_send.id = Database.get_id(user_to.tasks)
                 task_send.reset_sub_id()
                 if track:
-                    if not hasattr(task_send.owner, 'owner'):
+                    if not hasattr(task_send.owner, 'owner') and not hasattr(task_send, 'user'):
                         task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
+                        task_from.user = {'nickname': user_to.nickname, 'id': task_send.id}
                     else:
                         print('This task cant be tracked')
-                        logger(self.log).warning('Tried to track task which already has owner')
+                        logger(self.log).warning('Tried to track task which already tracking')
                 user_to.tasks.append(task_send)
                 db.serialize()
                 if delete:
@@ -271,34 +272,57 @@ class ConsoleOperations:
                 logger(self.log).debug(
                     'Shared task with id "{}" to user with nickname "{}"'.format(id_from, nickname_to))
 
+    def operation_task_unshare(self, id, db):
+        try:
+            current_user = db.get_current_user()
+            user_with_task = db.get_tasks(id).user['nickname']
+            # user_with_task.tasks.
+            """
+            переместить удаление задачи непосредтсвенно в класс юзера, и все входждения почистить, атк же пересмотреть
+            ахивацию задач при проверке задач. 
+            Доделать аншеер, постараться все функции, связанные с юзером задачей и плано пернести непосредственно в сами
+            их классы.
+            """
+        except ce.UserNotFound:
+            pass
+
     def operation_calendar_show(self, tasks, month, year):
 
         cal = calendar.Calendar()
-        marked_dates = dp.mark_dates(tasks, month, year)
-        first_day = dp.get_first_weekday(month, year)
-        day_counter = 0
-
-        print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
-        for i in range(1, first_day + 1):
-            if i != first_day:
-                print('   ', end=' ')
-            day_counter = day_counter + 1
+        try:
+            for _ in cal.itermonthdays(year, month):
+                pass
+        except calendar.IllegalMonthError:
+            print('Incorrect input')
+            logger(self.log).error('Tried to output incorrect month')
         else:
-            print(' ', end='')
+            marked_dates = dp.mark_dates(tasks, month, year)
+            first_day = dp.get_first_weekday(month, year)
+            day_counter = 0
 
-        for day in cal.itermonthdays(year, month):
-            task_foreground = Fore.WHITE
-            if day in marked_dates:
-                task_foreground = Fore.RED
-
-            if day != 0:
-                if (day_counter % 7) == 0:
-                    print(task_foreground + '{num:02d}'.format(num=day), end='\n ')
-                else:
-                    print(task_foreground + '{num:02d}'.format(num=day), end='  ')
+            print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
+            for i in range(1, first_day + 1):
+                if i != first_day:
+                    print('   ', end=' ')
                 day_counter = day_counter + 1
-        else:
-            print()
+            else:
+                print(' ', end='')
+
+                for day in cal.itermonthdays(year, month):
+                    task_foreground = Fore.WHITE
+                    if day in marked_dates:
+                        task_foreground = Fore.RED
+
+                    if day != 0:
+                        if (day_counter % 7) == 0:
+                            print(task_foreground + '{num:02d}'.format(num=day), end='\n ')
+                        else:
+                            print(task_foreground + '{num:02d}'.format(num=day), end='  ')
+                        day_counter = day_counter + 1
+                else:
+                    print()
+
+            logger(self.log).debug('Printed calendar for {}.{}'.format(month, year))
 
     def operation_plan_add(self, db, description, period, time):
 
@@ -359,7 +383,8 @@ class ConsoleOperations:
         else:
             logger(self.log).debug('Removed plan with id "{}"'.format(id))
 
-    def check_plans(self, db):
+    @staticmethod
+    def check_plans_and_tasks(db):
 
         while True:
             for plan in db.get_plans():
@@ -380,11 +405,11 @@ class ConsoleOperations:
             print('Task with id "{}" does not exists'.format(id))
             logger(self.log).error('Tried ti restore not existing task with id "{}"'.format(id))
         else:
-            logger(self.path).debug('Restored task with id "{}"'.format(id))
+            logger(self.log).debug('Restored task with id "{}"'.format(id))
 
     def run_daemon(self, db):
         try:
-            self.daemon.run(self.check_plans, db)
+            self.daemon.run(self.check_plans_and_tasks, db)
         except ce.DaemonAlreadyStarted:
             print('Daemon already started')
             logger(self.log).error('Tried to run already started deemon')
@@ -401,4 +426,4 @@ class ConsoleOperations:
             logger(self.log).debug('Stopped daemon')
 
     def restart_daemon(self, db):
-        self.daemon.restart(self.check_plans, db)
+        self.daemon.restart(self.check_plans_and_tasks, db)

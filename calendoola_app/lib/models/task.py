@@ -105,4 +105,5 @@ class Task:
             if dp.parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
                 call(self.info, 'Lost deadline')
+                db.get_current_user().archive_task(self.id)
                 db.serialize()
