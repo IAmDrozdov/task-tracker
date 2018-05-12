@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 
 import calendoola_app.lib.datetime_parser as dp
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants
 from calendoola_app.lib.models.task import Task
 
 
@@ -28,8 +28,8 @@ class DatetimeParserTests(unittest.TestCase):
         self.assertEqual(dp.get_weekday_word(0), 'monday')
 
     def test_parse_period(self):
-        self.assertEqual(dp.parse_period('1'), {'period': 1, 'type': const.REPEAT_DAY})
-        self.assertEqual(dp.parse_period('monday tuesday'), {'period': [0, 1], 'type': const.REPEAT_WEEKDAY})
+        self.assertEqual(dp.parse_period('1'), {'period': 1, 'type': Constants.REPEAT_DAY})
+        self.assertEqual(dp.parse_period('monday tuesday'), {'period': [0, 1], 'type': Constants.REPEAT_WEEKDAY})
 
     def test_parse_time(self):
         self.assertEqual(dp.parse_time('5'), {'hour': 5, 'with_minutes': False})
@@ -44,5 +44,5 @@ class DatetimeParserTests(unittest.TestCase):
         self.assertEqual(dp.mark_dates([first_task, second_task], 5, 2018), [8])
 
     def tearDown(self):
-        if os.path.exists(const.CONFIG_FILE_PATH):
-            os.remove(const.CONFIG_FILE_PATH)
+        if os.path.exists(Constants.CONFIG_FILE_PATH):
+            os.remove(Constants.CONFIG_FILE_PATH)

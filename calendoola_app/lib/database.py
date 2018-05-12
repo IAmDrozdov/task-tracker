@@ -238,7 +238,7 @@ class Database:
         current = self.check_current()
         if new_task.parent_id:
             parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(const.ID_DELIMITER))
-            if parent_task is  not None:
+            if parent_task is not None:
                 new_task.id = parent_task.id + const.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
                 new_task.indent = new_task.id.count(const.ID_DELIMITER)
                 parent_task.subtasks.append(new_task)

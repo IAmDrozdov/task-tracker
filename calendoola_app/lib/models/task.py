@@ -99,7 +99,7 @@ class Task:
             for tag in re.split("[^\w]", minus_tag):
                 self.tags.remove(tag)
         self.__changed()
-    
+
     def check(self, db):
         if self.deadline:
             if dp.parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:

@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Calendoola',
-    version='0.9',
+    version='1',
     packages=find_packages(),
     description='To-do tracker',
     test_suite='tests',

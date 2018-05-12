@@ -8,11 +8,11 @@ from colorama import Fore, Back
 
 import calendoola_app.lib.custom_exceptions as ce
 from calendoola_app.lib import datetime_parser as dp
-from calendoola_app.lib.constants import Constants as const, Status
+from calendoola_app.lib.constants import Constants, Status
+from calendoola_app.lib.daemon import Daemon
 from calendoola_app.lib.database import Database
 from calendoola_app.lib.loger import logger
 from calendoola_app.lib.models.plan import Plan
-from calendoola_app.lib.daemon import Daemon
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.models.user import User
 
@@ -191,7 +191,8 @@ class ConsoleOperations:
         else:
             if hasattr(task_finish, 'owner'):
                 user_owner = db.get_users(task_finish.owner['nickname'])
-                Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
+                Database.get_task_by_id(user_owner.tasks,
+                                        task_finish.owner['id'].split(Constants.ID_DELIMITER)).finish()
                 user_owner.archive_task(task_finish.owner['id'])
             task_finish.finish()
             if task_finish.plan is None:
@@ -358,7 +359,7 @@ class ConsoleOperations:
                 period_print = 'Period: every '
                 time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
                 next_print = 'Next creating: '
-                if plan.period_type == const.REPEAT_DAY:
+                if plan.period_type == Constants.REPEAT_DAY:
                     period_print += str(plan.period) + ' days'
                     next_print += dp.parse_iso_pretty(plan.next_create)
                 else:

@@ -8,15 +8,16 @@ import argcomplete
 from calendoola_app.console.console_operations import ConsoleOperations
 from calendoola_app.console.parser import create_parser
 from calendoola_app.lib.config import Config
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants
 from calendoola_app.lib.database import Database
 
 
 def main():
-    cfg = Config(const.CONFIG_FILE_PATH)
-    db = Database(cfg.get_config_field('database_path'))
+    cfg = Config(Constants.CONFIG_FILE_PATH)
+    db_path = cfg.get_config_field('database_path')
     log_path = cfg.get_config_field('logger_output_path')
     pid_path = cfg.get_config_field('pid_path')
+    db = Database(db_path)
     parser = create_parser()
     co = ConsoleOperations(log_path, pid_path)
     argcomplete.autocomplete(parser)
