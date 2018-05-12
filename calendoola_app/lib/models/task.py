@@ -36,7 +36,7 @@ class Task:
         self.date = datetime.now().strftime(Constants.DATE_PATTERN)
         self.__dict__.update(kwargs)
 
-    def changed(self):
+    def __changed(self):
         """
         Updating field last_cgange
         """
@@ -98,7 +98,7 @@ class Task:
         if minus_tag:
             for tag in re.split("[^\w]", minus_tag):
                 self.tags.remove(tag)
-        self.changed()
+        self.__changed()
     
     def check(self, db):
         if self.deadline:

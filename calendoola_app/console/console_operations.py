@@ -193,7 +193,7 @@ class ConsoleOperations:
                 user_owner = db.get_users(task_finish.owner['nickname'])
                 Database.get_task_by_id(user_owner.tasks, task_finish.owner['id'].split(const.ID_DELIMITER)).finish()
                 user_owner.archive_task(task_finish.owner['id'])
-            db.change_task(id, status=Status.FINISHED)
+            task_finish.finish()
             if task_finish.plan is None:
                 db.get_current_user().archive_task(id)
             db.serialize()

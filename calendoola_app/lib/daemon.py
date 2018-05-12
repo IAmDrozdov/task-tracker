@@ -22,23 +22,23 @@ class Daemon:
         if pid > 0:
             sys.exit(0)
         try:
-            if os.path.exists(self.read_from_file()):
+            if os.path.exists(self.__read_pid_from_file()):
                 raise ce.DaemonAlreadyStarted
         except FileNotFoundError:
             open(self.path, 'a').close()
         with tempfile.TemporaryFile('w') as f:
             f.write(str(os.getpid()))
         tmp = tempfile.NamedTemporaryFile()
-        self.write_to_file(tmp.name, str(os.getpid()))
-        self.write_to_file(self.path, tmp.name)
+        self.__write_to_file(tmp.name, str(os.getpid()))
+        self.__write_to_file(self.path, tmp.name)
         func(database)
 
-    def read_from_file(self):
+    def __read_pid_from_file(self):
         with open(self.path, 'r') as file:
             return file.read()
 
     @staticmethod
-    def write_to_file(path: str, value: str):
+    def __write_to_file(path: str, value: str):
         with open(path, 'w') as file:
             file.write(value)
 
@@ -47,7 +47,7 @@ class Daemon:
         Stop daemon via PID
         """
         try:
-            pid_path = self.read_from_file()
+            pid_path = self.__read_pid_from_file()
         except FileNotFoundError:
             raise ce.DaemonIsNotStarted
         try:

@@ -11,9 +11,9 @@ class Config:
         self.path = path
         self.section = 'Settings'
         if not os.path.exists(self.path):
-            self.create_config()
+            self.__create_config()
 
-    def create_config(self):
+    def __create_config(self):
         """
         Creates config file with default settings
         """
