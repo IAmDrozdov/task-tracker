@@ -89,7 +89,7 @@ class Task:
             self.priority = priority
         if status == Status.FINISHED:
             self.finish()
-        else:
+        elif status:
             self.status = status
         if plus_tag:
             for tag in re.split("[^\w]", plus_tag):

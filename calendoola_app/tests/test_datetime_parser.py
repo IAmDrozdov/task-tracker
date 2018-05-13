@@ -42,7 +42,3 @@ class DatetimeParserTests(unittest.TestCase):
         first_task = Task(info='no deadline')
         second_task = Task(info='with deadline', deadline='2018-05-08 00:00:00')
         self.assertEqual(dp.mark_dates([first_task, second_task], 5, 2018), [8])
-
-    def tearDown(self):
-        if os.path.exists(Constants.CONFIG_FILE_PATH):
-            os.remove(Constants.CONFIG_FILE_PATH)

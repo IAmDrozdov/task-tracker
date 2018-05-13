@@ -190,10 +190,15 @@ class ConsoleOperations:
             logger(self.log).error('Tried to finish not existing task with id "{}"'.format(id))
         else:
             if hasattr(task_finish, 'owner'):
-                user_owner = db.get_users(task_finish.owner['nickname'])
-                Database.get_task_by_id(user_owner.tasks,
+                owner = db.get_users(task_finish.owner['nickname'])
+                Database.get_task_by_id(owner.tasks,
                                         task_finish.owner['id'].split(Constants.ID_DELIMITER)).finish()
-                user_owner.archive_task(task_finish.owner['id'])
+                owner.archive_task(task_finish.owner['id'])
+            if hasattr(task_finish, 'user'):
+                user = db.get_users(task_finish.user['nickname'])
+                Database.get_task_by_id(user.tasks,
+                                        task_finish.user['id'].split(Constants.ID_DELIMITER)).finish()
+                user.archive_task(task_finish.user['id'])
             task_finish.finish()
             if task_finish.plan is None:
                 db.get_current_user().archive_task(id)
@@ -289,12 +294,6 @@ class ConsoleOperations:
                     db.serialize()
                     break
             logger(self.log).debug('Unshared task with id {}'.format(id))
-            """
-            переместить удаление задачи непосредтсвенно в класс юзера, и все входждения почистить, атк же пересмотреть
-            ахивацию задач при проверке задач. 
-            Доделать аншеер, постараться все функции, связанные с юзером задачей и плано пернести непосредственно в сами
-            их классы.
-            """
         except ce.TaskNotFound:
             print('Task with id {} not found'.format(id))
             logger(self.log).error('Tried ti unshared not existing task with id  {}'.format(id))

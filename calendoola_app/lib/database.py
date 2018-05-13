@@ -3,7 +3,7 @@ import json
 import jsonpickle
 
 from calendoola_app.lib import custom_exceptions as ce
-from calendoola_app.lib.constants import Constants as const
+from calendoola_app.lib.constants import Constants
 
 
 class Database:
@@ -130,7 +130,7 @@ class Database:
             if len(list_to) == 0:
                 return '1'
             else:
-                pre_id = list_to[-1].id.split(const.ID_DELIMITER)
+                pre_id = list_to[-1].id.split(Constants.ID_DELIMITER)
                 return str(int(pre_id[-1]) + 1)
         else:
             return str(int(list_to[-1].id) + 1) if len(list_to) != 0 else '1'
@@ -196,7 +196,7 @@ class Database:
         :return: object task with this id
         """
         for task in tasks:
-            if int(task.id.split(const.ID_DELIMITER)[-1]) == int(idx_mass[0]):
+            if int(task.id.split(Constants.ID_DELIMITER)[-1]) == int(idx_mass[0]):
                 if len(idx_mass) > 1:
                     return Database.get_task_by_id(task.subtasks, idx_mass[1:], remove)
                 else:
@@ -215,7 +215,7 @@ class Database:
         """
         current = self.check_current()
         if id and archive is None:
-            found_task = Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER))
+            found_task = Database.get_task_by_id(current.tasks, id.split(Constants.ID_DELIMITER))
             if found_task:
                 return found_task
             else:
@@ -237,10 +237,10 @@ class Database:
         """
         current = self.check_current()
         if new_task.parent_id:
-            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(const.ID_DELIMITER))
+            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(Constants.ID_DELIMITER))
             if parent_task is not None:
-                new_task.id = parent_task.id + const.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
-                new_task.indent = new_task.id.count(const.ID_DELIMITER)
+                new_task.id = parent_task.id + Constants.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
+                new_task.indent = new_task.id.count(Constants.ID_DELIMITER)
                 parent_task.subtasks.append(new_task)
             else:
                 raise ce.TaskNotFound
@@ -257,7 +257,7 @@ class Database:
         """
         current = self.check_current()
         if not archive:
-            if not Database.get_task_by_id(current.tasks, id.split(const.ID_DELIMITER), True):
+            if not Database.get_task_by_id(current.tasks, id.split(Constants.ID_DELIMITER), True):
                 raise ce.TaskNotFound
         else:
             to_remove = self.get_tasks(id, True)
@@ -282,7 +282,13 @@ class Database:
                     minus_tag=minus_tag)
         if hasattr(task, 'owner'):
             owner = self.get_users(task.owner['nickname'])
-            task_owner = Database.get_task_by_id(owner.tasks, id.split(const.ID_DELIMITER))
+            task_owner = Database.get_task_by_id(owner.tasks, id.split(Constants.ID_DELIMITER))
             task_owner.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                               minus_tag=minus_tag)
+
+        if hasattr(task, 'user'):
+            user = self.get_users(task.user['nickname'])
+            task_user = Database.get_task_by_id(user.tasks, id.split(Constants.ID_DELIMITER))
+            task_user.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
+                             minus_tag=minus_tag)
         self.serialize()
