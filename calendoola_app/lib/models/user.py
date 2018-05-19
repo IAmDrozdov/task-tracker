@@ -4,12 +4,11 @@ from calendoola_app.lib.database import Database
 
 
 class User:
-    def __init__(self, **kwargs):
-        self.nickname = None
+    def __init__(self, nickname):
+        self.nickname = nickname
         self.tasks = []
         self.plans = []
         self.archive = []
-        self.__dict__.update(kwargs)
 
     def archive_task(self, task_id):
         """

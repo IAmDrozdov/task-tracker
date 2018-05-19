@@ -8,7 +8,7 @@ from calendoola_app.lib.notification import call
 
 
 class Task:
-    def __init__(self, **kwargs):
+    def __init__(self, info=None, priority=1, deadline=None, tags=None, parent_id=None, plan=None):
         """
         :param subtasks: list of subtasks
         :param id: id of task
@@ -24,17 +24,16 @@ class Task:
         """
         self.subtasks = []
         self.id = None
-        self.info = None
-        self.tags = []
+        self.info = info
+        self.tags = tags
         self.status = Status.UNFINISHED
-        self.deadline = None
-        self.priority = 1
-        self.parent_id = None
+        self.deadline = deadline
+        self.priority = priority
+        self.parent_id = parent_id
         self.indent = 0
-        self.plan = None
+        self.plan = plan
         self.last_change = datetime.now().strftime(Constants.DATE_PATTERN)
         self.date = datetime.now().strftime(Constants.DATE_PATTERN)
-        self.__dict__.update(kwargs)
 
     def __changed(self):
         """
