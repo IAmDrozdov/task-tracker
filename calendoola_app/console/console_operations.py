@@ -18,8 +18,8 @@ from calendoola_app.lib.models.user import User
 
 
 class ConsoleOperations:
-    def __init__(self, logger_path, pid_path):
-        self.log = logger_path
+    def __init__(self, logger_path, pid_path, log_level):
+        self.logger = logger(logger_path, log_level)
         self.daemon = Daemon(pid_path, logger_path)
 
     def operation_user_add(self, db, nickname, force):
@@ -30,14 +30,14 @@ class ConsoleOperations:
                 db.set_current_user(nickname)
         except ce.UserAlreadyExists:
             print('User with nickname "{}" already exist'.format(nickname))
-            logger(self.log).error('Tried to add existing user with nickname "{}"'.format(nickname))
+            self.logger.error('Tried to add existing user with nickname "{}"'.format(nickname))
         except ce.UserNotAuthorized:
             print('Use login to sign in or add new user')
-            logger(self.log).error('Tried to work without authorization')
+            self.logger.error('Tried to work without authorization')
         else:
-            logger(self.log).debug('Created user "{}"'.format(nickname))
+            self.logger.debug('Created user "{}"'.format(nickname))
             if force:
-                logger(self.log).debug('Current user switched to "{}"'.format(nickname))
+                self.logger.debug('Current user switched to "{}"'.format(nickname))
 
     def operation_user_login(self, db, nickname):
 
@@ -45,14 +45,14 @@ class ConsoleOperations:
             db.set_current_user(nickname)
         except ce.UserNotFound:
             print('User with nickname "{}" not exist'.format(nickname))
-            logger(self.log).error('User with nickname "{}" not found'.format(nickname))
+            self.logger.error('User with nickname "{}" not found'.format(nickname))
         else:
-            logger(self.log).debug('Current user switched to "{}"'.format(nickname))
+            self.logger.debug('Current user switched to "{}"'.format(nickname))
 
     def operation_user_logout(self, db):
 
         db.remove_current_user()
-        logger(self.log).debug('Deleted current user')
+        self.logger.debug('Deleted current user')
 
     def operation_user_remove(self, db, nickname):
 
@@ -60,12 +60,12 @@ class ConsoleOperations:
             db.remove_user(nickname)
         except ce.UserNotFound:
             print('User with nickname "{}" not exist'.format(nickname))
-            logger(self.log).error('User with nickname "{}" not found'.format(nickname))
+            self.logger.error('User with nickname "{}" not found'.format(nickname))
         except ce.UserNotAuthorized:
             print('Use login to sign in or add new user')
-            logger(self.log).error('Tried to work without authorization')
+            self.logger.error('Tried to work without authorization')
         else:
-            logger(self.log).debug('Current user switched to "{}"'.format(nickname))
+            self.logger.debug('Current user switched to "{}"'.format(nickname))
 
     def operation_user_info(self, db):
 
@@ -73,7 +73,7 @@ class ConsoleOperations:
             user = db.get_current_user()
         except ce.UserNotAuthorized:
             print('You did not sign in')
-            logger(self.log).error('Tried to print not logged in user')
+            self.logger.error('Tried to print not logged in user')
         else:
             tasks_print = []
             plans_print = []
@@ -91,7 +91,7 @@ class ConsoleOperations:
             else:
                 plans_print = 'No plans'
             print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
-            logger(self.log).debug('Printed information about current user')
+            self.logger.debug('Printed information about current user')
 
     def operation_task_add(self, db, description, priority, deadline, tags, parent_task_id):
 
@@ -102,16 +102,16 @@ class ConsoleOperations:
                              parent_id=parent_task_id))
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(parent_task_id))
-            logger(self.log).error(
+            self.logger.error(
                 'Tried to add task as subtask to not existing task with id "{}"'.format(parent_task_id))
         except ValueError:
             print('Incorrect input date')
-            logger(self.log).error('Entered incorrect deadline')
+            self.logger.error('Entered incorrect deadline')
         except ce.UserNotAuthorized:
             print('Use login to sign in or add new user')
-            logger(self.log).error('Tried to work without authorization')
+            self.logger.error('Tried to work without authorization')
         else:
-            logger(self.log).debug('Created new task')
+            self.logger.debug('Created new task')
 
     def operation_task_remove(self, db, id):
 
@@ -119,12 +119,12 @@ class ConsoleOperations:
             db.remove_task(id)
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(id))
-            logger(self.log).error('Tried to remove not existing task with id "{}"'.format(id))
+            self.logger.error('Tried to remove not existing task with id "{}"'.format(id))
         except ce.UserNotAuthorized:
             print('Use login to sign in or add new user')
-            logger(self.log).error('Tried to work without authorization')
+            self.logger.error('Tried to work without authorization')
         else:
-            logger(self.log).debug('Deleted task with id "{}"'.format(id))
+            self.logger.debug('Deleted task with id "{}"'.format(id))
 
     def task_print(self, tasks, colored, short=True, tags=None):
 
@@ -169,17 +169,17 @@ class ConsoleOperations:
                 self.task_print(db.get_tasks(), colored)
         except ce.TaskNotFound:
             print('Task with id {} does not exist'.format(selected))
-            logger(self.log).error('Tried to print not existing task with id "{}"'.format(selected))
+            self.logger.error('Tried to print not existing task with id "{}"'.format(selected))
         except ce.UserNotAuthorized:
             print('Use login to sign in or add new user')
-            logger(self.log).error('Tried to work without authorization')
+            self.logger.error('Tried to work without authorization')
         else:
             if choice == 'id':
-                logger(self.log).debug('Printed task with id "{}"'.format(selected))
+                self.logger.debug('Printed task with id "{}"'.format(selected))
             elif choice == 'tags':
-                logger(self.log).debug('Printed tasks with tags "{}"'.format(re.sub('[^\w]', ', ', selected)))
+                self.logger.debug('Printed tasks with tags "{}"'.format(re.sub('[^\w]', ', ', selected)))
             else:
-                logger(self.log).debug('Printed all tasks')
+                self.logger.debug('Printed all tasks')
 
     def operation_task_finish(self, db, id):
 
@@ -187,7 +187,7 @@ class ConsoleOperations:
             task_finish = db.get_tasks(id)
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(id))
-            logger(self.log).error('Tried to finish not existing task with id "{}"'.format(id))
+            self.logger.error('Tried to finish not existing task with id "{}"'.format(id))
         else:
             if hasattr(task_finish, 'owner'):
                 owner = db.get_users(task_finish.owner['nickname'])
@@ -203,7 +203,7 @@ class ConsoleOperations:
             if task_finish.plan is None:
                 db.get_current_user().archive_task(id)
             db.serialize()
-            logger(self.log).debug('Finished task with id "{}"'.format(id))
+            self.logger.debug('Finished task with id "{}"'.format(id))
 
     def operation_task_move(self, db, id_from, id_to):
 
@@ -211,7 +211,7 @@ class ConsoleOperations:
             task_from = db.get_tasks(id_from)
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(id_from))
-            logger(self.log).error('Tried to get not existing task with id "{}"'.format(id_from))
+            self.logger.error('Tried to get not existing task with id "{}"'.format(id_from))
         else:
             try:
                 task_to = db.get_tasks(id_to)
@@ -220,32 +220,32 @@ class ConsoleOperations:
                     task_from.parent_id = None
                     db.add_task(copy.deepcopy(task_from))
                     db.remove_task(task_from.id)
-                    logger(self.log).debug('Task with id "{}" became primary'.format(id_from))
+                    self.logger.debug('Task with id "{}" became primary'.format(id_from))
                 else:
                     print('task with id {} does not exist'.format(id_to))
-                    logger(self.log).error('Tried to move not existing task with id "{}"'.format(id_to))
+                    self.logger.error('Tried to move not existing task with id "{}"'.format(id_to))
             else:
                 task_to.append_task(copy.deepcopy(task_from))
                 db.remove_task(id_from)
-                logger(self.log).debug('Task with id "{}" became subtask "{}"'.format(id_to, id_from))
+                self.logger.debug('Task with id "{}" became subtask "{}"'.format(id_to, id_from))
 
     def operation_task_change(self, db, id, info, deadline, priority, status, append_tags, remove_tags):
 
         try:
             if status == Status.FINISHED:
                 print('You can not finish task using changing. Use "task finish"')
-                logger(self.log).warning('Tried to finish task from changing function')
+                self.logger.warning('Tried to finish task from changing function')
                 return
             db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
                            minus_tag=remove_tags)
         except ce.TaskNotFound:
             print('Task with id "{}" does not exist'.format(id))
-            logger(self.log).error('Tried to access to not existing task with id "{}"'.format(id))
+            self.logger.error('Tried to access to not existing task with id "{}"'.format(id))
         except ValueError:
             print('Incorrect input date')
-            logger(self.log).error('Entered incorrect deadline')
+            self.logger.error('Entered incorrect deadline')
         else:
-            logger(self.log).debug('Changed information about task with id "{}"'.format(id))
+            self.logger.debug('Changed information about task with id "{}"'.format(id))
 
     def operation_task_share(self, db, id_from, nickname_to, delete, track):
 
@@ -253,13 +253,13 @@ class ConsoleOperations:
             task_from = db.get_tasks(id_from)
         except ce.TaskNotFound:
             print('User with id "{}" does not exist'.format(id_from))
-            logger(self.log).error('Tried to access to not existing tas kwith id "{}"'.format(id_from))
+            self.logger.error('Tried to access to not existing tas kwith id "{}"'.format(id_from))
         else:
             try:
                 user_to = db.get_users(nickname_to)
             except ce.UserNotFound:
                 print('User with nickname "{}" does not exist'.format(nickname_to))
-                logger(self.log).error('Tried to access to not existing user with nickname'.format(nickname_to))
+                self.logger.error('Tried to access to not existing user with nickname'.format(nickname_to))
             else:
                 task_send = copy.deepcopy(task_from)
                 task_send.id = Database.get_id(user_to.tasks)
@@ -270,12 +270,12 @@ class ConsoleOperations:
                         task_from.user = {'nickname': user_to.nickname, 'id': task_send.id}
                     else:
                         print('This task cant be tracked')
-                        logger(self.log).warning('Tried to track task which already tracking')
+                        self.logger.warning('Tried to track task which already tracking')
                 user_to.tasks.append(task_send)
                 db.serialize()
                 if delete:
                     db.remove_task(id_from)
-                logger(self.log).debug(
+                self.logger.debug(
                     'Shared task with id "{}" to user with nickname "{}"'.format(id_from, nickname_to))
 
     def operation_task_unshare(self, db, id):
@@ -293,10 +293,10 @@ class ConsoleOperations:
                     del task_to_unshare.user
                     db.serialize()
                     break
-            logger(self.log).debug('Unshared task with id {}'.format(id))
+            self.logger.debug('Unshared task with id {}'.format(id))
         except ce.TaskNotFound:
             print('Task with id {} not found'.format(id))
-            logger(self.log).error('Tried ti unshared not existing task with id  {}'.format(id))
+            self.logger.error('Tried ti unshared not existing task with id  {}'.format(id))
 
     def operation_calendar_show(self, tasks, month, year):
 
@@ -306,7 +306,7 @@ class ConsoleOperations:
                 pass
         except calendar.IllegalMonthError:
             print('Incorrect input')
-            logger(self.log).error('Tried to output incorrect month')
+            self.logger.error('Tried to output incorrect month')
         else:
             marked_dates = dp.mark_dates(tasks, month, year)
             first_day = dp.get_first_weekday(month, year)
@@ -334,7 +334,7 @@ class ConsoleOperations:
                 else:
                     print()
 
-            logger(self.log).debug('Printed calendar for {}.{}'.format(month, year))
+            self.logger.debug('Printed calendar for {}.{}'.format(month, year))
 
     def operation_plan_add(self, db, description, period, time):
 
@@ -345,9 +345,9 @@ class ConsoleOperations:
                              time_at=dp.parse_time(time) if time else None))
         except ValueError:
             print('Incorrect input date')
-            logger(self.log).error('Entered incorrect weekday')
+            self.logger.error('Entered incorrect weekday')
         else:
-            logger(self.log).debug('Created plan')
+            self.logger.debug('Created plan')
 
     def operation_plan_show(self, db, id, colored):
 
@@ -381,9 +381,9 @@ class ConsoleOperations:
                         color = Fore.RESET
                     print(color + '|ID {}| {}'.format(plan.id, plan.info))
         except ce.PlanNotFound:
-            logger(self.log).error('Tried to print not existing plan with id "{}"'.format(id))
+            self.logger.error('Tried to print not existing plan with id "{}"'.format(id))
         else:
-            logger(self.log).debug('Printed plan with id "{}"'.format(id))
+            self.logger.debug('Printed plan with id "{}"'.format(id))
 
     def operation_plan_remove(self, db, id):
 
@@ -391,9 +391,9 @@ class ConsoleOperations:
             db.remove_plan(id)
         except ce.PlanNotFound:
             print('Plan with id "{}" does nit exist'.format(id))
-            logger(self.log).error('Tried to remove not existing plan with id "{{"'.format(id))
+            self.logger.error('Tried to remove not existing plan with id "{{"'.format(id))
         else:
-            logger(self.log).debug('Removed plan with id "{}"'.format(id))
+            self.logger.debug('Removed plan with id "{}"'.format(id))
 
     @staticmethod
     def check_plans_and_tasks(db):
@@ -415,27 +415,27 @@ class ConsoleOperations:
             db.remove_task(id, True)
         except ce.TaskNotFound:
             print('Task with id "{}" does not exists'.format(id))
-            logger(self.log).error('Tried ti restore not existing task with id "{}"'.format(id))
+            self.logger.error('Tried ti restore not existing task with id "{}"'.format(id))
         else:
-            logger(self.log).debug('Restored task with id "{}"'.format(id))
+            self.logger.debug('Restored task with id "{}"'.format(id))
 
     def run_daemon(self, db):
         try:
             self.daemon.run(self.check_plans_and_tasks, db)
         except ce.DaemonAlreadyStarted:
             print('Daemon already started')
-            logger(self.log).error('Tried to run already started deemon')
+            self.logger.error('Tried to run already started deemon')
         else:
-            logger(self.log).debug('')
+            self.logger.debug('')
 
     def stop_daemon(self):
         try:
             self.daemon.stop()
         except ce.DaemonIsNotStarted:
             print('Daemon is not started')
-            logger(self.log).error("Tried to stop unstarted daemon")
+            self.logger.error("Tried to stop unstarted daemon")
         else:
-            logger(self.log).debug('Stopped daemon')
+            self.logger.debug('Stopped daemon')
 
     def restart_daemon(self, db):
         self.daemon.restart(self.check_plans_and_tasks, db)

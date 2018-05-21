@@ -17,9 +17,10 @@ def main():
     db_path = cfg.get_config_field('database_path')
     log_path = cfg.get_config_field('logger_output_path')
     pid_path = cfg.get_config_field('pid_path')
+    log_level = cfg.get_config_field('logging_level')
     db = Database(db_path)
     parser = create_parser()
-    co = ConsoleOperations(log_path, pid_path)
+    co = ConsoleOperations(log_path, pid_path, log_level)
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
