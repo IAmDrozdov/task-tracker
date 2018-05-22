@@ -32,7 +32,7 @@ class DatetimeParserTests(unittest.TestCase):
         self.assertEqual(dp.parse_period('monday tuesday'), {'period': [0, 1], 'type': Constants.REPEAT_WEEKDAY})
 
     def test_parse_time(self):
-        self.assertEqual(dp.parse_time('5'), {'hour': 5, 'with_minutes': False})
+        self.assertEqual(dp.parse_time('5'), {'hour': 5, 'minutes': None, 'with_minutes': False})
         self.assertEqual(dp.parse_time('5:20'), {'hour': 5, 'minutes': 20, 'with_minutes': True})
 
     def test_is_match(self):

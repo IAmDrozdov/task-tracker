@@ -16,10 +16,7 @@ class Database:
             with open(self.path, mode='r', encoding='utf-8') as db:
                 json_file = db.read()
             full = jsonpickle.decode(json_file)
-        except json.decoder.JSONDecodeError:
-            full = None
-            self.create_empty()
-        except FileNotFoundError:
+        except (json.decoder.JSONDecodeError, FileNotFoundError):
             full = None
             self.create_empty()
 
