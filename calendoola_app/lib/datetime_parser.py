@@ -120,10 +120,11 @@ def parse_time(string_time):
         hm_time['with_minutes'] = True
         if hm_time['hour'] > 24 or hm_time['hour'] < 0 or hm_time['minutes'] > 60 or hm_time['minutes'] < 0:
             raise ValueError
-        return hm_time
+
     else:
         hm_time['hour'] = int(string_time)
         hm_time['with_minutes'] = False
+    return hm_time
 
 
 def is_match(deadline, month, year):

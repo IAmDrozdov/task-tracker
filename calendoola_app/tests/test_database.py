@@ -16,7 +16,7 @@ class DatabaseTests(unittest.TestCase):
         self.test_task = Task(info='test_task')
         self.test_subtask = Task(info='sub_test')
         self.test_subtask.parent_id = '1'
-        self.test_plan = Plan(info='test_plan', period=5, period_type='d')
+        self.test_plan = Plan(info='test_plan', period={'period': 5, 'type': 'd'})
         self.db = Database(self.db_path)
 
     def test_get(self):

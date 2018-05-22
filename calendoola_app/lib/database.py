@@ -74,8 +74,7 @@ class Database:
         Get current user object
         :return: current user object
         """
-        self.check_current()
-        return self.get_users(self.current_user)
+        return self.check_current()
 
     def remove_current_user(self):
         """
@@ -150,8 +149,7 @@ class Database:
         :param new_plan:
         """
         current = self.check_current()
-        new_plan.id = Database.get_id(current.plans)
-        current.plans.append(new_plan)
+        current.add_plan(new_plan)
         self.serialize()
 
     def remove_plan(self, id):
@@ -160,11 +158,7 @@ class Database:
         :param id: id of plan to remove
         """
         current = self.check_current()
-        current.plans.remove(self.get_plans(id))
-        for task in self.get_tasks():
-            if task.plan == id:
-                self.remove_task(task.id)
-                break
+        current.remove_plan(id)
         self.serialize()
 
     def get_plans(self, id=None):
@@ -174,14 +168,7 @@ class Database:
         :return: list of plans or plan with this id
         """
         current = self.check_current()
-        if id is None:
-            return current.plans
-        else:
-            for plan in current.plans:
-                if plan.id == id:
-                    return plan
-            else:
-                raise ce.PlanNotFound
+        return current.get_all_plans() if id is None else current.get_plan(id)
 
     @staticmethod
     def get_task_by_id(tasks, idx_mass, remove=False):
@@ -211,21 +198,10 @@ class Database:
         :return: list of tasks, archive tasks or task with this id
         """
         current = self.check_current()
-        if id and archive is None:
-            found_task = Database.get_task_by_id(current.tasks, id.split(Constants.ID_DELIMITER))
-            if found_task:
-                return found_task
-            else:
-                raise ce.TaskNotFound
-        elif archive:
-            if id is None:
-                return current.archive
-            else:
-                for task in current.archive:
-                    if task.id == id:
-                        return task
+        if id:
+            return current.get_task(id, archive)
         else:
-            return current.tasks
+            return current.get_all_tasks(archive)
 
     def add_task(self, new_task):
         """
@@ -233,17 +209,7 @@ class Database:
         :param new_task: object of new task
         """
         current = self.check_current()
-        if new_task.parent_id:
-            parent_task = Database.get_task_by_id(current.tasks, new_task.parent_id.split(Constants.ID_DELIMITER))
-            if parent_task is not None:
-                new_task.id = parent_task.id + Constants.ID_DELIMITER + Database.get_id(parent_task.subtasks, True)
-                new_task.indent = new_task.id.count(Constants.ID_DELIMITER)
-                parent_task.subtasks.append(new_task)
-            else:
-                raise ce.TaskNotFound
-        else:
-            new_task.id = Database.get_id(current.tasks)
-            current.tasks.append(new_task)
+        current.add_task(new_task)
         self.serialize()
 
     def remove_task(self, id, archive=None):
@@ -253,13 +219,7 @@ class Database:
         :param id: id of task to delete
         """
         current = self.check_current()
-        if not archive:
-            if not Database.get_task_by_id(current.tasks, id.split(Constants.ID_DELIMITER), True):
-                raise ce.TaskNotFound
-        else:
-            to_remove = self.get_tasks(id, True)
-            if to_remove:
-                current.archive.remove(to_remove)
+        current.remove_task(id, archive)
         self.serialize()
 
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
@@ -273,19 +233,19 @@ class Database:
         :param plus_tag: add new tags
         :param minus_tag: remove tags
         """
-        self.check_current()
-        task = self.get_tasks(id)
+        current = self.check_current()
+        task = current.get_task(id)
         task.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                     minus_tag=minus_tag)
         if hasattr(task, 'owner'):
             owner = self.get_users(task.owner['nickname'])
-            task_owner = Database.get_task_by_id(owner.tasks, id.split(Constants.ID_DELIMITER))
+            task_owner = owner.get_task(task.owner['id'])
             task_owner.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                               minus_tag=minus_tag)
 
         if hasattr(task, 'user'):
             user = self.get_users(task.user['nickname'])
-            task_user = Database.get_task_by_id(user.tasks, id.split(Constants.ID_DELIMITER))
+            task_user = user.get_task(task.user['id'])
             task_user.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                              minus_tag=minus_tag)
         self.serialize()

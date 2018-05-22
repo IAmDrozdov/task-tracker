@@ -7,7 +7,7 @@ from calendoola_app.lib.notification import call
 
 
 class Plan:
-    def __init__(self, info=None, period=None, period_type=None, time_at=None):
+    def __init__(self, info=None, period=None, time_at=None):
         """
         Core that create tasks dependents on time
         :param info: information about task
@@ -23,9 +23,9 @@ class Plan:
         self.is_created = False
         self.last_create = datetime.now().strftime(Constants.DATE_PATTERN)
         self.time_at = time_at
-        self.period_type = period_type
+        self.period_type = period['type']
         self.id = None
-        self.period = period
+        self.period = period['period']
         if self.period_type == Constants.REPEAT_DAY:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
                 .strftime(Constants.DATE_PATTERN)

@@ -15,6 +15,7 @@ from calendoola_app.lib.loger import logger
 from calendoola_app.lib.models.plan import Plan
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.models.user import User
+from calendoola_app.console import printer
 
 
 class ConsoleOperations:
@@ -50,7 +51,6 @@ class ConsoleOperations:
             self.logger.debug('Current user switched to "{}"'.format(nickname))
 
     def operation_user_logout(self, db):
-
         db.remove_current_user()
         self.logger.debug('Deleted current user')
 
@@ -68,29 +68,13 @@ class ConsoleOperations:
             self.logger.debug('Current user switched to "{}"'.format(nickname))
 
     def operation_user_info(self, db):
-
         try:
             user = db.get_current_user()
         except ce.UserNotAuthorized:
             print('You did not sign in')
             self.logger.error('Tried to print not logged in user')
         else:
-            tasks_print = []
-            plans_print = []
-            if user.tasks:
-                for task in user.tasks:
-                    tasks_print.append(task.info)
-                tasks_print = 'tasks:\n' + ', '.join(tasks_print)
-            else:
-                tasks_print = 'No tasks'
-
-            if user.plans:
-                for plan in user.plans:
-                    plans_print.append(plan.info)
-                plans_print = 'plans:\n' + ', '.join(plans_print)
-            else:
-                plans_print = 'No plans'
-            print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
+            printer.print_user(user)
             self.logger.debug('Printed information about current user')
 
     def operation_task_add(self, db, description, priority, deadline, tags, parent_task_id):
@@ -126,47 +110,20 @@ class ConsoleOperations:
         else:
             self.logger.debug('Deleted task with id "{}"'.format(id))
 
-    def task_print(self, tasks, colored, short=True, tags=None):
-
-        if colored:
-            priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
-        else:
-            priority_colors = [Fore.RESET] * 6
-        for task in tasks:
-            if tags:
-                if all(elem in task.tags for elem in re.split("[^\w]", tags)):
-                    subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
-                    print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info,
-                                                                                       subtasks_print))
-                self.task_print(task.subtasks, colored, tags=tags)
-            elif short:
-                subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
-                print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
-            elif not short:
-                offset = '' if task.indent == 0 else task.indent * ' ' + task.indent * ' *'
-                print(priority_colors[task.priority - 1] + offset + '| {} | {}'.format(task.id, task.info))
-                self.task_print(task.subtasks, colored, False)
-
     def operation_task_show(self, db, choice, selected, all, colored):
 
         try:
             if choice == 'id':
                 task = db.get_tasks(selected)
-                deadline_print = dp.parse_iso_pretty(task.deadline) if task.deadline else 'No deadline'
-                tags_print = ', '.join(task.tags) if len(task.tags) > 0 else 'No tags'
-                print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nCreated: {}\nLast change: {}\nTags: {}'
-                      .format(task.info, task.id, deadline_print, task.status,
-                              dp.parse_iso_pretty(task.date), dp.parse_iso_pretty(task.last_change), tags_print))
-                print('Subtasks:')
-                self.task_print(task.subtasks, colored)
+                printer.print_main_task(task, colored)
             elif choice == 'tags':
-                self.task_print(db.get_tasks(), colored, tags=selected)
+                printer.print_task(db.get_tasks(), colored, tags=re.split('[^\w]', selected))
             elif choice == 'archive':
-                self.task_print(db.get_tasks(archive=True), colored)
+                printer.print_task(db.get_tasks(archive=True), colored)
             elif all:
-                self.task_print(db.get_tasks(), colored, False)
+                printer.print_task(db.get_tasks(), colored, short=False)
             elif not choice:
-                self.task_print(db.get_tasks(), colored)
+                printer.print_task(db.get_tasks(), colored)
         except ce.TaskNotFound:
             print('Task with id {} does not exist'.format(selected))
             self.logger.error('Tried to print not existing task with id "{}"'.format(selected))
@@ -184,23 +141,26 @@ class ConsoleOperations:
     def operation_task_finish(self, db, id):
 
         try:
-            task_finish = db.get_tasks(id)
+            prim_task_finish = db.get_tasks(id)
+        except ce.UserNotAuthorized:
+            print('Use login to sign in or add new user')
+            self.logger.error('Tried to work without authorization')
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(id))
             self.logger.error('Tried to finish not existing task with id "{}"'.format(id))
         else:
-            if hasattr(task_finish, 'owner'):
-                owner = db.get_users(task_finish.owner['nickname'])
-                Database.get_task_by_id(owner.tasks,
-                                        task_finish.owner['id'].split(Constants.ID_DELIMITER)).finish()
-                owner.archive_task(task_finish.owner['id'])
-            if hasattr(task_finish, 'user'):
-                user = db.get_users(task_finish.user['nickname'])
-                Database.get_task_by_id(user.tasks,
-                                        task_finish.user['id'].split(Constants.ID_DELIMITER)).finish()
-                user.archive_task(task_finish.user['id'])
-            task_finish.finish()
-            if task_finish.plan is None:
+            if hasattr(prim_task_finish, 'owner'):
+                owner = db.get_users(prim_task_finish.owner['nickname'])
+                owner_task = owner.get_task(prim_task_finish.owner['id'])
+                owner_task.finish()
+                owner.archive_task(prim_task_finish.owner['id'])
+            if hasattr(prim_task_finish, 'user'):
+                user = db.get_users(prim_task_finish.user['nickname'])
+                user_task = user.get_task(prim_task_finish.user['id'])
+                user_task.finish()
+                user.archive_task(prim_task_finish.user['id'])
+            prim_task_finish.finish()
+            if prim_task_finish.plan is None:
                 db.get_current_user().archive_task(id)
             db.serialize()
             self.logger.debug('Finished task with id "{}"'.format(id))
@@ -209,6 +169,9 @@ class ConsoleOperations:
 
         try:
             task_from = db.get_tasks(id_from)
+        except ce.UserNotAuthorized:
+            print('Use login to sign in or add new user')
+            self.logger.error('Tried to work without authorization')
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(id_from))
             self.logger.error('Tried to get not existing task with id "{}"'.format(id_from))
@@ -235,6 +198,9 @@ class ConsoleOperations:
             if status == Status.FINISHED:
                 print('You can not finish task using changing. Use "task finish"')
                 self.logger.warning('Tried to finish task from changing function')
+            elif status == Status.UNFINISHED:
+                print('You can not finish task using changing. Use "task restore"')
+                self.logger.warning('Tried to unfinish task from changing function')
                 return
             db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
                            minus_tag=remove_tags)
@@ -271,7 +237,7 @@ class ConsoleOperations:
                     else:
                         print('This task cant be tracked')
                         self.logger.warning('Tried to track task which already tracking')
-                user_to.tasks.append(task_send)
+                user_to.add_task(task_send)
                 db.serialize()
                 if delete:
                     db.remove_task(id_from)
@@ -287,9 +253,9 @@ class ConsoleOperations:
         try:
             task_to_unshare = db.get_tasks(id)
             user_with_task = db.get_users(task_to_unshare.user['nickname'])
-            for task in user_with_task.tasks:
+            for task in user_with_task.get_all_tasks():
                 if task.id == task_to_unshare.user['id']:
-                    user_with_task.tasks.remove(task)
+                    user_with_task.remove_task(task)
                     del task_to_unshare.user
                     db.serialize()
                     break
@@ -300,48 +266,17 @@ class ConsoleOperations:
 
     def operation_calendar_show(self, tasks, month, year):
 
-        cal = calendar.Calendar()
         try:
-            for _ in cal.itermonthdays(year, month):
-                pass
+            printer.print_calendar(tasks, month, year)
+            self.logger.debug('Printed calendar for {}.{}'.format(month, year))
         except calendar.IllegalMonthError:
             print('Incorrect input')
             self.logger.error('Tried to output incorrect month')
-        else:
-            marked_dates = dp.mark_dates(tasks, month, year)
-            first_day = dp.get_first_weekday(month, year)
-            day_counter = 0
-
-            print(Back.LIGHTWHITE_EX + 'Mon Tue Wed Thu Fri Sat Sun' + Back.RESET)
-            for i in range(1, first_day + 1):
-                if i != first_day:
-                    print('   ', end=' ')
-                day_counter = day_counter + 1
-            else:
-                print(' ', end='')
-
-                for day in cal.itermonthdays(year, month):
-                    task_foreground = Fore.WHITE
-                    if day in marked_dates:
-                        task_foreground = Fore.RED
-
-                    if day != 0:
-                        if (day_counter % 7) == 0:
-                            print(task_foreground + '{num:02d}'.format(num=day), end='\n ')
-                        else:
-                            print(task_foreground + '{num:02d}'.format(num=day), end='  ')
-                        day_counter = day_counter + 1
-                else:
-                    print()
-
-            self.logger.debug('Printed calendar for {}.{}'.format(month, year))
 
     def operation_plan_add(self, db, description, period, time):
 
         try:
-            period_options = dp.parse_period(period)
-            db.add_plan(Plan(info=description, period=period_options['period'],
-                             period_type=period_options['type'],
+            db.add_plan(Plan(info=description, period=dp.parse_period(period),
                              time_at=dp.parse_time(time) if time else None))
         except ValueError:
             print('Incorrect input date')
@@ -354,32 +289,9 @@ class ConsoleOperations:
         try:
             if id:
                 plan = db.get_plans(id)
-                created = 'Status: created' if plan.is_created else 'Status: not created'
-                period_print = 'Period: every '
-                time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
-                next_print = 'Next creating: '
-                if plan.period_type == Constants.REPEAT_DAY:
-                    period_print += str(plan.period) + ' days'
-                    next_print += dp.parse_iso_pretty(plan.next_create)
-                else:
-                    weekdays = []
-                    for day in plan.period:
-                        weekdays.append(dp.get_weekday_word(day))
-                    period_print += ', '.join(weekdays)
-                    if len(plan.period) > 1:
-                        next_print += dp.get_weekday_word(
-                            min(filter(lambda x: x > datetime.now().weekday(), plan.period)))
-                    else:
-                        next_print += dp.get_weekday_word(plan.period[0])
-                print('Information: {}\n{}\nID: {}\n{}\n{} {}'
-                      .format(plan.info, created, plan.id, next_print, period_print, time_print))
+                printer.print_plan(plan)
             else:
-                for plan in db.get_plans():
-                    if colored:
-                        color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
-                    else:
-                        color = Fore.RESET
-                    print(color + '|ID {}| {}'.format(plan.id, plan.info))
+                printer.print_plans(db.get_plans(), colored)
         except ce.PlanNotFound:
             self.logger.error('Tried to print not existing plan with id "{}"'.format(id))
         else:
