@@ -79,7 +79,7 @@ class ConsoleOperations:
         try:
             db.add_task(Task(info=description, priority=priority if priority else 1,
                              deadline=dp.get_deadline(deadline) if deadline else None,
-                             tags=filter(None, re.split("[^\w]", tags.strip())) if tags else [],
+                             tags=list(filter(None, re.split("[^\w]", tags.strip()))) if tags else [],
                              parent_id=parent_task_id))
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(parent_task_id))
