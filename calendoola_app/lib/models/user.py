@@ -1,8 +1,8 @@
 import copy
 
-from calendoola_app.lib.database import Database
-from calendoola_app.lib.constants import Constants
 import calendoola_app.lib.custom_exceptions as ce
+from calendoola_app.lib.constants import Constants
+from calendoola_app.lib.database import Database
 
 
 class User:
@@ -26,7 +26,7 @@ class User:
                 return
 
     @staticmethod
-    def __split_id(id):
+    def __split_id(id: str):
         return id.split(Constants.ID_DELIMITER)
 
     def add_task(self, new_task):
@@ -47,9 +47,12 @@ class User:
             if not Database.get_task_by_id(self.tasks, self.__split_id(id), True):
                 raise ce.TaskNotFound
         else:
-            to_remove = Database.get_task_by_id(self.tasks, self.__split_id(id), True)
-            if to_remove is None:
-                raise ce.TaskNotFound
+            for archived in self.archive:
+                if archived.id == id:
+                    self.archive.remove(archived)
+                    break
+                else:
+                    raise ce.TaskNotFound
 
     def get_task(self, id, archive=None):
         task = None

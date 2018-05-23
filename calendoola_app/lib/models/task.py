@@ -91,11 +91,11 @@ class Task:
         elif status:
             self.status = status
         if plus_tag:
-            for tag in re.split("[^\w]", plus_tag):
+            for tag in filter(None, re.split("[^\w]", plus_tag)):
                 self.tags.append(tag)
             self.tags = list(set(self.tags))
         if minus_tag:
-            for tag in re.split("[^\w]", minus_tag):
+            for tag in filter(None, re.split("[^\w]", minus_tag)):
                 self.tags.remove(tag)
         self.__changed()
 

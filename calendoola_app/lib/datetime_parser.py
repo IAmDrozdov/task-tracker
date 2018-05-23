@@ -62,7 +62,7 @@ def get_weekday_number(str_weekday):
         'fri',
         'sat',
         'sun'
-        )
+    )
     return weekdays.index(str_weekday[:3].lower())
 
 
@@ -80,7 +80,7 @@ def get_weekday_word(number):
         'friday',
         'saturday',
         'sunday'
-        )
+    )
     return weekdays[number]
 
 
@@ -94,14 +94,15 @@ def parse_period(period):
         return {
             'period': int(period),
             'type': const.REPEAT_DAY
-            }
+        }
     else:
-        weekdays_list = re.split("[^\w]", period)
+        weekdays_list = filter(None, re.split("[^\w]", period))
+        print(weekdays_list)
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
         return {
             'period': weekdays_digits_list,
             'type': const.REPEAT_WEEKDAY
-            }
+        }
 
 
 def parse_time(string_time):
@@ -113,7 +114,7 @@ def parse_time(string_time):
     hm_time = {'hour': None,
                'minutes': None,
                'with_minutes': None
-                }
+               }
     if ':' in string_time:
         hm_time['hour'] = int(string_time.split(':')[0])
         hm_time['minutes'] = int(string_time.split(':')[1])

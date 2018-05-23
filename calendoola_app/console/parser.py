@@ -100,4 +100,9 @@ def create_parser():
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
     remove_plan.add_argument('id', type=str, help='ID of plan to delete')
 
+    change_plan = plan_parser.add_parser('change', help='Change plan')
+    change_plan.add_argument('id', type=str, help='ID of plan to change')
+    change_plan.add_argument('-i', '--info', type=str, help='Change information about task')
+    change_plan.add_argument('-p', '--period', type=str, help='Change period of plan. Example: "1", "monday, tuesday"')
+    change_plan.add_argument('-t', '--time', type=str, help='Change time when task should be created')
     return parser

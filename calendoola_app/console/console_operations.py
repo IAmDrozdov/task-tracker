@@ -2,20 +2,17 @@ import calendar
 import copy
 import re
 import time
-from datetime import datetime
-
-from colorama import Fore, Back
 
 import calendoola_app.lib.custom_exceptions as ce
+from calendoola_app.console import printer
 from calendoola_app.lib import datetime_parser as dp
-from calendoola_app.lib.constants import Constants, Status
+from calendoola_app.lib.constants import Status
 from calendoola_app.lib.daemon import Daemon
 from calendoola_app.lib.database import Database
 from calendoola_app.lib.loger import logger
 from calendoola_app.lib.models.plan import Plan
 from calendoola_app.lib.models.task import Task
 from calendoola_app.lib.models.user import User
-from calendoola_app.console import printer
 
 
 class ConsoleOperations:
@@ -82,7 +79,7 @@ class ConsoleOperations:
         try:
             db.add_task(Task(info=description, priority=priority if priority else 1,
                              deadline=dp.get_deadline(deadline) if deadline else None,
-                             tags=re.split("[^\w]", tags.strip()) if tags else [],
+                             tags=filter(None, re.split("[^\w]", tags.strip())) if tags else [],
                              parent_id=parent_task_id))
         except ce.TaskNotFound:
             print('task with id {} does not exist'.format(parent_task_id))
@@ -241,6 +238,7 @@ class ConsoleOperations:
                 db.serialize()
                 if delete:
                     db.remove_task(id_from)
+
                 self.logger.debug(
                     'Shared task with id "{}" to user with nickname "{}"'.format(id_from, nickname_to))
 
@@ -255,10 +253,10 @@ class ConsoleOperations:
             user_with_task = db.get_users(task_to_unshare.user['nickname'])
             for task in user_with_task.get_all_tasks():
                 if task.id == task_to_unshare.user['id']:
-                    user_with_task.remove_task(task)
+                    user_with_task.remove_task(task.id)
                     del task_to_unshare.user
-                    db.serialize()
-                    break
+                db.serialize()
+                break
             self.logger.debug('Unshared task with id {}'.format(id))
         except ce.TaskNotFound:
             print('Task with id {} not found'.format(id))
@@ -319,12 +317,13 @@ class ConsoleOperations:
 
     def operation_task_restore(self, db, id):
         try:
-            restore_task = copy.deepcopy(db.get_tasks(id, True))
-            restore_task.id = Database.get_id(db.get_tasks())
-            restore_task.reset_sub_id()
-            restore_task.unfinish()
-            db.add_task(restore_task)
-            db.remove_task(id, True)
+            archived_task = copy.deepcopy(db.get_tasks(id, archive=True))
+            archived_task.id = Database.get_id(db.get_tasks())
+            archived_task.reset_sub_id()
+            archived_task.unfinish()
+            db.add_task(archived_task)
+
+            db.remove_task(id, archive=True)
         except ce.TaskNotFound:
             print('Task with id "{}" does not exists'.format(id))
             self.logger.error('Tried ti restore not existing task with id "{}"'.format(id))
@@ -351,3 +350,22 @@ class ConsoleOperations:
 
     def restart_daemon(self, db):
         self.daemon.restart(self.check_plans_and_tasks, db)
+
+    def operation_plan_change(self, db, id, info=None, period=None, time=None):
+        try:
+            plan = db.get_plans(id)
+            if info:
+                plan.info = info
+            if period:
+                new_period = dp.parse_period(period)
+                plan.period = new_period['period']
+                plan.period_type = new_period['type']
+            if time:
+                plan.time_at = dp.parse_time(time)
+            self.logger.debug('CHanged plan with id {}'.format(id))
+        except ce.PlanNotFound:
+            print('Plan with id {} do not exist'.format(id))
+            self.logger.error('Tried to access to do not existing plan with id {}'.format(id))
+        except ValueError:
+            print('Incorrect input date')
+            self.logger.error('Entered incorrect weekday')

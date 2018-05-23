@@ -11,7 +11,6 @@ from calendoola_app.lib.models.user import User
 class DatabaseTests(unittest.TestCase):
     def setUp(self):
         self.db_path = 'test_database.json'
-        self.cfg_path = 'test_config.ini'
         self.test_user = User(nickname='test')
         self.test_task = Task(info='test_task')
         self.test_subtask = Task(info='sub_test')
@@ -53,6 +52,13 @@ class DatabaseTests(unittest.TestCase):
         self.db.add_user(self.test_user)
         self.db.remove_user(self.test_user.nickname)
         self.assertNotIn(self.test_user, self.db.get_users())
+
+    def test_remove_task(self):
+        self.db.add_user(User(nickname='test_current'))
+        self.db.set_current_user('test_current')
+        self.db.add_task(self.test_task)
+        self.db.remove_task(self.test_task.id)
+        self.assertFalse(self.db.get_tasks())
 
     def test_get_task(self):
         self.db.add_user(self.test_user)
@@ -107,5 +113,3 @@ class DatabaseTests(unittest.TestCase):
 
     def tearDown(self):
         os.remove(self.db_path)
-        if os.path.exists(self.cfg_path):
-            os.remove(self.cfg_path)
