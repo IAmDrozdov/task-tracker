@@ -4,7 +4,6 @@ import re
 import time
 
 import calendoola_app.calendoola_lib.custom_exceptions as ce
-from calendoola_app.console.modules import printer
 from calendoola_app.calendoola_lib import datetime_parser as dp
 from calendoola_app.calendoola_lib.constants import Status
 from calendoola_app.calendoola_lib.daemon import Daemon
@@ -13,6 +12,7 @@ from calendoola_app.calendoola_lib.loger import logger
 from calendoola_app.calendoola_lib.models.plan import Plan
 from calendoola_app.calendoola_lib.models.task import Task
 from calendoola_app.calendoola_lib.models.user import User
+from calendoola_app.console.modules import printer
 
 
 class ConsoleOperations:
@@ -229,8 +229,8 @@ class ConsoleOperations:
                 task_send.reset_sub_id()
                 if track:
                     if not hasattr(task_send, 'owner'):
-                        task_send.owner = {'nickname': db.get_current_user().nickname, 'id': id_from}
-                        task_from.user = {'nickname': user_to.nickname, 'id': task_send.id}
+                        task_send.add_owner(db.get_current_user().nickname, id_from)
+                        task_from.add_user(user_to.nickname, task_send.id)
                     else:
                         print('This task cant be tracked')
                         self.logger.warning('Tried to track task which already tracking')
@@ -254,7 +254,7 @@ class ConsoleOperations:
             for task in user_with_task.get_all_tasks():
                 if task.id == task_to_unshare.user['id']:
                     user_with_task.remove_task(task.id)
-                    del task_to_unshare.user
+                    task_to_unshare.remove_user()
                 db.serialize()
                 break
             self.logger.debug('Unshared task with id {}'.format(id))

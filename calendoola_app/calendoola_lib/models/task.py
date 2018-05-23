@@ -106,3 +106,12 @@ class Task:
                 call(self.info, 'Lost deadline')
                 db.get_current_user().archive_task(self.id)
                 db.serialize()
+
+    def add_owner(self, nickname, id):
+        self.owner = {'nickanme':nickname, 'id':id}
+
+    def add_user(self, nickname,  id):
+        self.user = {'nickname':nickname, 'id': id}
+
+    def remove_user(self):
+        del self.user
