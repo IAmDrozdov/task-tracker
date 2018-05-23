@@ -97,7 +97,6 @@ def parse_period(period):
         }
     else:
         weekdays_list = filter(None, re.split("[^\w]", period))
-        print(weekdays_list)
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
         return {
             'period': weekdays_digits_list,

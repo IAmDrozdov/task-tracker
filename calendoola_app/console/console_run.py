@@ -5,8 +5,8 @@
 
 import argcomplete
 
-from calendoola_app.console.console_operations import ConsoleOperations
-from calendoola_app.console.parser import create_parser
+from calendoola_app.console.modules.console_operations import ConsoleOperations
+from calendoola_app.console.modules.parser import create_parser
 from calendoola_app.lib.config import Config
 from calendoola_app.lib.constants import Constants
 from calendoola_app.lib.database import Database

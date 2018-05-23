@@ -2,7 +2,7 @@ import os
 import unittest
 
 import calendoola_app.lib.custom_exceptions as ce
-from calendoola_app.console.console_operations import ConsoleOperations
+from calendoola_app.console.modules.console_operations import ConsoleOperations
 from calendoola_app.lib.constants import Status
 from calendoola_app.lib.database import Database
 
@@ -91,7 +91,9 @@ class ConsoleOperationsTests(unittest.TestCase):
         self.assertEqual(changed_task.deadline, '2018-05-25 00:00:00')
         self.assertEqual(changed_task.priority, 4)
         self.assertEqual(changed_task.status, 'new_status')
-        self.assertEqual(changed_task.tags, ['new_tag_1', 'new_tag'])
+        self.assertIn('new_tag', changed_task.tags)
+        self.assertIn('new_tag_1', changed_task.tags)
+        self.assertNotIn('tag_to_remove', changed_task.tags)
 
     def test_task_share_without_deleting(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, True)

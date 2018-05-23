@@ -4,7 +4,7 @@ import re
 import time
 
 import calendoola_app.lib.custom_exceptions as ce
-from calendoola_app.console import printer
+from calendoola_app.console.modules import printer
 from calendoola_app.lib import datetime_parser as dp
 from calendoola_app.lib.constants import Status
 from calendoola_app.lib.daemon import Daemon
