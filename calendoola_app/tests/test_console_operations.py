@@ -1,10 +1,10 @@
 import os
 import unittest
 
-import calendoola_app.lib.custom_exceptions as ce
+import calendoola_app.calendoola_lib.custom_exceptions as ce
 from calendoola_app.console.modules.console_operations import ConsoleOperations
-from calendoola_app.lib.constants import Status
-from calendoola_app.lib.database import Database
+from calendoola_app.calendoola_lib.constants import Status
+from calendoola_app.calendoola_lib.database import Database
 
 
 class ConsoleOperationsTests(unittest.TestCase):

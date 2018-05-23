@@ -2,8 +2,8 @@ import json
 
 import jsonpickle
 
-from calendoola_app.lib import custom_exceptions as ce
-from calendoola_app.lib.constants import Constants
+from calendoola_app.calendoola_lib import custom_exceptions as ce
+from calendoola_app.calendoola_lib.constants import Constants
 
 
 class Database:

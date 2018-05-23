@@ -1,9 +1,9 @@
 import unittest
 from datetime import datetime
 
-import calendoola_app.lib.datetime_parser as dp
-from calendoola_app.lib.constants import Constants
-from calendoola_app.lib.models.task import Task
+import calendoola_app.calendoola_lib.datetime_parser as dp
+from calendoola_app.calendoola_lib.constants import Constants
+from calendoola_app.calendoola_lib.models.task import Task
 
 
 class DatetimeParserTests(unittest.TestCase):

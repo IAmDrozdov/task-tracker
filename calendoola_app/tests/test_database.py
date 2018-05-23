@@ -1,11 +1,11 @@
 import os
 import unittest
 
-import calendoola_app.lib.custom_exceptions as ce
-from calendoola_app.lib.database import Database
-from calendoola_app.lib.models.plan import Plan
-from calendoola_app.lib.models.task import Task
-from calendoola_app.lib.models.user import User
+import calendoola_app.calendoola_lib.custom_exceptions as ce
+from calendoola_app.calendoola_lib.database import Database
+from calendoola_app.calendoola_lib.models.plan import Plan
+from calendoola_app.calendoola_lib.models.task import Task
+from calendoola_app.calendoola_lib.models.user import User
 
 
 class DatabaseTests(unittest.TestCase):

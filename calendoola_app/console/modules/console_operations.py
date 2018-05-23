@@ -3,16 +3,16 @@ import copy
 import re
 import time
 
-import calendoola_app.lib.custom_exceptions as ce
+import calendoola_app.calendoola_lib.custom_exceptions as ce
 from calendoola_app.console.modules import printer
-from calendoola_app.lib import datetime_parser as dp
-from calendoola_app.lib.constants import Status
-from calendoola_app.lib.daemon import Daemon
-from calendoola_app.lib.database import Database
-from calendoola_app.lib.loger import logger
-from calendoola_app.lib.models.plan import Plan
-from calendoola_app.lib.models.task import Task
-from calendoola_app.lib.models.user import User
+from calendoola_app.calendoola_lib import datetime_parser as dp
+from calendoola_app.calendoola_lib.constants import Status
+from calendoola_app.calendoola_lib.daemon import Daemon
+from calendoola_app.calendoola_lib.database import Database
+from calendoola_app.calendoola_lib.loger import logger
+from calendoola_app.calendoola_lib.models.plan import Plan
+from calendoola_app.calendoola_lib.models.task import Task
+from calendoola_app.calendoola_lib.models.user import User
 
 
 class ConsoleOperations:

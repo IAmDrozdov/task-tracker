@@ -1,10 +1,10 @@
 import re
 from datetime import datetime
 
-import calendoola_app.lib.datetime_parser as dp
-from calendoola_app.lib.constants import Status, Constants
-from calendoola_app.lib.database import Database
-from calendoola_app.lib.notification import call
+import calendoola_app.calendoola_lib.datetime_parser as dp
+from calendoola_app.calendoola_lib.constants import Status, Constants
+from calendoola_app.calendoola_lib.database import Database
+from calendoola_app.calendoola_lib.notification import call
 
 
 class Task:
