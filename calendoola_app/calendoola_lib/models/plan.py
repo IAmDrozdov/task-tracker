@@ -11,13 +11,7 @@ class Plan:
         """
         Core that create tasks dependents on time
         :param info: information about task
-        :param is_created: status of creating task
-        :param last_create: date of last create
         :param time_at: time when task should be created
-        :param period_type: type of period (daily or weekday)
-        :param next_create: for daily tasks keep info when should be created next time
-        :param id: id of plan
-        :param petiod: period of creating task
         """
         self.info = info
         self.is_created = False

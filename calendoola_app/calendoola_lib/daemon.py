@@ -8,9 +8,12 @@ import calendoola_app.calendoola_lib.custom_exceptions as ce
 
 class Daemon:
 
-    def __init__(self, pid_path, log_path):
+    def __init__(self, pid_path):
+        """
+        Instance that works in background
+        :param pid_path: pid file path
+        """
         self.path = pid_path
-        self.log = log_path
 
     def run(self, func, database):
         """

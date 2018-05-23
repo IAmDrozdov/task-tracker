@@ -80,6 +80,9 @@ class Task:
         self.subtasks.append(task_from)
 
     def change(self, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
+        """
+        Change information about task
+        """
         if info:
             self.info = info
         if deadline:
@@ -100,6 +103,10 @@ class Task:
         self.__changed()
 
     def check(self, db):
+        """
+        Check task deadline for overdue
+        :param db: container what has this task
+        """
         if self.deadline:
             if dp.parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
@@ -108,10 +115,23 @@ class Task:
                 db.serialize()
 
     def add_owner(self, nickname, id):
-        self.owner = {'nickanme':nickname, 'id':id}
+        """
+        add owner to task
+        :param nickname: owner's nickname
+        :param id: task's id in user's tasks
+        """
+        self.owner = {'nickname': nickname, 'id': id}
 
-    def add_user(self, nickname,  id):
-        self.user = {'nickname':nickname, 'id': id}
+    def add_user(self, nickname, id):
+        """
+        add user to task
+        :param nickname: user's nickname
+        :param id: task's id in user's tasks
+        """
+        self.user = {'nickname': nickname, 'id': id}
 
     def remove_user(self):
+        """
+        Remove user from task
+        """
         del self.user

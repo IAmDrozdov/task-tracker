@@ -30,6 +30,10 @@ class User:
         return id.split(Constants.ID_DELIMITER)
 
     def add_task(self, new_task):
+        """
+        add task to 'tasks'
+        :param new_task: instance
+        """
         if new_task.parent_id:
             parent_task = Database.get_task_by_id(self.tasks, self.__split_id(new_task.parent_id))
             if parent_task is not None:
@@ -43,6 +47,11 @@ class User:
             self.tasks.append(new_task)
 
     def remove_task(self, id, archive=None):
+        """
+        Remove task from 'tasks'
+        :param id: task's to remove id
+        :param archive: if True search in 'archive'
+        """
         if not archive:
             if not Database.get_task_by_id(self.tasks, self.__split_id(id), True):
                 raise ce.TaskNotFound
@@ -55,6 +64,12 @@ class User:
                     raise ce.TaskNotFound
 
     def get_task(self, id, archive=None):
+        """
+        Get task
+        :param id: id of task to get
+        :param archive: if True search in 'archive'
+        :return: task
+        """
         task = None
         if not archive:
             task = Database.get_task_by_id(self.tasks, self.__split_id(id))
@@ -68,16 +83,29 @@ class User:
             return task
 
     def get_all_tasks(self, archive=None):
+        """
+        Return list of tasks
+        :param archive: if True return 'archive' list
+        :return: list of tasks
+        """
         if archive:
             return self.archive
         else:
             return self.tasks
 
     def add_plan(self, new_plan):
+        """
+        Add plan to 'plans'
+        :param new_plan: instance
+        """
         new_plan.id = Database.get_id(self.plans)
         self.plans.append(new_plan)
 
     def remove_plan(self, id):
+        """
+        Remove plan from 'plans'
+        :param id: id of plan to remove
+        """
         self.plans.remove(self.get_plan(id))
         for task in self.get_all_tasks():
             if task.plan == id:
@@ -85,6 +113,10 @@ class User:
                 break
 
     def get_plan(self, id):
+        """
+        Get plan by id
+        :param id: id of plan to get
+        """
         for plan in self.plans:
             if plan.id == id:
                 return plan
@@ -92,4 +124,8 @@ class User:
             raise ce.PlanNotFound
 
     def get_all_plans(self):
+        """
+        Return 'plans'
+        :return: list of plans
+        """
         return self.plans

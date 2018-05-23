@@ -18,7 +18,7 @@ from calendoola_app.console.modules import printer
 class ConsoleOperations:
     def __init__(self, logger_path, pid_path, log_level):
         self.logger = logger(logger_path, log_level)
-        self.daemon = Daemon(pid_path, logger_path)
+        self.daemon = Daemon(pid_path)
 
     def operation_user_add(self, db, nickname, force):
 

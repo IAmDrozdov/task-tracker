@@ -9,7 +9,7 @@ from calendoola_app.calendoola_lib.constants import Constants
 class Database:
     def __init__(self, path):
         """
-        Class for working with database
+        Interface for working with database
         """
         self.path = path
         try:

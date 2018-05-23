@@ -3,7 +3,11 @@ import logging.config
 
 
 def logger(path, level):
-
+    """
+    Set up from logger
+    :param path: logging file path
+    :param level: level of logging
+    """
     if level == 'debug':
         logging_level = logging.DEBUG
     elif level == 'error':

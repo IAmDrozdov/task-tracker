@@ -10,6 +10,9 @@ class Constants:
 
 
 class Status:
+    """
+    Tasks statuses
+    """
     FINISHED = 'FINISHED'
     UNFINISHED = 'UNFINISHED'
     OVERDUE = 'OVERDUE'
