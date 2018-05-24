@@ -135,3 +135,18 @@ class Task:
         Remove user from task
         """
         del self.user
+
+    def __rec_up(self, id):
+        for task in self.subtasks:
+            if task.id == id:
+                return True
+            else:
+                task.__rec_up(id)
+
+    def is_parent(self, id):
+        """
+        check task for be parent of task
+        :param task_to: task what checing
+        :return: True if task_to is parent of current task, else False
+        """
+        return self.__rec_up(id)

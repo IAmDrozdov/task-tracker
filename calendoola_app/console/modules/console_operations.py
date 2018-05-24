@@ -185,9 +185,14 @@ class ConsoleOperations:
                     print('task with id {} does not exist'.format(id_to))
                     self.logger.error('Tried to move not existing task with id "{}"'.format(id_to))
             else:
-                task_to.append_task(copy.deepcopy(task_from))
-                db.remove_task(id_from)
-                self.logger.debug('Task with id "{}" became subtask "{}"'.format(id_to, id_from))
+                if not task_from.is_parent(id_to):
+                    copy_of_task_from = copy.deepcopy(task_from)
+                    task_to.append_task(copy_of_task_from)
+                    db.remove_task(id_from)
+                    self.logger.debug('Task with id "{}" became subtask "{}"'.format(id_to, id_from))
+                else:
+                    print('Task with id {} is parent of task with id {}'.format(id_from, id_to))
+                    self.logger.error('Tried to move parent task to self subtask')
 
     def operation_task_change(self, db, id, info, deadline, priority, status, append_tags, remove_tags):
 
