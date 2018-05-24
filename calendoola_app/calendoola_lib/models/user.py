@@ -18,12 +18,11 @@ class User:
         :param task_id: id of task to archive
         :return:
         """
-        for task in self.tasks:
-            if task.id == task_id:
-                task.id = Database.get_id(self.archive)
-                self.archive.append(copy.deepcopy(task))
-                self.tasks.remove(task)
-                return
+        task_to_remove = Database.get_task_by_id(self.tasks, self.__split_id(task_id))
+        task_to_archive = copy.deepcopy(task_to_remove)
+        task_to_archive.id = Database.get_id(self.archive)
+        self.archive.append(task_to_archive)
+        self.remove_task(task_to_remove.id)
 
     @staticmethod
     def __split_id(id: str):

@@ -135,6 +135,10 @@ class ConsoleOperationsTests(unittest.TestCase):
         self.co.operation_task_restore(self.db, '1')
         self.assertFalse(self.db.get_tasks(archive=True))
         self.assertTrue(self.db.get_tasks())
+        self.co.operation_task_add(self.db, self.test_task_sub_info, None, None, None, '1')
+        self.co.operation_task_finish(self.db, '1_1')
+        self.co.operation_task_restore(self.db, '1')
+        self.assertTrue(self.db.get_tasks().pop().subtasks)
 
     def test_plan_add(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, True)

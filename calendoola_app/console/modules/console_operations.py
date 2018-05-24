@@ -318,10 +318,18 @@ class ConsoleOperations:
     def operation_task_restore(self, db, id):
         try:
             archived_task = copy.deepcopy(db.get_tasks(id, archive=True))
-            archived_task.id = Database.get_id(db.get_tasks())
-            archived_task.reset_sub_id()
-            archived_task.unfinish()
-            db.add_task(archived_task)
+            if archived_task.parent_id is not None:
+
+                parent_of_archived_task = db.get_tasks(archived_task.parent_id)
+                archived_task.unfinish()
+                archived_task.id = Database.get_id(parent_of_archived_task.subtasks)
+                archived_task.reset_sub_id()
+                parent_of_archived_task.append_task(archived_task)
+                db.serialize()
+            else:
+                archived_task.id = Database.get_id(db.get_tasks())
+                archived_task.reset_sub_id()
+                db.add_task(archived_task)
 
             db.remove_task(id, archive=True)
         except ce.TaskNotFound:
