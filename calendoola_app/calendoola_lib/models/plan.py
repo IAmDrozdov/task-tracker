@@ -1,10 +1,10 @@
 import datetime as dt
 from datetime import datetime, timedelta
 
-import calendoola_app.calendoola_lib.datetime_parser as dp
-from calendoola_app.calendoola_lib.constants import Constants, Status
+import calendoola_app.calendoola_lib.etc.datetime_parser as dp
+from calendoola_app.calendoola_lib.modules.constants import Constants, Status
 from calendoola_app.calendoola_lib.models.task import Task
-from calendoola_app.calendoola_lib.notification import call
+from calendoola_app.calendoola_lib.modules.notification import call
 from dateutil.relativedelta import relativedelta
 
 

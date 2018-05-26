@@ -3,8 +3,8 @@ from datetime import datetime
 
 from colorama import Fore, Back
 
-import calendoola_app.calendoola_lib.datetime_parser as dp
-from calendoola_app.calendoola_lib.constants import Constants
+import calendoola_app.calendoola_lib.etc.datetime_parser as dp
+from calendoola_app.calendoola_lib.modules.constants import Constants
 
 
 def print_user(user):

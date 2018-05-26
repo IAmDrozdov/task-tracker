@@ -7,9 +7,9 @@ import argcomplete
 
 from calendoola_app.console.modules.console_operations import ConsoleOperations
 from calendoola_app.console.modules.parser import create_parser
-from calendoola_app.calendoola_lib.config import Config
-from calendoola_app.calendoola_lib.constants import Constants
-from calendoola_app.calendoola_lib.database import Database
+from calendoola_app.calendoola_lib.modules.config import Config
+from calendoola_app.calendoola_lib.modules.constants import Constants
+from calendoola_app.calendoola_lib.db.database import Database
 
 
 def main():

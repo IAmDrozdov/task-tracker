@@ -1,8 +1,8 @@
 import copy
 
-import calendoola_app.calendoola_lib.custom_exceptions as ce
-from calendoola_app.calendoola_lib.constants import Constants
-from calendoola_app.calendoola_lib.database import Database
+import calendoola_app.calendoola_lib.etc.custom_exceptions as ce
+from calendoola_app.calendoola_lib.modules.constants import Constants
+from calendoola_app.calendoola_lib.db.database import Database
 
 
 class User:

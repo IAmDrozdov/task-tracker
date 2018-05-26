@@ -1,7 +1,6 @@
-import re
 from datetime import datetime
 
-from calendoola_app.calendoola_lib.constants import Constants as const
+from calendoola_app.calendoola_lib.modules.constants import Constants
 
 
 def get_deadline(deadline_string):
@@ -33,7 +32,7 @@ def parse_iso(date_iso_like):
     :param date_iso_like: iso-like date
     :return:
     """
-    return datetime.strptime(date_iso_like, const.DATE_PATTERN).date()
+    return datetime.strptime(date_iso_like, Constants.DATE_PATTERN).date()
 
 
 def get_first_weekday(month, year):
@@ -130,12 +129,12 @@ def parse_period(period_type, period_value):
     hm_period = {'period': None, 'type': None}
     if period_type == 'day':
         hm_period['period'] = int(period_value)
-        hm_period['type'] = const.REPEAT_DAY
+        hm_period['type'] = Constants.REPEAT_DAY
     elif period_type == 'week':
         weekdays_list = period_value.strip().split()
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
         hm_period['period'] = list(set(weekdays_digits_list))
-        hm_period['type'] = const.REPEAT_WEEKDAY
+        hm_period['type'] = Constants.REPEAT_WEEKDAY
     elif period_type == 'month':
         period_value = period_value.strip().split()
         month_list = period_value[1:]
@@ -144,10 +143,10 @@ def parse_period(period_type, period_value):
             'months': list(set(month_digits_list)),
             'day': int(period_value[0])
         }
-        hm_period['type'] = const.REPEAT_MONTH
+        hm_period['type'] = Constants.REPEAT_MONTH
     elif period_type == 'year':
         period_value = period_value.strip().split()
-        hm_period['type'] = const.REPEAT_YEAR
+        hm_period['type'] = Constants.REPEAT_YEAR
         hm_period['period'] = {
             'day': int(period_value[0]),
             'month': get_month_number(period_value[1])

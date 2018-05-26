@@ -19,9 +19,9 @@ class Config:
         """
         config = configparser.ConfigParser()
         config.add_section(self.section)
-        config.set(self.section, 'database_path', 'etc/database.json')
-        config.set(self.section, 'pid_path', 'etc/pid.ini')
-        config.set(self.section, 'logger_output_path', 'etc/logging.log')
+        config.set(self.section, 'database_path', 'tmp/database.json')
+        config.set(self.section, 'pid_path', 'tmp/pid.ini')
+        config.set(self.section, 'logger_output_path', 'tmp/logging.log')
         config.set(self.section, 'logging_level', 'debug')
 
         with open(self.path, 'w') as config_file:

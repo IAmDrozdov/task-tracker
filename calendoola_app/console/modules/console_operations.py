@@ -3,12 +3,12 @@ import copy
 import re
 import time
 
-import calendoola_app.calendoola_lib.custom_exceptions as ce
-from calendoola_app.calendoola_lib import datetime_parser as dp
-from calendoola_app.calendoola_lib.constants import Status
-from calendoola_app.calendoola_lib.daemon import Daemon
-from calendoola_app.calendoola_lib.database import Database
-from calendoola_app.calendoola_lib.loger import logger
+import calendoola_app.calendoola_lib.etc.custom_exceptions as ce
+from calendoola_app.calendoola_lib.etc import datetime_parser as dp
+from calendoola_app.calendoola_lib.modules.constants import Status
+from calendoola_app.calendoola_lib.etc.daemon import Daemon
+from calendoola_app.calendoola_lib.db.database import Database
+from calendoola_app.calendoola_lib.modules.loger import logger
 from calendoola_app.calendoola_lib.models.plan import Plan
 from calendoola_app.calendoola_lib.models.task import Task
 from calendoola_app.calendoola_lib.models.user import User
@@ -146,12 +146,12 @@ class ConsoleOperations:
             print('task with id {} does not exist'.format(id))
             self.logger.error('Tried to finish not existing task with id "{}"'.format(id))
         else:
-            if hasattr(prim_task_finish, 'owner'):
+            if prim_task_finish.owner:
                 owner = db.get_users(prim_task_finish.owner['nickname'])
                 owner_task = owner.get_task(prim_task_finish.owner['id'])
                 owner_task.finish()
                 owner.archive_task(prim_task_finish.owner['id'])
-            if hasattr(prim_task_finish, 'user'):
+            if prim_task_finish.user:
                 user = db.get_users(prim_task_finish.user['nickname'])
                 user_task = user.get_task(prim_task_finish.user['id'])
                 user_task.finish()
@@ -233,7 +233,7 @@ class ConsoleOperations:
                 task_send.id = Database.get_id(user_to.tasks)
                 task_send.reset_sub_id()
                 if track:
-                    if not hasattr(task_send, 'owner'):
+                    if task_send.owner is None:
                         task_send.add_owner(db.get_current_user().nickname, id_from)
                         task_from.add_user(user_to.nickname, task_send.id)
                     else:
@@ -363,22 +363,3 @@ class ConsoleOperations:
 
     def restart_daemon(self, db):
         self.daemon.restart(self.check_plans_and_tasks, db)
-
-    def operation_plan_change(self, db, id, info=None, period=None, time=None):
-        try:
-            plan = db.get_plans(id)
-            if info:
-                plan.info = info
-            if period:
-                new_period = dp.parse_period(period)
-                plan.period = new_period['period']
-                plan.period_type = new_period['type']
-            if time:
-                plan.time_at = dp.parse_time(time)
-            self.logger.debug('CHanged plan with id {}'.format(id))
-        except ce.PlanNotFound:
-            print('Plan with id {} do not exist'.format(id))
-            self.logger.error('Tried to access to do not existing plan with id {}'.format(id))
-        except ValueError:
-            print('Incorrect input date')
-            self.logger.error('Entered incorrect weekday')

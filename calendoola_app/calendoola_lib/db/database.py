@@ -2,8 +2,8 @@ import json
 
 import jsonpickle
 
-from calendoola_app.calendoola_lib import custom_exceptions as ce
-from calendoola_app.calendoola_lib.constants import Constants
+from calendoola_app.calendoola_lib.etc import custom_exceptions as ce
+from calendoola_app.calendoola_lib.modules.constants import Constants
 
 
 class Database:
@@ -237,13 +237,13 @@ class Database:
         task = current.get_task(id)
         task.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                     minus_tag=minus_tag)
-        if hasattr(task, 'owner'):
+        if task.owner:
             owner = self.get_users(task.owner['nickname'])
             task_owner = owner.get_task(task.owner['id'])
             task_owner.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,
                               minus_tag=minus_tag)
 
-        if hasattr(task, 'user'):
+        if task.user:
             user = self.get_users(task.user['nickname'])
             task_user = user.get_task(task.user['id'])
             task_user.change(info=info, deadline=deadline, priority=priority, status=status, plus_tag=plus_tag,

@@ -1,10 +1,10 @@
 import re
 from datetime import datetime
 
-import calendoola_app.calendoola_lib.datetime_parser as dp
-from calendoola_app.calendoola_lib.constants import Status, Constants
-from calendoola_app.calendoola_lib.database import Database
-from calendoola_app.calendoola_lib.notification import call
+import calendoola_app.calendoola_lib.etc.datetime_parser as dp
+from calendoola_app.calendoola_lib.modules.constants import Status, Constants
+from calendoola_app.calendoola_lib.db.database import Database
+from calendoola_app.calendoola_lib.modules.notification import call
 
 
 class Task:
@@ -31,6 +31,8 @@ class Task:
         self.priority = priority
         self.parent_id = parent_id
         self.indent = 0
+        self.user = None
+        self.owner = None
         self.plan = plan
         self.last_change = datetime.now().strftime(Constants.DATE_PATTERN)
         self.date = datetime.now().strftime(Constants.DATE_PATTERN)
@@ -134,7 +136,7 @@ class Task:
         """
         Remove user from task
         """
-        del self.user
+        self.user = None
 
     def __rec_up(self, id):
         for task in self.subtasks:

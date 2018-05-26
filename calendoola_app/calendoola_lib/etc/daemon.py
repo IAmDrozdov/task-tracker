@@ -3,7 +3,7 @@ import sys
 import tempfile
 from signal import SIGTERM
 
-import calendoola_app.calendoola_lib.custom_exceptions as ce
+import calendoola_app.calendoola_lib.etc.custom_exceptions as ce
 
 
 class Daemon:

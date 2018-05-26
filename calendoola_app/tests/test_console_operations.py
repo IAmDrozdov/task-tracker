@@ -1,10 +1,10 @@
 import os
 import unittest
 
-import calendoola_app.calendoola_lib.custom_exceptions as ce
+import calendoola_app.calendoola_lib.etc.custom_exceptions as ce
 from calendoola_app.console.modules.console_operations import ConsoleOperations
-from calendoola_app.calendoola_lib.constants import Status
-from calendoola_app.calendoola_lib.database import Database
+from calendoola_app.calendoola_lib.modules.constants import Status
+from calendoola_app.calendoola_lib.db.database import Database
 
 
 class ConsoleOperationsTests(unittest.TestCase):
@@ -84,11 +84,11 @@ class ConsoleOperationsTests(unittest.TestCase):
     def test_task_change(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, True)
         self.co.operation_task_add(self.db, self.test_task_info, None, None, 'tag_to_remove', None)
-        self.co.operation_task_change(self.db, '1', 'new_info', '25 May', 4, 'new_status', 'new_tag, new_tag_1',
+        self.co.operation_task_change(self.db, '1', 'new_info', '1 September', 4, 'new_status', 'new_tag, new_tag_1',
                                       'tag_to_remove')
         changed_task = self.db.get_tasks('1')
         self.assertEqual(changed_task.info, 'new_info')
-        self.assertEqual(changed_task.deadline, '2018-05-25 00:00:00')
+        self.assertEqual(changed_task.deadline, '2018-09-01 00:00:00')
         self.assertEqual(changed_task.priority, 4)
         self.assertEqual(changed_task.status, 'new_status')
         self.assertIn('new_tag', changed_task.tags)
@@ -116,8 +116,8 @@ class ConsoleOperationsTests(unittest.TestCase):
         self.co.operation_user_add(self.db, self.test_user_nickname_1, False)
         self.co.operation_task_add(self.db, self.test_task_info, None, None, None, None)
         self.co.operation_task_share(self.db, '1', self.test_user_nickname_1, None, True)
-        self.assertTrue(hasattr(self.db.get_tasks().pop(), 'user'))
-        self.assertTrue(hasattr(self.db.get_users(self.test_user_nickname_1).get_all_tasks().pop(), 'owner'))
+        self.assertTrue(self.db.get_tasks().pop().user)
+        self.assertTrue(self.db.get_users(self.test_user_nickname_1).get_all_tasks().pop().owner)
 
     def test_task_unshare(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, True)
@@ -125,7 +125,7 @@ class ConsoleOperationsTests(unittest.TestCase):
         self.co.operation_task_add(self.db, self.test_task_info, None, None, None, None)
         self.co.operation_task_share(self.db, '1', self.test_user_nickname_1, None, True)
         self.co.operation_task_unshare(self.db, '1')
-        self.assertFalse(hasattr(self.db.get_tasks().pop(), 'user'))
+        self.assertFalse(self.db.get_tasks().pop().user)
         self.assertFalse(self.db.get_users(self.test_user_nickname_1).get_all_tasks())
 
     def test_task_restore(self):
@@ -142,29 +142,15 @@ class ConsoleOperationsTests(unittest.TestCase):
 
     def test_plan_add(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, True)
-        self.co.operation_plan_add(self.db, self.test_plan_info, '5', None)
+        self.co.operation_plan_add(self.db, self.test_plan_info, 'day', '5', None)
         self.assertTrue(self.db.get_plans())
 
     def test_plan_remove(self):
 
         self.co.operation_user_add(self.db, self.test_user_nickname, True)
-        self.co.operation_plan_add(self.db, self.test_plan_info, '5', None)
+        self.co.operation_plan_add(self.db, self.test_plan_info, 'day', '5', None)
         self.co.operation_plan_remove(self.db, '1')
         self.assertFalse(self.db.get_plans())
-
-    def test_plan_change(self):
-        self.co.operation_user_add(self.db, self.test_user_nickname, True)
-        self.co.operation_plan_add(self.db, self.test_plan_info, '5', None)
-        self.co.operation_plan_change(self.db, '1', 'new_info', '5', '22:10')
-        new_plan = self.db.get_plans()[0]
-        self.assertEqual(new_plan.info, 'new_info')
-        self.assertEqual(new_plan.period, 5)
-        self.assertEqual(new_plan.period_type, 'd')
-        self.assertEqual(new_plan.time_at, {'hour': 22, 'minutes': 10, 'with_minutes': True})
-        self.co.operation_plan_change(self.db, '1', 'new_info', 'monday, tuesday', '22')
-        self.assertEqual(new_plan.period, [0, 1])
-        self.assertEqual(new_plan.period_type, 'wd')
-        self.assertEqual(new_plan.time_at, {'hour': 22, 'minutes': None, 'with_minutes': False})
 
     def tearDown(self):
         os.remove(self.db_path)
