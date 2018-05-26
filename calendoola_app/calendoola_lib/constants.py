@@ -6,6 +6,8 @@ class Constants:
     DATE_PATTERN = "%Y-%m-%d %H:%M:%S"
     REPEAT_DAY = 'd'
     REPEAT_WEEKDAY = 'wd'
+    REPEAT_MONTH = 'm'
+    REPEAT_YEAR = 'y'
     ID_DELIMITER = "_"
 
 

@@ -276,10 +276,10 @@ class ConsoleOperations:
             print('Incorrect input')
             self.logger.error('Tried to output incorrect month')
 
-    def operation_plan_add(self, db, description, period, time):
+    def operation_plan_add(self, db, description, period_type, period_value, time):
 
         try:
-            db.add_plan(Plan(info=description, period=dp.parse_period(period),
+            db.add_plan(Plan(info=description, period=dp.parse_period(period_type, period_value),
                              time_at=dp.parse_time(time) if time else None))
         except ValueError:
             print('Incorrect input date')

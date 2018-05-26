@@ -23,6 +23,7 @@ def main():
     co = ConsoleOperations(log_path, pid_path, log_level)
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
+    print(namespace)
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
@@ -69,7 +70,7 @@ def main():
     #######################################
     elif namespace.target == 'plan':
         if namespace.command == 'add':
-            co.operation_plan_add(db, namespace.description, namespace.period, namespace.time)
+            co.operation_plan_add(db, namespace.description, namespace.period_type, namespace.period_value, namespace.time)
         elif namespace.command == 'show':
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':

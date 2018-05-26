@@ -88,9 +88,9 @@ def create_parser():
 
     add_plan = plan_parser.add_parser('add', help='Create plan, what will create periodic')
     add_plan.add_argument('description', help='Information for task')
-    add_plan.add_argument('period', type=str, help='Period of recreating task. The first way is to enter number, what '
-                                                   'will mean "every N days". The second is to enter list of weekdays'
-                                                   ', what will mean "every N1, N2..."')
+    add_plan.add_argument('period_type', type=str, choices=('day', 'week', 'month', 'year'), help='Type of repeating'
+                                                                                                  'plan creation.')
+    add_plan.add_argument('period_value', type=str, help='periodic of creating task')
     add_plan.add_argument('-t', '--time', type=str, help='time when task will be created')
 
     show_plan = plan_parser.add_parser('show', help='Print list of plans')

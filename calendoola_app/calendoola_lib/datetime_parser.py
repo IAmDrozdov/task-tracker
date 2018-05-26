@@ -48,6 +48,42 @@ def get_first_weekday(month, year):
     return date_datetime.weekday() + 1
 
 
+def get_month_number(str_month):
+    months = (
+        'jan',
+        'feb',
+        'mar',
+        'apr',
+        'may',
+        'jun',
+        'jul',
+        'aug',
+        'sep',
+        'oct',
+        'nov',
+        'dec'
+    )
+    return months.index(str_month[:3].lower()) + 1
+
+
+def get_month_word(number):
+    months = (
+        'january',
+        'february',
+        'march',
+        'april',
+        'may',
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december'
+    )
+    return months[number - 1]
+
+
 def get_weekday_number(str_weekday):
     """
     Using name of weekday return its number representation
@@ -84,24 +120,39 @@ def get_weekday_word(number):
     return weekdays[number]
 
 
-def parse_period(period):
+def parse_period(period_type, period_value):
     """
-    parse period  for plans.
-    :param period: integer value or list of weekdays
-    :return: dict with type and value for period
+    parse entered period in period what can understand "plan"
+    :param period_type: type of periodic
+    :param period_value: date of period
+    :return: dict of readable for plan data for creating tasks
     """
-    if period.isdigit():
-        return {
-            'period': int(period),
-            'type': const.REPEAT_DAY
-        }
-    else:
-        weekdays_list = filter(None, re.split("[^\w]", period))
+    hm_period = {'period': None, 'type': None}
+    if period_type == 'day':
+        hm_period['period'] = int(period_value)
+        hm_period['type'] = const.REPEAT_DAY
+    elif period_type == 'week':
+        weekdays_list = period_value.strip().split()
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
-        return {
-            'period': weekdays_digits_list,
-            'type': const.REPEAT_WEEKDAY
+        hm_period['period'] = list(set(weekdays_digits_list))
+        hm_period['type'] = const.REPEAT_WEEKDAY
+    elif period_type == 'month':
+        period_value = period_value.strip().split()
+        month_list = period_value[1:]
+        month_digits_list = [get_month_number(month) for month in month_list]
+        hm_period['period'] = {
+            'months': list(set(month_digits_list)),
+            'day': int(period_value[0])
         }
+        hm_period['type'] = const.REPEAT_MONTH
+    elif period_type == 'year':
+        period_value = period_value.strip().split()
+        hm_period['type'] = const.REPEAT_YEAR
+        hm_period['period'] = {
+            'day': int(period_value[0]),
+            'month': get_month_number(period_value[1])
+        }
+    return hm_period
 
 
 def parse_time(string_time):
@@ -130,7 +181,7 @@ def parse_time(string_time):
 def is_match(deadline, month, year):
     """
     Comparing this month and year with task deadline date
-    :param self: task obgect
+    :param deadline: deadline
     :param month: month to compare
     :param year: year to compare
     :return: True if all is good else False
