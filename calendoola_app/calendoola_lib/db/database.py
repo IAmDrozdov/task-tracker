@@ -4,6 +4,7 @@ import jsonpickle
 
 from calendoola_app.calendoola_lib.etc import custom_exceptions as ce
 from calendoola_app.calendoola_lib.modules.constants import Constants
+from calendoola_app.calendoola_lib.modules.logger import logg
 
 
 class Database:
@@ -23,6 +24,7 @@ class Database:
         self.users = full.users if full else []
         self.current_user = full.current_user if full else None
 
+    @logg('Created empty database')
     def create_empty(self):
         with open(self.path, mode='w', encoding='utf-8'):
             pass
@@ -47,6 +49,7 @@ class Database:
             if user.nickname == nickname:
                 raise ce.UserAlreadyExists
 
+    @logg('Created new User')
     def add_user(self, new_user):
         """
         Adding new user in database
@@ -56,6 +59,7 @@ class Database:
         self.users.append(new_user)
         self.serialize()
 
+    @logg('Changed current user')
     def set_current_user(self, new_current_user_nickname):
         """
         Change current user
@@ -76,6 +80,7 @@ class Database:
         """
         return self.check_current()
 
+    @logg('Removed current user')
     def remove_current_user(self):
         """
         Remove current user
@@ -83,6 +88,7 @@ class Database:
         self.current_user = None
         self.serialize()
 
+    @logg('Removed User')
     def remove_user(self, nickname):
         """
         Remove user from database
@@ -143,6 +149,7 @@ class Database:
         else:
             raise ce.UserNotAuthorized
 
+    @logg('Created Plan')
     def add_plan(self, new_plan):
         """
         Append plan to current user plans
@@ -152,6 +159,7 @@ class Database:
         current.add_plan(new_plan)
         self.serialize()
 
+    @logg('Removed Plan')
     def remove_plan(self, id):
         """
         Removes plan from current user plans
@@ -203,6 +211,7 @@ class Database:
         else:
             return current.get_all_tasks(archive)
 
+    @logg('Created new Task')
     def add_task(self, new_task):
         """
         Adding task to list of currrent user tasks
@@ -212,6 +221,7 @@ class Database:
         current.add_task(new_task)
         self.serialize()
 
+    @logg('Removed Task')
     def remove_task(self, id, archive=None):
         """
         remove task from current user tasks
@@ -222,6 +232,7 @@ class Database:
         current.remove_task(id, archive)
         self.serialize()
 
+    @logg('Changed information about Task')
     def change_task(self, id, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
         """
         Change information about task

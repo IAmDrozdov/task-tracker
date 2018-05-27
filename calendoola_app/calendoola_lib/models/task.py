@@ -2,10 +2,11 @@ import re
 from datetime import datetime
 
 import calendoola_app.calendoola_lib.etc.datetime_parser as dp
-from calendoola_app.calendoola_lib.modules.constants import Status, Constants
 from calendoola_app.calendoola_lib.db.database import Database
+from calendoola_app.calendoola_lib.modules.constants import Status, Constants
+from calendoola_app.calendoola_lib.modules.logger import logg
 from calendoola_app.calendoola_lib.modules.notification import call
-
+from calendoola_app.calendoola_lib.etc.custom_exceptions import CycleError
 
 class Task:
     def __init__(self, info=None, priority=1, deadline=None, tags=None, parent_id=None, plan=None):
@@ -43,6 +44,7 @@ class Task:
         """
         self.last_change = datetime.now().strftime(Constants.DATE_PATTERN)
 
+    @logg('Finished Task')
     def finish(self):
         """
         Finish self and all subtasks
@@ -51,6 +53,7 @@ class Task:
         for task in self.subtasks:
             task.finish()
 
+    @logg('Unfinished Task')
     def unfinish(self):
         """
          Unfinish self and all subtasks
@@ -59,6 +62,7 @@ class Task:
         for task in self.subtasks:
             task.finish()
 
+    @logg('''Changed subtask's IDs''')
     def reset_sub_id(self):
         """
         Updates subtasks id dependents on self
@@ -70,6 +74,7 @@ class Task:
                 task.parent_id = self.id
                 Task.reset_sub_id(task)
 
+    @logg('Appended Task to Task')
     def append_task(self, task_from):
         """
         Adding task_from to self subtasks
@@ -104,6 +109,7 @@ class Task:
                 self.tags.remove(tag)
         self.__changed()
 
+    @logg('Task checked for overdue')
     def check(self, db):
         """
         Check task deadline for overdue
@@ -116,6 +122,7 @@ class Task:
                 db.get_current_user().archive_task(self.id)
                 db.serialize()
 
+    @logg('Added owner to Task')
     def add_owner(self, nickname, id):
         """
         add owner to task
@@ -124,6 +131,7 @@ class Task:
         """
         self.owner = {'nickname': nickname, 'id': id}
 
+    @logg('Added user to Task')
     def add_user(self, nickname, id):
         """
         add user to task
@@ -132,6 +140,7 @@ class Task:
         """
         self.user = {'nickname': nickname, 'id': id}
 
+    @logg('Removed user from Task')
     def remove_user(self):
         """
         Remove user from task
@@ -151,4 +160,7 @@ class Task:
         :param task_to: task what checing
         :return: True if task_to is parent of current task, else False
         """
-        return self.__rec_up(id)
+        if self.__rec_up(id):
+            raise CycleError
+        else:
+            return False

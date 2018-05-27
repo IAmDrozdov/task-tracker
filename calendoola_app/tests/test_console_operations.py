@@ -10,9 +10,7 @@ from calendoola_app.calendoola_lib.db.database import Database
 class ConsoleOperationsTests(unittest.TestCase):
     def setUp(self):
         self.db_path = 'test_database.json'
-        self.log_path = 'test_logs.log'
         self.pid_path = 'test_pid.ini'
-
         self.test_user_nickname = 'test'
         self.test_user_nickname_1 = 'test_1'
         self.test_task_info = 'test_task'
@@ -20,7 +18,7 @@ class ConsoleOperationsTests(unittest.TestCase):
         self.test_plan_info = 'test_plan'
 
         self.db = Database(self.db_path)
-        self.co = ConsoleOperations(self.log_path, self.pid_path, None)
+        self.co = ConsoleOperations(self.pid_path)
 
     def test_operation_user_add(self):
         self.co.operation_user_add(self.db, self.test_user_nickname, None)
@@ -156,5 +154,3 @@ class ConsoleOperationsTests(unittest.TestCase):
         os.remove(self.db_path)
         if os.path.exists(self.pid_path):
             os.remove(self.pid_path)
-        if os.path.exists(self.log_path):
-            os.remove(self.log_path)

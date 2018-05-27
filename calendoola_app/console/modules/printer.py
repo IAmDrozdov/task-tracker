@@ -112,8 +112,8 @@ def print_plan(plan):
 
 def print_plans(plans, colored):
     for plan in plans:
-                    if colored:
-                        color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
-                    else:
-                        color = Fore.RESET
-                    print(color + '|ID {}| {}'.format(plan.id, plan.info))
+        if colored:
+            color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
+        else:
+            color = Fore.RESET
+        print(color + '|ID {}| {}'.format(plan.id, plan.info))

@@ -22,7 +22,8 @@ class Config:
         config.set(self.section, 'database_path', 'tmp/database.json')
         config.set(self.section, 'pid_path', 'tmp/pid.ini')
         config.set(self.section, 'logger_output_path', 'tmp/logging.log')
-        config.set(self.section, 'logging_level', 'debug')
+        config.set(self.section, 'logging_level', 'ERROR')
+        config.set(self.section, 'logging_format', '%%(asctime)s %%(levelname)s %%(message)s')
 
         with open(self.path, 'w') as config_file:
             config.write(config_file)

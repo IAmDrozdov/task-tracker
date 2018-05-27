@@ -24,3 +24,7 @@ class DaemonAlreadyStarted(Exception):
 
 class DaemonIsNotStarted(Exception):
     pass
+
+
+class CycleError(Exception):
+    pass

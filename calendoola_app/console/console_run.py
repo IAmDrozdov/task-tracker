@@ -5,11 +5,12 @@
 
 import argcomplete
 
-from calendoola_app.console.modules.console_operations import ConsoleOperations
-from calendoola_app.console.modules.parser import create_parser
+from calendoola_app.calendoola_lib.db.database import Database
 from calendoola_app.calendoola_lib.modules.config import Config
 from calendoola_app.calendoola_lib.modules.constants import Constants
-from calendoola_app.calendoola_lib.db.database import Database
+from calendoola_app.console.modules.console_operations import ConsoleOperations
+from calendoola_app.console.modules.parser import create_parser
+from calendoola_app.calendoola_lib.modules.logger import logg, configure_logger
 
 
 def main():
@@ -18,12 +19,13 @@ def main():
     log_path = cfg.get_config_field('logger_output_path')
     pid_path = cfg.get_config_field('pid_path')
     log_level = cfg.get_config_field('logging_level')
+    log_format = cfg.get_config_field('logging_format')
+    configure_logger(log_path, log_format, log_level)
     db = Database(db_path)
     parser = create_parser()
-    co = ConsoleOperations(log_path, pid_path, log_level)
+    co = ConsoleOperations(pid_path)
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
-    print(namespace)
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
@@ -70,7 +72,8 @@ def main():
     #######################################
     elif namespace.target == 'plan':
         if namespace.command == 'add':
-            co.operation_plan_add(db, namespace.description, namespace.period_type, namespace.period_value, namespace.time)
+            co.operation_plan_add(db, namespace.description, namespace.period_type, namespace.period_value,
+                                  namespace.time)
         elif namespace.command == 'show':
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':

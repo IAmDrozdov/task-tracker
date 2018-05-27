@@ -1,8 +1,9 @@
 import copy
 
 import calendoola_app.calendoola_lib.etc.custom_exceptions as ce
-from calendoola_app.calendoola_lib.modules.constants import Constants
 from calendoola_app.calendoola_lib.db.database import Database
+from calendoola_app.calendoola_lib.modules.constants import Constants
+from calendoola_app.calendoola_lib.modules.logger import logg
 
 
 class User:
@@ -12,6 +13,7 @@ class User:
         self.plans = []
         self.archive = []
 
+    @logg('Task replaced to archive')
     def archive_task(self, task_id):
         """
          Add finished task to archive
@@ -28,6 +30,7 @@ class User:
     def __split_id(id: str):
         return id.split(Constants.ID_DELIMITER)
 
+    @logg('Task appended to User')
     def add_task(self, new_task):
         """
         add task to 'tasks'
@@ -45,6 +48,7 @@ class User:
             new_task.id = Database.get_id(self.tasks)
             self.tasks.append(new_task)
 
+    @logg('Task removed from User')
     def remove_task(self, id, archive=None):
         """
         Remove task from 'tasks'
@@ -62,6 +66,7 @@ class User:
                 else:
                     raise ce.TaskNotFound
 
+    @logg('Returned Task')
     def get_task(self, id, archive=None):
         """
         Get task
@@ -81,6 +86,7 @@ class User:
         else:
             return task
 
+    @logg('Returned Tasks')
     def get_all_tasks(self, archive=None):
         """
         Return list of tasks
@@ -92,6 +98,7 @@ class User:
         else:
             return self.tasks
 
+    @logg('Plan appended to User')
     def add_plan(self, new_plan):
         """
         Add plan to 'plans'
@@ -100,6 +107,7 @@ class User:
         new_plan.id = Database.get_id(self.plans)
         self.plans.append(new_plan)
 
+    @logg('Plan removed from User')
     def remove_plan(self, id):
         """
         Remove plan from 'plans'
@@ -111,6 +119,7 @@ class User:
                 self.remove_task(task.id)
                 break
 
+    @logg('Returned plan')
     def get_plan(self, id):
         """
         Get plan by id
@@ -122,6 +131,7 @@ class User:
         else:
             raise ce.PlanNotFound
 
+    @logg('Returned Plans')
     def get_all_plans(self):
         """
         Return 'plans'

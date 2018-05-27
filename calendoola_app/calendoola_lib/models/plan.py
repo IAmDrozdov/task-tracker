@@ -1,11 +1,13 @@
 import datetime as dt
 from datetime import datetime, timedelta
 
-import calendoola_app.calendoola_lib.etc.datetime_parser as dp
-from calendoola_app.calendoola_lib.modules.constants import Constants, Status
-from calendoola_app.calendoola_lib.models.task import Task
-from calendoola_app.calendoola_lib.modules.notification import call
 from dateutil.relativedelta import relativedelta
+
+from calendoola_app.calendoola_lib.modules.logger import logg
+import calendoola_app.calendoola_lib.etc.datetime_parser as dp
+from calendoola_app.calendoola_lib.models.task import Task
+from calendoola_app.calendoola_lib.modules.constants import Constants, Status
+from calendoola_app.calendoola_lib.modules.notification import call
 
 
 class Plan:
@@ -26,9 +28,10 @@ class Plan:
             self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
                 .strftime(Constants.DATE_PATTERN)
         elif self.period_type == Constants.REPEAT_YEAR:
-            self.next_create = dt.date(datetime.now().year+1, self.period['month'], self.period['day'])\
+            self.next_create = dt.date(datetime.now().year + 1, self.period['month'], self.period['day']) \
                 .strftime(Constants.DATE_PATTERN)
 
+    @logg('Created new Task from Plan')
     def __create_task(self):
         """
         Create new task
@@ -178,6 +181,7 @@ class Plan:
                 if self.__is_mine(task):
                     return task
 
+    @logg('Checking Plans')
     def check(self, database):
         """
         global function check
