@@ -1,7 +1,6 @@
 import logging
 
 from .db.database import Database
-from .etc import date_parse
 from .etc.custom_exceptions import (UserNotAuthorized, UserNotFound, UserAlreadyExists, TaskNotFound, PlanNotFound,
                                     CycleError, DaemonIsNotStarted, DaemonAlreadyStarted)
 from .etc.daemon import Daemon

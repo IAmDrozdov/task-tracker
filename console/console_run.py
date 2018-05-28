@@ -8,7 +8,6 @@ from calelib import Config
 from calelib import Constants
 from calelib import Database
 from calelib import configure_logger
-import logging
 from modules.console_operations import ConsoleOperations
 from modules.parser import create_parser
 
@@ -44,6 +43,7 @@ def main():
         return
     elif namespace.stop_daemon:
         co.stop_daemon()
+    ConsoleOperations.check_plans_and_tasks(db, True)
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':

@@ -1,8 +1,8 @@
 import datetime as dt
 from datetime import datetime, timedelta
 
-import calelib.etc.date_parse as dp
 from calelib.models.task import Task
+from calelib.etc.dates import parse_iso
 from calelib.modules.constants import Constants, Status
 from calelib.modules.logger import logg
 from calelib.modules.notification import call
@@ -24,7 +24,7 @@ class Plan:
         self.id = None
         self.period = period['period']
         if self.period_type == Constants.REPEAT_DAY:
-            self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
+            self.next_create = (parse_iso(self.last_create) + timedelta(days=int(self.period))) \
                 .strftime(Constants.DATE_PATTERN)
         elif self.period_type == Constants.REPEAT_YEAR:
             self.next_create = dt.date(datetime.now().year + 1, self.period['month'], self.period['day']) \
@@ -49,7 +49,7 @@ class Plan:
         Comparing days for create
         :return: Diff of dates
         """
-        return (dp.parse_iso(self.next_create) - datetime.now().date()) != timedelta(days=0)
+        return (parse_iso(self.next_create) - datetime.now().date()) != timedelta(days=0)
 
     def __check_time(self):
         """
@@ -94,10 +94,10 @@ class Plan:
         Increment of next create dates
         """
         if period_type == Constants.REPEAT_DAY:
-            self.next_create = (dp.parse_iso(self.last_create) + timedelta(days=int(self.period))) \
+            self.next_create = (parse_iso(self.last_create) + timedelta(days=int(self.period))) \
                 .strftime(Constants.DATE_PATTERN)
         elif period_type == Constants.REPEAT_YEAR:
-            self.next_create = (dp.parse_iso(self.last_create) + relativedelta(years=1)) \
+            self.next_create = (parse_iso(self.last_create) + relativedelta(years=1)) \
                 .strftime(Constants.DATE_PATTERN)
 
     def __check_created(self, tasks):
@@ -129,7 +129,7 @@ class Plan:
         checking for task created date
         :return: diff between dates
         """
-        return dp.parse_iso(self.last_create) - datetime.now().date()
+        return parse_iso(self.last_create) - datetime.now().date()
 
     def __check_created_days(self, tasks):
         """

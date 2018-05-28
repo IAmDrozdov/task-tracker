@@ -175,35 +175,3 @@ def parse_time(string_time):
         hm_time['hour'] = int(string_time)
         hm_time['with_minutes'] = False
     return hm_time
-
-
-def is_match(deadline, month, year):
-    """
-    Comparing this month and year with task deadline date
-    :param deadline: deadline
-    :param month: month to compare
-    :param year: year to compare
-    :return: True if all is good else False
-    """
-    if deadline:
-        return True if parse_iso(deadline).month == month and \
-                       parse_iso(deadline).year == year else False
-    else:
-        return False
-
-
-def mark_dates(tasks, month, year):
-    """
-    If task deadline coincides with this month and year this task day of deadline appends to list
-    :param tasks: list of tasks
-    :param month: month to compare
-    :param year:year to compare
-    :return: list of dates what coincided
-    """
-    marked_dates = []
-    for task in tasks:
-        if is_match(task.deadline, month, year):
-            new_day = parse_iso(task.deadline).day
-            if new_day not in marked_dates:
-                marked_dates.append(new_day)
-    return marked_dates

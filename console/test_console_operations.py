@@ -2,8 +2,8 @@ import os
 import unittest
 
 from calelib import Database
-from calelib import UserNotAuthorized
 from calelib import Status
+from calelib import UserNotAuthorized
 from modules.console_operations import ConsoleOperations
 
 

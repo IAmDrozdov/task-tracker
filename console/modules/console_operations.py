@@ -9,8 +9,8 @@ from calelib import Status
 from calelib import User, Plan, Task
 from calelib import (UserAlreadyExists, UserNotAuthorized, UserNotFound, TaskNotFound, CycleError,
                      PlanNotFound, DaemonAlreadyStarted, DaemonIsNotStarted)
-from calelib import date_parse as dp
 
+from . import date_parse as dp
 from . import printer
 
 
@@ -157,7 +157,7 @@ class ConsoleOperations:
             elif status == Status.UNFINISHED:
                 print('You can not finish task using changing. Use "task restore"')
                 return
-            db.change_task(id, info=info, deadline=deadline, priority=priority, status=status, plus_tag=append_tags,
+            db.change_task(id, info=info, deadline=dp.get_deadline(deadline), priority=priority, status=status, plus_tag=append_tags,
                            minus_tag=remove_tags)
         except TaskNotFound:
             print('Task with id "{}" does not exist'.format(id))
@@ -250,13 +250,17 @@ class ConsoleOperations:
             print('Plan with id "{}" does nit exist'.format(id))
 
     @staticmethod
-    def check_plans_and_tasks(db):
-        while True:
+    def check_plans_and_tasks(db, daemon=True):
+        def check_all(db):
             for plan in db.get_plans():
                 plan.check(db)
             for task in db.get_tasks():
                 task.check(db)
+
+        while daemon:
+            check_all(db)
             time.sleep(5)
+        check_all(db)
 
     @staticmethod
     def operation_task_restore(db, id):

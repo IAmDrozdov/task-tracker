@@ -1,9 +1,9 @@
 import re
 from datetime import datetime
 
-import calelib.etc.date_parse as dp
 from calelib.db.database import Database
 from calelib.etc.custom_exceptions import CycleError
+from calelib.etc.dates import parse_iso
 from calelib.modules.constants import Status, Constants
 from calelib.modules.logger import logg
 from calelib.modules.notification import call
@@ -94,7 +94,7 @@ class Task:
         if info:
             self.info = info
         if deadline:
-            self.deadline = dp.get_deadline(deadline)
+            self.deadline = deadline
         if priority:
             self.priority = priority
         if status == Status.FINISHED:
@@ -117,7 +117,7 @@ class Task:
         :param db: container what has this task
         """
         if self.deadline:
-            if dp.parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:
+            if parse_iso(self.deadline) < datetime.now().date() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
                 call(self.info, 'Lost deadline')
                 db.get_current_user().archive_task(self.id)

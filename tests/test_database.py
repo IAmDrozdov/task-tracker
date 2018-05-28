@@ -15,7 +15,7 @@ class DatabaseTests(unittest.TestCase):
         self.test_plan = Plan(info='test_plan', period={'period': 5, 'type': 'd'})
         self.db = Database(self.db_path)
 
-    def test_get(self):
+    def test_get_user(self):
         self.db.add_user(self.test_user)
         self.assertEqual(self.db.get_users(self.test_user.nickname), self.test_user)
         self.assertEqual(self.db.get_users(), [self.test_user])
@@ -29,12 +29,12 @@ class DatabaseTests(unittest.TestCase):
         self.db.add_user(self.test_user)
         self.assertIn(self.test_user, self.db.get_users())
 
-    def test_get_current(self):
+    def test_get_current_user(self):
         self.db.add_user(self.test_user)
         self.db.set_current_user(self.test_user.nickname)
         self.assertEqual(self.db.get_current_user(), self.test_user)
 
-    def test_check_exist(self):
+    def test_check_exist_user(self):
         self.db.add_user(self.test_user)
         self.assertRaises(UserAlreadyExists, self.db.check_user_exist, nickname=self.test_user.nickname)
 
