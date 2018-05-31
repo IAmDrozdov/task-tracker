@@ -6,15 +6,16 @@ from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Task(models.Model):
     info = models.CharField(max_length=100)
-    subtasks = models.ManyToManyField('Task')
+    subtasks = models.ForeignKey('self', related_name='child_tasks')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = ArrayField(models.CharField(max_length=20), default=list)
-    priority = models.IntegerField(choices=[(x, str(x)) for x in range(1, 6)], default=1)
+    priority = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)], default=1)
     deadline = models.DateTimeField(null=True, blank=True)  # 'YYYY-MM-DD'
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
     plan = models.ForeignKey('Plan', null=True)

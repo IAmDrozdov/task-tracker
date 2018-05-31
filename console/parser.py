@@ -14,7 +14,8 @@ def create_parser():
     add_task.add_argument('description', help='Information what task should hold')
     add_task.add_argument('-dl', '--deadline', help='Attach deadline for task')
     add_task.add_argument('-t', '--tags', help='Attach tags for task')
-    add_task.add_argument('-p', '--priority', type=int, help='Attach priority for task, default is 1')
+    add_task.add_argument('-p', '--priority', type=int, choices=[1, 2, 3, 4, 5],
+                          help='Attach priority for task, default is 1')
     add_task.add_argument('-s', '--subtask', type=str, help='ID of task for what you want to add new '
                                                             'task as subtask')
 

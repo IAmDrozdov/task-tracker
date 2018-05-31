@@ -6,7 +6,7 @@
 from parser import create_parser
 
 import argcomplete
-from calelib.models import User
+from calelib.models import User, Task
 from calelib import Config, Constants, Database, configure_logger
 import console_operations as co
 import django.core.exceptions as django_ex
@@ -50,7 +50,6 @@ def main():
         print('You did not sign in. Please login')
         return
 
-
     if namespace.target == 'task':
         if namespace.command == 'add':
             co.operation_task_add(db, namespace.description, namespace.priority, namespace.deadline,
@@ -84,7 +83,7 @@ def main():
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
-#    co.restart_daemon(db)
+    # co.restart_daemon(db))
 
 
 if __name__ == '__main__':

@@ -3,10 +3,12 @@ import copy
 import re
 import time
 
+import date_parse as dp
+import django.core.exceptions as django_ex
+import django.db.utils as django_db_ex
 import printer
 from calelib import Status
-from calelib import (UserAlreadyExists,
-                     UserNotAuthorized,
+from calelib import (UserNotAuthorized,
                      UserNotFound,
                      TaskNotFound,
                      CycleError,
@@ -14,8 +16,6 @@ from calelib import (UserAlreadyExists,
                      DaemonAlreadyStarted,
                      DaemonIsNotStarted)
 from calelib.models import Plan, Task, User
-import django.core.exceptions as django_ex
-import django.db.utils as django_db_ex
 
 
 def operation_user_add(db, nickname, force, cfg):
@@ -57,25 +57,29 @@ def operation_user_info(cfg):
 
 def operation_task_add(db, description, priority, deadline, tags, parent_task_id):
     try:
-        db.add_task(Task(info=description, priority=priority if priority else 1,
-                         deadline=dp.get_deadline(deadline) if deadline else None,
-                         tags=list(filter(None, re.split("[^\w]", tags.strip()))) if tags else [],
-                         parent_id=parent_task_id))
-    except TaskNotFound:
+        task = Task(info=description, priority=priority if priority else 1,
+                    deadline=dp.get_deadline(deadline) if deadline else None,
+                    tags=list(filter(None, re.split("[^\w]", tags.strip()))) if tags else [],
+                    )
+        if parent_task_id:
+            parent_task = Task.objects.get(pk=parent_task_id)
+
+            task.save()
+            parent_task.add_subtask(task)
+        else:
+            task.save()
+            db.create_task(task)
+    except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(parent_task_id))
     except ValueError:
         print('Incorrect input date')
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
 
 
 def operation_task_remove(db, id):
     try:
         db.remove_task(id)
-    except TaskNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(id))
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
 
 
 def operation_task_show(db, choice, selected, all, colored):
@@ -220,8 +224,9 @@ def operation_calendar_show(tasks, month, year):
 
 def operation_plan_add(db, description, period_type, period_value, time):
     try:
-        db.add_plan(Plan(info=description, period=dp.parse_period(period_type, period_value),
-                         time_at=dp.parse_time(time) if time else None))
+        p_type, p_val = dp.parse_period(period_type, period_value)
+        db.create_plan(Plan(info=description, period=p_val, period_type=p_type,
+                            time_at=dp.parse_time(time) if time else None))
     except ValueError:
         print('Incorrect input date')
 
@@ -233,14 +238,14 @@ def operation_plan_show(db, id, colored):
             printer.print_plan(plan)
         else:
             printer.print_plans(db.get_plans(), colored)
-    except PlanNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('Plan with id "{}" does nit exist'.format(id))
 
 
 def operation_plan_remove(db, id):
     try:
         db.remove_plan(id)
-    except PlanNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('Plan with id "{}" does nit exist'.format(id))
 
 

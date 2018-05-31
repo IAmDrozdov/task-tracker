@@ -151,7 +151,7 @@ def parse_period(period_type, period_value):
             'day': int(period_value[0]),
             'month': get_month_number(period_value[1])
         }
-    return hm_period
+    return hm_period['type'], hm['period']
 
 
 def parse_time(string_time):
