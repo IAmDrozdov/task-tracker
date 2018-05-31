@@ -19,7 +19,7 @@ class Config:
         """
         config = configparser.ConfigParser()
         config.add_section(self.section)
-        config.set(self.section, 'database_path', 'tmp/database.json')
+        config.set(self.section, 'current_user', '')
         config.set(self.section, 'pid_path', 'tmp/pid.ini')
         config.set(self.section, 'logging_path', 'tmp/logging.log')
         config.set(self.section, 'logging_level', 'INFO')
@@ -39,3 +39,10 @@ class Config:
         config.read(self.path)
         value = config.get(self.section, key)
         return value
+
+    def set_current_user(self, new_nickname):
+        config = configparser.ConfigParser()
+        config.read(self.path)
+        config.set(self.section, 'current_user', new_nickname)
+        with open(self.path, 'w') as config_file:
+            config.write(config_file)

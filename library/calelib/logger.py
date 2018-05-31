@@ -28,11 +28,5 @@ def _log_error(fn, ex, err, inst, logger):
 
 
 def _log_info(fn, res, mes, inst, logger):
-    if hasattr(inst, 'id'):
-        id = inst.id
-    elif hasattr(inst, 'nickname'):
-        id = inst.nickname
-    else:
-        id = None
     logger.info('function: %s; result: %s; %s; %s; %s',
                 fn.__name__, res, inst.__class__.__name__, id, mes)
