@@ -10,8 +10,7 @@ from calelib import User, Plan, Task
 from calelib import (UserAlreadyExists, UserNotAuthorized, UserNotFound, TaskNotFound, CycleError,
                      PlanNotFound, DaemonAlreadyStarted, DaemonIsNotStarted)
 
-from . import date_parse as dp
-from . import printer
+from console import printer, date_parse as dp
 
 
 class ConsoleOperations:
