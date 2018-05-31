@@ -1,12 +1,11 @@
 from copy import deepcopy
 from datetime import datetime
 
-from django.contrib.postgres.fields import ArrayField
-from django.db import models
-
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
+from django.contrib.postgres.fields import ArrayField
+from django.db import models
 
 
 class Task(models.Model):

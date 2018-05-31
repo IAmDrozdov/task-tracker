@@ -3,7 +3,7 @@ import sys
 import tempfile
 from signal import SIGTERM
 
-from calelib.etc.custom_exceptions import DaemonAlreadyStarted, DaemonIsNotStarted
+from calelib.custom_exceptions import DaemonAlreadyStarted, DaemonIsNotStarted
 
 
 class Daemon:

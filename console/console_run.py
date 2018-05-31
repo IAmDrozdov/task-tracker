@@ -3,24 +3,22 @@
 # -*- coding: utf-8 -*-
 
 
+from parser import create_parser
+
 import argcomplete
-from calelib import Config
-from calelib import Constants
-from calelib import Database
-from calelib import configure_logger
-from modules.console_operations import ConsoleOperations
-from modules.parser import create_parser
+from calelib import Config, Constants, Database, configure_logger
+from console_operations import ConsoleOperations
 
 
 def main():
     cfg = Config(Constants.CONFIG_FILE_PATH)
-    db_path = cfg.get_config_field('database_path')
     log_path = cfg.get_config_field('logging_path')
     pid_path = cfg.get_config_field('pid_path')
     log_level = cfg.get_config_field('logging_level')
     log_format = cfg.get_config_field('logging_format')
+    current_user = cfg.get_config_field('current_user')
     configure_logger(log_path, log_format, log_level)
-    db = Database(db_path)
+    db = Database(current_user)
     parser = create_parser()
     co = ConsoleOperations(pid_path)
     argcomplete.autocomplete(parser)

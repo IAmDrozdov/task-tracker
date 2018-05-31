@@ -1,10 +1,9 @@
 import calendar
 from datetime import datetime
 
+import date_parse as dp
 from calelib import Constants
 from colorama import Fore, Back
-
-from console import date_parse as dp
 
 
 def print_user(user):

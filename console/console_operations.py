@@ -3,14 +3,18 @@ import copy
 import re
 import time
 
-from calelib import Daemon
-from calelib import Database
-from calelib import Status
-from calelib import User, Plan, Task
-from calelib import (UserAlreadyExists, UserNotAuthorized, UserNotFound, TaskNotFound, CycleError,
-                     PlanNotFound, DaemonAlreadyStarted, DaemonIsNotStarted)
-
-from console import printer, date_parse as dp
+import date_parse as dp
+import printer
+from calelib import Daemon, Database, Status
+from calelib import (UserAlreadyExists,
+                     UserNotAuthorized,
+                     UserNotFound,
+                     TaskNotFound,
+                     CycleError,
+                     PlanNotFound,
+                     DaemonAlreadyStarted,
+                     DaemonIsNotStarted)
+from calelib.models import User, Plan, Task
 
 
 class ConsoleOperations:
@@ -156,7 +160,8 @@ class ConsoleOperations:
             elif status == Status.UNFINISHED:
                 print('You can not finish task using changing. Use "task restore"')
                 return
-            db.change_task(id, info=info, deadline=dp.get_deadline(deadline), priority=priority, status=status, plus_tag=append_tags,
+            db.change_task(id, info=info, deadline=dp.get_deadline(deadline), priority=priority, status=status,
+                           plus_tag=append_tags,
                            minus_tag=remove_tags)
         except TaskNotFound:
             print('Task with id "{}" does not exist'.format(id))

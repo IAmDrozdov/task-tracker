@@ -1,11 +1,11 @@
 import datetime
 
+from calelib.constants import Constants
+from calelib.logger import logg
+from calelib.models.task import Task
 from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import HStoreField
 from django.db import models
-from calelib.logger import logg
-from calelib.constants import Constants
-from calelib.models.task import Task
 
 
 class Plan(models.Model):

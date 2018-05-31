@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from calelib.modules.constants import Constants
+from calelib import Constants
 
 
 def get_deadline(deadline_string):

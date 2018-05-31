@@ -33,4 +33,3 @@ class Database:
 
     def remove_plan(self, plan_id):
         self.current_user.remove_plan(plan_id)
-

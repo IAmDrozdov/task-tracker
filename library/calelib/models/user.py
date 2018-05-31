@@ -1,6 +1,5 @@
-from django.db import models
-
 from calelib.logger import logg
+from django.db import models
 
 
 class User(models.Model):
