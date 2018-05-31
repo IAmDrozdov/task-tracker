@@ -13,46 +13,44 @@ from calelib import (UserAlreadyExists,
                      PlanNotFound,
                      DaemonAlreadyStarted,
                      DaemonIsNotStarted)
-from calelib.models import User, Plan, Task
+from calelib.models import Plan, Task, User
+import django.core.exceptions as django_ex
+import django.db.utils as django_db_ex
 
 
 def operation_user_add(db, nickname, force, cfg):
     try:
-        db.add_user(nickname)
+        db.create_user(nickname)
         if force:
-            cfg.set_current_user(nickname)
-            db.current_user = nickname
-    except UserAlreadyExists:
+            operation_user_login(nickname, cfg)
+    except django_db_ex.IntegrityError:
         print('User with nickname "{}" already exist'.format(nickname))
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
 
 
-def operation_user_login(db, nickname):
+def operation_user_login(nickname, cfg):
     try:
+        User.objects.get(nickname=nickname)
         cfg.set_current_user(nickname)
-    except UserNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
 
 
-def operation_user_logout(db):
-    db.remove_current_user()
+def operation_user_logout(cfg):
+    cfg.set_current_user('')
 
 
 def operation_user_remove(db, nickname):
     try:
         db.remove_user(nickname)
-    except UserNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
 
 
-def operation_user_info(db):
+def operation_user_info(cfg):
     try:
-        user = db.get_current_user()
-    except UserNotAuthorized:
-        print('You did not sign in')
+        user = User.objects.get(nickname=cfg.get_config_field('current_user'))
+    except django_ex.ObjectDoesNotExist:
+        print('You did not sign in. Please login')
     else:
         printer.print_user(user)
 
@@ -173,7 +171,7 @@ def operation_task_share(db, id_from, nickname_to, delete, track):
         if track:
             if task_send.owner is None:
                 task_send.add_owner(db.get_current_user().nickname, id_from)
-                task_from.add_user(user_to.nickname, task_send.id)
+                task_from.create_user(user_to.nickname, task_send.id)
             else:
                 print('This task cant be tracked')
                 return

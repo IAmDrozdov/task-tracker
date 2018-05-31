@@ -9,15 +9,15 @@ from colorama import Fore, Back
 def print_user(user):
     tasks_print = []
     plans_print = []
-    if user.tasks:
-        for task in user.tasks:
+    if user.tasks.all().exists():
+        for task in user.tasks.all():
             tasks_print.append(task.info)
         tasks_print = 'tasks:\n' + ', '.join(tasks_print)
     else:
         tasks_print = 'No tasks'
 
-    if user.plans:
-        for plan in user.plans:
+    if user.plans.all().exists():
+        for plan in user.plans.all():
             plans_print.append(plan.info)
         plans_print = 'plans:\n' + ', '.join(plans_print)
     else:

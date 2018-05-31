@@ -15,6 +15,10 @@ class Database:
     def current_user(self):
         return self._current_user
 
+    @current_user.deleter
+    def current_user(self):
+        self._current_user = None
+
     def get_tasks(self, task_id=None, tags=None):
         if tags:
             return self._current_user.tasks.filter(tags__contains=tags)
@@ -45,9 +49,9 @@ class Database:
         self._current_user.remove_plan(plan_id)
 
     @staticmethod
-    def add_user(nickname):
+    def create_user(nickname):
         User.objects.create(nickname=nickname)
 
     @staticmethod
     def remove_user(nickname):
-        Users.filter(nickanme=nickname).delete()
+        User.objects.get(nickname=nickname).delete()

@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(models.Model):
-    nickname = models.CharField(max_length=20)
+    nickname = models.CharField(max_length=20, unique=True)
     tasks = models.ManyToManyField('Task', related_name='active_tasks')
     plans = models.ManyToManyField('Plan')
     archive = models.ManyToManyField('Task', related_name='archived_tasks')

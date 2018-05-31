@@ -9,6 +9,7 @@ import argcomplete
 from calelib.models import User
 from calelib import Config, Constants, Database, configure_logger
 import console_operations as co
+import django.core.exceptions as django_ex
 
 
 def main():
@@ -17,24 +18,25 @@ def main():
     pid_path = cfg.get_config_field('pid_path')
     log_level = cfg.get_config_field('logging_level')
     log_format = cfg.get_config_field('logging_format')
-
     configure_logger(log_path, log_format, log_level)
     parser = create_parser()
     db = Database()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
+
     if namespace.target == 'user':
         if namespace.command == 'add':
             co.operation_user_add(db, namespace.nickname, namespace.force, cfg)
         elif namespace.command == 'login':
-            co.operation_user_login(db, namespace.nickname)
+            co.operation_user_login(namespace.nickname, cfg)
         elif namespace.command == 'logout':
-            co.operation_user_logout(db)
+            co.operation_user_logout(cfg)
         elif namespace.command == 'remove':
             co.operation_user_remove(db, namespace.nickname)
         elif namespace.command == 'info':
-            co.operation_user_info(db)
+            co.operation_user_info(cfg)
+        return
     #######################################
     #######################################
     if namespace.daemon:
@@ -42,9 +44,13 @@ def main():
         return
     elif namespace.stop_daemon:
         co.stop_daemon()
-    print([u.nickname for u in User.objects.all()])
-    #co.check_plans_and_tasks(db, False)
-    #######################################
+    try:
+        db.current_user = cfg.get_config_field('current_user')
+    except django_ex.ObjectDoesNotExist:
+        print('You did not sign in. Please login')
+        return
+
+
     if namespace.target == 'task':
         if namespace.command == 'add':
             co.operation_task_add(db, namespace.description, namespace.priority, namespace.deadline,
