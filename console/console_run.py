@@ -6,8 +6,9 @@
 from parser import create_parser
 
 import argcomplete
+from calelib.models import User
 from calelib import Config, Constants, Database, configure_logger
-from console_operations import ConsoleOperations
+import console_operations as co
 
 
 def main():
@@ -16,17 +17,16 @@ def main():
     pid_path = cfg.get_config_field('pid_path')
     log_level = cfg.get_config_field('logging_level')
     log_format = cfg.get_config_field('logging_format')
-    current_user = cfg.get_config_field('current_user')
+
     configure_logger(log_path, log_format, log_level)
-    db = Database(current_user)
     parser = create_parser()
-    co = ConsoleOperations(pid_path)
+    db = Database()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
-            co.operation_user_add(db, namespace.nickname, namespace.force)
+            co.operation_user_add(db, namespace.nickname, namespace.force, cfg)
         elif namespace.command == 'login':
             co.operation_user_login(db, namespace.nickname)
         elif namespace.command == 'logout':
@@ -36,12 +36,14 @@ def main():
         elif namespace.command == 'info':
             co.operation_user_info(db)
     #######################################
+    #######################################
     if namespace.daemon:
         co.run_daemon(db)
         return
     elif namespace.stop_daemon:
         co.stop_daemon()
-    ConsoleOperations.check_plans_and_tasks(db, True)
+    print([u.nickname for u in User.objects.all()])
+    #co.check_plans_and_tasks(db, False)
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
@@ -76,7 +78,7 @@ def main():
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
-    co.restart_daemon(db)
+#    co.restart_daemon(db)
 
 
 if __name__ == '__main__':
