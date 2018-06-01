@@ -25,7 +25,12 @@ def print_user(user):
     print('user: {}\n{}\n{}'.format(user.nickname, tasks_print, plans_print))
 
 
-def print_task(tasks, colored, short=True, tags=None):
+def _short_print_task(task, priority_colors):
+    subtasks_print = '' if '(' + str(task.subtasks.all().count) + ')' else task.subtasks.all().exist()
+    print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
+
+
+def print_task(tasks, colored, tags=None):
     if colored:
         priority_colors = [Fore.CYAN, Fore.GREEN, Fore.YELLOW, Fore.LIGHTMAGENTA_EX, Fore.RED]
     else:
@@ -33,27 +38,24 @@ def print_task(tasks, colored, short=True, tags=None):
     for task in tasks:
         if tags:
             if all(elem in task.tags for elem in tags):
-                subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
-                print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info,
-                                                                                   subtasks_print))
-            print_task(task.subtasks, colored, tags=tags)
-        elif short:
-            subtasks_print = '' if len(task.subtasks) == 0 else '(' + str(len(task.subtasks)) + ')'
-            print(priority_colors[task.priority - 1] + 'ID: {} | {} {}'.format(task.id, task.info, subtasks_print))
-        elif not short:
-            offset = '' if task.indent == 0 else task.indent * ' ' + task.indent * ' *'
-            print(priority_colors[task.priority - 1] + offset + '| {} | {}'.format(task.id, task.info))
-            print_task(task.subtasks, colored, short=False)
+                _short_print_task(task, priority_colors)
+            print_task(task.subtasks.all(), colored, tags=tags)
+        else:
+            _short_print_task(task, priority_colors)
 
 
-def print_main_task(task, colored):
+def print_main_task(task):
     deadline_print = dp.parse_iso_pretty(task.deadline) if task.deadline else 'No deadline'
     tags_print = ', '.join(task.tags) if len(task.tags) > 0 else 'No tags'
-    print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nCreated: {}\nLast change: {}\nTags: {}'
-          .format(task.info, task.id, deadline_print, task.status,
-                  dp.parse_iso_pretty(task.date), dp.parse_iso_pretty(task.last_change), tags_print))
-    print('Subtasks:')
-    print_task(task.subtasks, colored)
+    print('Information: {}\nID: {}\nDeadline: {}\nStatus: {}\nPriority: {}\nCreated: {}\nLast change: {}\nTags: {}'
+          .format(task.info, task.id, deadline_print, task.status, task.priority,
+                  dp.parse_iso_pretty(task.created_at), dp.parse_iso_pretty(task.updated_at), tags_print))
+
+    if task.subtasks.all().exists():
+        print('Subtasks:')
+        print_task(task.subtasks.all(), False)
+    else:
+        print('No subtasks')
 
 
 def print_calendar(tasks, month, year):

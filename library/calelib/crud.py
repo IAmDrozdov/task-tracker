@@ -1,3 +1,4 @@
+import django.core.exceptions
 from calelib.models import User
 
 
@@ -19,11 +20,17 @@ class Database:
     def current_user(self):
         self._current_user = None
 
-    def get_tasks(self, task_id=None, tags=None):
+    def get_tasks(self, task_id=None, tags=None, archive=False):
         if tags:
             return self._current_user.tasks.filter(tags__contains=tags)
         elif task_id:
-            return self._current_user.tasks.get(pk=task_id)
+            try:
+                return self._current_user.tasks.get(pk=task_id)
+            except django.core.exceptions.ObjectDoesNotExist:
+                return self._current_user.archive.get(pk=task_id)
+
+        elif archive:
+            return self._current_user.archive.all()
         else:
             return self._current_user.tasks.all()
 
@@ -37,10 +44,7 @@ class Database:
         self._current_user.tasks.get(pk=task_id).update(info, deadline, priority, status, plus_tags, minus_tags)
 
     def get_plans(self, plan_id=None):
-        if plan_id:
-            return self._current_user.plans.get(pk=plan_id)
-        else:
-            return self._current_user.plans.all()
+        return self._current_user.plans.get(pk=plan_id) if plan_id else self._current_user.plans.all()
 
     def create_plan(self, plan):
         self._current_user.add_plan(plan)
@@ -55,3 +59,7 @@ class Database:
     @staticmethod
     def remove_user(nickname):
         User.objects.get(nickname=nickname).delete()
+
+    @staticmethod
+    def get_users(user_nickname):
+        return User.objects.get(nickname=user_nickname) if user_nickname else User.objects.all()

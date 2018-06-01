@@ -23,7 +23,6 @@ def create_parser():
     show_task.add_argument('to_show', action='store', nargs='?', choices=('id', 'tags', 'archive'),
                            help='Filter for show')
     show_task.add_argument('selected', nargs='?', help='Value of choosen filter or ID')
-    show_task.add_argument('-a', '--all', action='store_true', help='Detailed output')
     show_task.add_argument('-c', '--colored', action='store_true', help='If true priority of task will influence on '
                                                                         'color')
 

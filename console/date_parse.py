@@ -23,16 +23,7 @@ def parse_iso_pretty(date_iso):
     :param date_iso: date in iso-like format
     :return: human-like formated date like "DAY MONTH"
     """
-    return parse_iso(date_iso).strftime('%d %b')
-
-
-def parse_iso(date_iso_like):
-    """
-    Parse iso-like date to datetime object
-    :param date_iso_like: iso-like date
-    :return:
-    """
-    return datetime.strptime(date_iso_like, Constants.DATE_PATTERN).date()
+    return date_iso.strftime('%d %b')
 
 
 def get_first_weekday(month, year):

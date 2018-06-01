@@ -6,10 +6,10 @@
 from parser import create_parser
 
 import argcomplete
-from calelib.models import User, Task
-from calelib import Config, Constants, Database, configure_logger
 import console_operations as co
 import django.core.exceptions as django_ex
+from calelib import Config, Constants, Database, configure_logger
+from calelib.models import Task, User, Plan
 
 
 def main():
@@ -57,7 +57,7 @@ def main():
         elif namespace.command == 'remove':
             co.operation_task_remove(db, namespace.id)
         elif namespace.command == 'show':
-            co.operation_task_show(db, namespace.to_show, namespace.selected, namespace.all, namespace.colored)
+            co.operation_task_show(db, namespace.to_show, namespace.selected, namespace.colored)
         elif namespace.command == 'finish':
             co.operation_task_finish(db, namespace.id)
         elif namespace.command == 'move':
@@ -66,7 +66,7 @@ def main():
             co.operation_task_change(db, namespace.id, namespace.info, namespace.deadline, namespace.priority,
                                      namespace.status, namespace.append_tags, namespace.remove_tags)
         elif namespace.command == 'share':
-            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.delete, namespace.track)
+            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.track)
         elif namespace.command == 'restore':
             co.operation_task_restore(db, namespace.id)
         elif namespace.command == 'unshare':
@@ -84,7 +84,8 @@ def main():
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
     # co.restart_daemon(db))
-
+    # Task.objects.all().delete()
+    # User.objects.all().delete()
 
 if __name__ == '__main__':
     main()

@@ -5,13 +5,13 @@ from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 
 class Task(models.Model):
     info = models.CharField(max_length=100)
-    subtasks = models.ForeignKey('self', related_name='child_tasks')
+    subtasks = models.ManyToManyField('self', symmetrical=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = ArrayField(models.CharField(max_length=20), default=list)

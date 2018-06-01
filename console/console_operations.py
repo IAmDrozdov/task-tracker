@@ -12,7 +12,6 @@ from calelib import (UserNotAuthorized,
                      UserNotFound,
                      TaskNotFound,
                      CycleError,
-                     PlanNotFound,
                      DaemonAlreadyStarted,
                      DaemonIsNotStarted)
 from calelib.models import Plan, Task, User
@@ -59,7 +58,7 @@ def operation_task_add(db, description, priority, deadline, tags, parent_task_id
     try:
         task = Task(info=description, priority=priority if priority else 1,
                     deadline=dp.get_deadline(deadline) if deadline else None,
-                    tags=list(filter(None, re.split("[^\w]", tags.strip()))) if tags else [],
+                    tags=tags.strip().split() if tags else [],
                     )
         if parent_task_id:
             parent_task = Task.objects.get(pk=parent_task_id)
@@ -82,20 +81,18 @@ def operation_task_remove(db, id):
         print('task with id {} does not exist'.format(id))
 
 
-def operation_task_show(db, choice, selected, all, colored):
+def operation_task_show(db, choice, selected, colored):
     try:
         if choice == 'id':
             task = db.get_tasks(selected)
-            printer.print_main_task(task, colored)
+            printer.print_main_task(task)
         elif choice == 'tags':
             printer.print_task(db.get_tasks(), colored, tags=re.split('[^\w]', selected))
         elif choice == 'archive':
             printer.print_task(db.get_tasks(archive=True), colored)
-        elif all:
-            printer.print_task(db.get_tasks(), colored, short=False)
         elif not choice:
             printer.print_task(db.get_tasks(), colored)
-    except TaskNotFound:
+    except django_ex.ObjectDoesNotExist:
         print('Task with id {} does not exist'.format(selected))
     except UserNotAuthorized:
         print('Use login to sign in or add new user')
@@ -104,23 +101,11 @@ def operation_task_show(db, choice, selected, all, colored):
 def operation_task_finish(db, id):
     try:
         prim_task_finish = db.get_tasks(id)
-        if prim_task_finish.owner:
-            owner = db.get_users(prim_task_finish.owner['nickname'])
-            owner_task = owner.get_task(prim_task_finish.owner['id'])
-            owner_task.finish()
-            owner.archive_task(prim_task_finish.owner['id'])
-        if prim_task_finish.user:
-            user = db.get_users(prim_task_finish.user['nickname'])
-            user_task = user.get_task(prim_task_finish.user['id'])
-            user_task.finish()
-            user.archive_task(prim_task_finish.user['id'])
-        prim_task_finish.finish()
+
         if prim_task_finish.plan is None:
-            db.get_current_user().archive_task(id)
-        db.serialize()
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
-    except TaskNotFound:
+            prim_task_finish.finish()
+            db.current_user.archive_task(id)
+    except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(id))
 
 
@@ -130,19 +115,14 @@ def operation_task_move(db, id_from, id_to):
         bad_id = id_from
         task_from = db.get_tasks(id_from)
         if id_to == '0':
-            task_from.parent_id = None
             db.add_task(copy.deepcopy(task_from))
             db.remove_task(task_from.id)
         else:
             bad_id = id_to
             task_to = db.get_tasks(id_to)
-            if not task_from.is_parent(id_to):
-                copy_of_task_from = copy.deepcopy(task_from)
-                task_to.append_task(copy_of_task_from)
-                db.remove_task(id_from)
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
-    except TaskNotFound:
+            task_to.add_subtask(task_from.get_copy())
+            db.remove_task(id_from)
+    except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(bad_id))
     except CycleError:
         print('Task with id {} is parent of task with id {}'.format(id_from, id_to))
@@ -155,34 +135,27 @@ def operation_task_change(db, id, info, deadline, priority, status, append_tags,
         elif status == Status.UNFINISHED:
             print('You can not finish task using changing. Use "task restore"')
             return
-        db.change_task(id, info=info, deadline=dp.get_deadline(deadline), priority=priority, status=status,
-                       plus_tag=append_tags,
-                       minus_tag=remove_tags)
-    except TaskNotFound:
+        deadline = dp.get_deadline(deadline) if deadline else None
+        append_tags = append_tags.strip().split() if append_tags else None
+        remove_tags = remove_tags.strip().split() if remove_tags else None
+        db.change_task(id, info=info, deadline=deadline, priority=priority, status=status,
+                       plus_tags=append_tags,
+                       minus_tags=remove_tags)
+    except django_ex.ObjectDoesNotExist:
         print('Task with id "{}" does not exist'.format(id))
     except ValueError:
         print('Incorrect input date')
 
 
-def operation_task_share(db, id_from, nickname_to, delete, track):
+def operation_task_share(db, id_from, nickname_to, track):
     try:
         task_from = db.get_tasks(id_from)
         user_to = db.get_users(nickname_to)
 
-        task_send = copy.deepcopy(task_from)
-        task_send.id = Database.get_id(user_to.tasks)
-        task_send.reset_sub_id()
         if track:
-            if task_send.owner is None:
-                task_send.add_owner(db.get_current_user().nickname, id_from)
-                task_from.create_user(user_to.nickname, task_send.id)
-            else:
-                print('This task cant be tracked')
-                return
-        user_to.add_task(task_send)
-        db.serialize()
-        if delete:
-            db.remove_task(id_from)
+            user_to.add_task(task_from)
+        else:
+            user_to.add_task(task_from.get_copy())
     except TaskNotFound:
         print('User with id "{}" does not exist'.format(id_from))
 
