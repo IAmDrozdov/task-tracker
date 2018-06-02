@@ -100,11 +100,13 @@ def operation_task_show(db, choice, selected, colored):
 
 def operation_task_finish(db, id):
     try:
-        prim_task_finish = db.get_tasks(id)
+        task_to_finish = db.get_tasks(id)
 
-        if prim_task_finish.plan is None:
-            prim_task_finish.finish()
-            db.current_user.archive_task(id)
+        if task_to_finish.plan is None:
+            task_to_finish.finish()
+            task_to_finish.pass_to_archive()
+        else:
+            print('You cannot archive planned task')
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(id))
 
@@ -235,24 +237,10 @@ def _check_plans_and_tasks(db, daemon=True):
     check_all(db)
 
 
-def operation_task_restore(db, id):
+def operation_task_restore(db, task_id):
     try:
-        archived_task = copy.deepcopy(db.get_tasks(id, archive=True))
-        if archived_task.parent_id is not None:
-
-            parent_of_archived_task = db.get_tasks(archived_task.parent_id)
-            archived_task.unfinish()
-            archived_task.id = Database.get_id(parent_of_archived_task.subtasks)
-            archived_task.reset_sub_id()
-            parent_of_archived_task.append_task(archived_task)
-            db.serialize()
-        else:
-            archived_task.id = Database.get_id(db.get_tasks())
-            archived_task.reset_sub_id()
-            db.add_task(archived_task)
-
-        db.remove_task(id, archive=True)
-    except TaskNotFound:
+        db.get_tasks(task_id).restore_from_archive()
+    except TaskNodjango_ex.ObjectDoesNotExisttFound:
         print('Task with id "{}" does not exists'.format(id))
 
 

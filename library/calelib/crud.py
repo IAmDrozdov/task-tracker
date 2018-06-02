@@ -24,13 +24,9 @@ class Database:
         if tags:
             return self._current_user.tasks.filter(tags__contains=tags)
         elif task_id:
-            try:
-                return self._current_user.tasks.get(pk=task_id)
-            except django.core.exceptions.ObjectDoesNotExist:
-                return self._current_user.archive.get(pk=task_id)
-
+            return self._current_user.tasks.get(pk=task_id)
         elif archive:
-            return self._current_user.archive.all()
+            return self._current_user.tasks.filter(archived=True)
         else:
             return self._current_user.tasks.all()
 

@@ -19,6 +19,11 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)  # 'YYYY-MM-DD'
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
     plan = models.ForeignKey('Plan', null=True)
+    archived = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.updated_at = datetime.now().date()
+        super().save(*args, **kwargs)
 
     @logg('Added subtask')
     def add_subtask(self, task):
@@ -35,14 +40,16 @@ class Task(models.Model):
     @logg('Finished task')
     def finish(self):
         self.status = Status.FINISHED
+        self.save()
         for task in self.subtasks.all():
             task.finish()
 
     @logg('Unfinished taks')
     def unfinish(self):
         self.status = Status.UNFINISHED
+        self.save()
         for task in self.subtasks.all():
-            task.finish()
+            task.unfinish()
 
     @logg('Changed information about task')
     def update(self, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
@@ -82,3 +89,15 @@ class Task(models.Model):
             if self.deadline.date() < datetime.now().date() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
                 return self
+
+    @logg('Archived task')
+    def pass_to_archive(self):
+        self.archived = True
+        self.save()
+
+    @logg('Restored task')
+    def restore_from_archive(self):
+        self.archived = False
+        self.unfinish()
+        self.created_at = datetime.now().date()
+        self.save()
