@@ -4,10 +4,10 @@ import json
 from calelib.constants import Constants
 from calelib.logger import logg
 from calelib.models.task import Task
+from calelib.notification import call
 from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from calelib.notification import call
 
 
 class Plan(models.Model):

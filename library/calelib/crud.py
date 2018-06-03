@@ -61,3 +61,6 @@ class Database:
     @staticmethod
     def get_users(user_nickname):
         return User.objects.get(nickname=user_nickname) if user_nickname else User.objects.all()
+
+    def add_reminder(self, reminder):
+        self._current_user.add_reminder(reminder)

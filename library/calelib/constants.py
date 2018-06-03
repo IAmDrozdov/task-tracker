@@ -7,6 +7,10 @@ class Constants:
     REPEAT_WEEKDAY = 'wd'
     REPEAT_MONTH = 'm'
     REPEAT_YEAR = 'y'
+    REMIND_MINUTES = 'm'
+    REMIND_HOURS = 'h'
+    REMIND_DAYS = 'd'
+    REMIND_MONTHS = 'mth'
 
 
 class Status:

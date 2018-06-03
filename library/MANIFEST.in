@@ -1,2 +1,2 @@
-include manage.py
-include settings.py
+include .manage.py
+include .settings.py

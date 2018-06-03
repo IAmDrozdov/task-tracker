@@ -11,7 +11,7 @@ from calelib import (CycleError,
                      DaemonIsNotStarted
                      )
 from calelib import Daemon, Status
-from calelib.models import Plan, Task, User
+from calelib.models import Plan, Task, User, Reminder
 
 
 def operation_user_add(db, nickname, force, cfg):
@@ -262,7 +262,6 @@ def check_plans_and_tasks(db, pid_path, daemon=True):
         for plan in db.get_plans():
             planned_task = plan.check_for_create()
             if planned_task:
-                print('created new task')
                 db.create_task(planned_task)
         for task in db.get_tasks():
             overdue_task = task.check_deadline()
@@ -284,7 +283,7 @@ def operation_task_restore(db, task_id):
     try:
         db.get_tasks(task_id).restore_from_archive()
     except django_ex.ObjectDoesNotExisttFound:
-        print('Task with id "{}" does not exists'.format(id))
+        print('Task with id "{}" does not exists'.format(task_id))
         return 1
 
 
@@ -306,3 +305,20 @@ def stop_daemon(pid_path):
 
 def restart_daemon(db, pid_path):
     Daemon.restart(check_plans_and_tasks, db, pid_path)
+
+
+def operation_reminder_add(db, task_id, remind_type, remind_before, remind_period):
+    try:
+        if remind_period:
+            if remind_period > remind_before:
+                remind_period = None
+                print('Statement when period > value has no effect')
+        reminder = Reminder(remind_type=dp.parse_remind_type(remind_type), remind_before=remind_before,
+                            remind_period=remind_period)
+        reminder.save()
+        reminder.tasks.add(db.get_tasks(task_id))
+        reminder.save()
+        db.add_reminder(reminder)
+    except django_ex.ObjectDoesNotExist:
+        print('Task with id "{}" does not exists'.format(task_id))
+        return 1

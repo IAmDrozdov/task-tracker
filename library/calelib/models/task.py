@@ -4,10 +4,10 @@ from datetime import datetime
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
+from calelib.notification import call
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from calelib.notification import call
 
 
 class Task(models.Model):

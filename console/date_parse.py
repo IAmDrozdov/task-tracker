@@ -166,3 +166,14 @@ def parse_time(string_time):
         hm_time['hour'] = int(string_time)
         hm_time['with_minutes'] = False
     return hm_time
+
+
+def parse_remind_type(string_type):
+    if string_type == 'min':
+        return Constants.REMIND_MINUTES
+    elif string_type == 'hour':
+        return Constants.REMIND_HOURS
+    elif string_type == 'day':
+        return Constants.REMIND_DAYS
+    else:
+        return Constants.REMIND_MONTHS

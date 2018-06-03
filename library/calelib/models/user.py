@@ -6,7 +6,8 @@ from django.db import models
 class User(models.Model):
     nickname = models.CharField(max_length=20, unique=True)
     tasks = models.ManyToManyField('Task')
-    plans = models.ManyToManyField('Plan')
+    plans = models.ManyToManyField('Plan', symmetrical=False)
+    reminders = models.ManyToManyField('Reminder', symmetrical=False)
 
     @logg('Added task to user')
     def add_task(self, task):
@@ -44,3 +45,8 @@ class User(models.Model):
                 return found_task
             else:
                 raise django.core.exceptions.ObjectDoesNotExist
+
+    @logg('Created new reminder')
+    def add_reminder(self, reminder):
+        self.reminders.add(reminder)
+        self.save()

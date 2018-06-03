@@ -2,7 +2,7 @@ import os
 import sys
 import tempfile
 from signal import SIGTERM
-import shutil
+
 from calelib.custom_exceptions import DaemonAlreadyStarted, DaemonIsNotStarted
 
 
@@ -11,6 +11,7 @@ class Daemon:
     Instance that works in background
     :param pid_pid_path: pid file pid_path
     """
+
     @staticmethod
     def run(func, database, pid_path):
         """
