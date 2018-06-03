@@ -23,7 +23,6 @@ def main():
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
-
     if namespace.target == 'user':
         if namespace.command == 'add':
             co.operation_user_add(db, namespace.nickname, namespace.force, cfg)
@@ -37,18 +36,18 @@ def main():
             co.operation_user_info(cfg)
         return
     #######################################
-    #######################################
-    if namespace.daemon:
-        co.run_daemon(db)
-        return
-    elif namespace.stop_daemon:
-        co.stop_daemon()
     try:
         db.current_user = cfg.get_config_field('current_user')
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
         return
-
+    #######################################
+    if namespace.daemon:
+        co.run_daemon(db, pid_path)
+        return
+    elif namespace.stop_daemon:
+        co.stop_daemon(pid_path)
+    #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
             co.operation_task_add(db, namespace.description, namespace.priority, namespace.deadline,
@@ -85,9 +84,12 @@ def main():
         elif namespace.command == 'change':
             co.operation_plan_change(db, namespace.id, namespace.info, namespace.period_type, namespace.period_value,
                                      namespace.time)
-    # co.restart_daemon(db))
+    #######################################
+    # co.restart_daemon(db, pid_path)
     # Task.objects.all().delete()
     # User.objects.all().delete()
+    from calelib.models import Plan
+    import os
 
 
 if __name__ == '__main__':

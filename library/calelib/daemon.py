@@ -2,22 +2,20 @@ import os
 import sys
 import tempfile
 from signal import SIGTERM
-
+import shutil
 from calelib.custom_exceptions import DaemonAlreadyStarted, DaemonIsNotStarted
 
 
 class Daemon:
-
-    def __init__(self, pid_path):
-        """
-        Instance that works in background
-        :param pid_path: pid file path
-        """
-        self.path = pid_path
-
-    def run(self, func, database):
+    """
+    Instance that works in background
+    :param pid_pid_path: pid file pid_path
+    """
+    @staticmethod
+    def run(func, database, pid_path):
         """
         Run function as daemon
+        :param pid_path:
         :param func: function to run in background
         :param database: argument of function
         """
@@ -25,49 +23,53 @@ class Daemon:
         if pid > 0:
             sys.exit(0)
         try:
-            if os.path.exists(self.__read_pid_from_file()):
+            if os.path.exists(Daemon._read_pid_from_file(pid_path)):
                 raise DaemonAlreadyStarted
         except FileNotFoundError:
-            open(self.path, 'a').close()
+            open(pid_path, 'a').close()
         with tempfile.TemporaryFile('w') as f:
             f.write(str(os.getpid()))
         tmp = tempfile.NamedTemporaryFile()
-        self.__write_to_file(tmp.name, str(os.getpid()))
-        self.__write_to_file(self.path, tmp.name)
+        Daemon._write_to_file(tmp.name, str(os.getpid()))
+        Daemon._write_to_file(pid_path, tmp.name)
         func(database)
 
-    def __read_pid_from_file(self):
-        with open(self.path, 'r') as file:
+    @staticmethod
+    def _read_pid_from_file(pid_path):
+        with open(pid_path, 'r') as file:
             return file.read()
 
     @staticmethod
-    def __write_to_file(path: str, value: str):
-        with open(path, 'w') as file:
+    def _write_to_file(pid_path: str, value: str):
+        with open(pid_path, 'w') as file:
             file.write(value)
 
-    def stop(self):
+    @staticmethod
+    def stop(pid_path):
         """
         Stop daemon via PID
         """
         try:
-            pid_path = self.__read_pid_from_file()
+            tmp_pid = Daemon._read_pid_from_file(pid_path)
         except FileNotFoundError:
             raise DaemonIsNotStarted
         try:
-            with open(pid_path) as pid_file:
+            with open(tmp_pid) as pid_file:
                 pid = int(pid_file.read())
                 os.kill(pid, SIGTERM)
-        except FileNotFoundError:
+        except (FileNotFoundError, ProcessLookupError):
             pass
         finally:
-            os.remove(self.path)
+            os.remove(pid_path)
 
-    def restart(self, func, database):
+    @staticmethod
+    def restart(func, database, pid_path):
         """
         Restart daemon
+        :param pid_path:
         :param func: function to run in background
         :param database: argument of function
         """
-        if os.path.exists(self.path):
-            self.stop()
-            self.run(func, database)
+        if os.path.exists(pid_path):
+            stop(pid_path)
+            run(func, database, pid_path)

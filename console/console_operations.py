@@ -6,11 +6,12 @@ import date_parse as dp
 import django.core.exceptions as django_ex
 import django.db.utils as django_db_ex
 import printer
-from calelib import Status
-from calelib import (UserNotAuthorized,
-                     CycleError,
+from calelib import (CycleError,
                      DaemonAlreadyStarted,
-                     DaemonIsNotStarted)
+                     DaemonIsNotStarted
+                     )
+from calelib import Daemon
+from calelib import Status
 from calelib.models import Plan, Task, User
 
 
@@ -21,6 +22,7 @@ def operation_user_add(db, nickname, force, cfg):
             operation_user_login(nickname, cfg)
     except django_db_ex.IntegrityError:
         print('User with nickname "{}" already exist'.format(nickname))
+        return 1
 
 
 def operation_user_login(nickname, cfg):
@@ -29,6 +31,7 @@ def operation_user_login(nickname, cfg):
         cfg.set_current_user(nickname)
     except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
+        return 1
 
 
 def operation_user_logout(cfg):
@@ -40,15 +43,16 @@ def operation_user_remove(db, nickname):
         db.remove_user(nickname)
     except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
+        return 1
 
 
 def operation_user_info(cfg):
     try:
         user = User.objects.get(nickname=cfg.get_config_field('current_user'))
+        printer.print_user(user)
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
-    else:
-        printer.print_user(user)
+        return 1
 
 
 def operation_task_add(db, info, priority, deadline, tags, parent_task_id):
@@ -67,8 +71,10 @@ def operation_task_add(db, info, priority, deadline, tags, parent_task_id):
             db.create_task(task)
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(parent_task_id))
+        return 1
     except ValueError:
         print('Incorrect input date')
+        return 1
 
 
 def operation_task_remove(db, id):
@@ -76,6 +82,7 @@ def operation_task_remove(db, id):
         db.remove_task(id)
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(id))
+        return 1
 
 
 def operation_task_show(db, choice, selected, colored):
@@ -91,8 +98,10 @@ def operation_task_show(db, choice, selected, colored):
             printer.print_task(db.get_tasks(), colored)
     except django_ex.ObjectDoesNotExist:
         print('Task with id {} does not exist'.format(selected))
+        return 1
     except UserNotAuthorized:
         print('Use login to sign in or add new user')
+        return 1
 
 
 def operation_task_finish(db, id):
@@ -106,6 +115,7 @@ def operation_task_finish(db, id):
             print('You cannot archive planned task')
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(id))
+        return 1
 
 
 def operation_task_move(db, id_from, id_to):
@@ -123,8 +133,10 @@ def operation_task_move(db, id_from, id_to):
             db.remove_task(id_from)
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(bad_id))
+        return 1
     except CycleError:
         print('Task with id {} is parent of task with id {}'.format(id_from, id_to))
+        return 1
 
 
 def operation_task_change(db, id, info, deadline, priority, status, append_tags, remove_tags):
@@ -142,8 +154,10 @@ def operation_task_change(db, id, info, deadline, priority, status, append_tags,
                        minus_tags=remove_tags)
     except django_ex.ObjectDoesNotExist:
         print('Task with id "{}" does not exist'.format(id))
+        return 1
     except ValueError:
         print('Incorrect input date')
+        return 1
 
 
 def operation_task_share(db, id_from, nickname_to):
@@ -159,6 +173,7 @@ def operation_task_share(db, id_from, nickname_to):
             print('Task with id "{}" does not exist'.format(id_from))
         else:
             print('User with nickname "{}" does not exist'.format(nickname_to))
+        return 1
 
 
 def operation_task_unshare(db, id):
@@ -178,6 +193,7 @@ def operation_task_unshare(db, id):
             print('You have no permissions to unshare this task')
     except django_ex.ObjectDoesNotExist:
         print('Task with id {} not found'.format(id))
+        return 1
 
 
 def operation_calendar_show(tasks, month, year):
@@ -191,6 +207,7 @@ def operation_calendar_show(tasks, month, year):
         printer.print_calendar(tasks, month, year)
     except calendar.IllegalMonthError:
         print('Incorrect input')
+        return 1
 
 
 def operation_plan_add(db, info, period_type, period_value, time):
@@ -203,6 +220,7 @@ def operation_plan_add(db, info, period_type, period_value, time):
         db.create_plan(plan)
     except ValueError:
         print('Incorrect input date')
+        return 1
 
 
 def operation_plan_change(db, plan_id, info, period_type, period_value, time_at):
@@ -214,8 +232,10 @@ def operation_plan_change(db, plan_id, info, period_type, period_value, time_at)
         db.change_plan(plan_id, info, period_type, period_value, time_at)
     except ValueError:
         print('Incorrect input date')
+        return 1
     except AttributeError:
         print('If you change period data, you should enter both parameters "-pt" and "-pv"')
+        return 1
 
 
 def operation_plan_show(db, id, colored):
@@ -227,6 +247,7 @@ def operation_plan_show(db, id, colored):
             printer.print_plans(db.get_plans(), colored)
     except django_ex.ObjectDoesNotExist:
         print('Plan with id "{}" does nit exist'.format(id))
+        return 1
 
 
 def operation_plan_remove(db, id):
@@ -234,41 +255,45 @@ def operation_plan_remove(db, id):
         db.remove_plan(id)
     except django_ex.ObjectDoesNotExist:
         print('Plan with id "{}" does nit exist'.format(id))
+        return 1
 
 
 def _check_plans_and_tasks(db, daemon=True):
-    def check_all(db):
+    def check_all():
         for plan in db.get_plans():
-            plan.check(db)
+            plan.check_for_create()
         for task in db.get_tasks():
-            task.check(db)
+            task.check_deadline()
 
     while daemon:
-        check_all(db)
+        check_all()
         time.sleep(5)
-    check_all(db)
+    check_all()
 
 
 def operation_task_restore(db, task_id):
     try:
         db.get_tasks(task_id).restore_from_archive()
-    except TaskNodjango_ex.ObjectDoesNotExisttFound:
+    except django_ex.ObjectDoesNotExisttFound:
         print('Task with id "{}" does not exists'.format(id))
+        return 1
 
 
-def run_daemon(db):
+def run_daemon(db, pid_path):
     try:
-        self.daemon.run(self.check_plans_and_tasks, db)
-    except DaemonAlreadyStarted:
+        Daemon.run(_check_plans_and_tasks, db, pid_path)
+    except (DaemonAlreadyStarted, FileNotFoundError):
         print('Daemon already started')
+        return 1
 
 
-def stop_daemon():
+def stop_daemon(pid_path):
     try:
-        self.daemon.stop()
+        Daemon.stop(pid_path)
     except DaemonIsNotStarted:
         print('Daemon is not started')
+        return 1
 
 
-def restart_daemon(db):
-    daemon.restart(_check_plans_and_tasks, db)
+def restart_daemon(db, pid_path):
+    Daemon.restart(_check_plans_and_tasks, db, pid_path)

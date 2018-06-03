@@ -29,11 +29,14 @@ class Plan(models.Model):
                                    ]
                                    )
 
-    _period = JSONField(null=True, db_column='period')
+    _period = JSONField(db_column='period', default=dict)
 
     @property
     def time_at(self):
-        return json.loads(self._time_at)
+        try:
+            return json.loads(self._time_at)
+        except TypeError:
+            return None
 
     @time_at.setter
     def time_at(self, not_dumped_time):
@@ -63,7 +66,7 @@ class Plan(models.Model):
         Task.objects.get(plan=self.pk)
 
     def check_last_create_day(self):
-        return self.last_create + relativedelta(days=self.period) != datetime.datetime.now().date()
+        return self.last_create + relativedelta(days=int(self.period['day'])) != datetime.datetime.now().date()
 
     def check_last_create_year(self):
         now = datetime.datetime.now()
@@ -89,10 +92,10 @@ class Plan(models.Model):
                 if self.check_last_create_day():
                     return False
             elif self.period_type == Constants.REPEAT_WEEKDAY:
-                if now.weekday() not in self.period['days']:
+                if now.weekday() not in json.loads(self.period['days']):
                     return False
             elif self.period_type == Constants.REPEAT_MONTH:
-                if now.month not in self.period['months'] or now.day != self.period['day']:
+                if now.month not in json.loads(self.period['months']) or now.day != self.period['day']:
                     return False
             elif self.period_type == Constants.REPEAT_YEAR:
                 if self.check_last_create_year():
