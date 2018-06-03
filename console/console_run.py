@@ -88,8 +88,7 @@ def main():
     # co.restart_daemon(db, pid_path)
     # Task.objects.all().delete()
     # User.objects.all().delete()
-    from calelib.models import Plan
-    import os
+    #co.check_plans_and_tasks(db, False)
 
 
 if __name__ == '__main__':

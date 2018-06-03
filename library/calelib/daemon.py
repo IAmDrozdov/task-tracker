@@ -32,7 +32,7 @@ class Daemon:
         tmp = tempfile.NamedTemporaryFile()
         Daemon._write_to_file(tmp.name, str(os.getpid()))
         Daemon._write_to_file(pid_path, tmp.name)
-        func(database)
+        func(database, pid_path)
 
     @staticmethod
     def _read_pid_from_file(pid_path):
@@ -71,5 +71,5 @@ class Daemon:
         :param database: argument of function
         """
         if os.path.exists(pid_path):
-            stop(pid_path)
-            run(func, database, pid_path)
+            Daemon.stop(pid_path)
+            Daemon.run(func, database, pid_path)

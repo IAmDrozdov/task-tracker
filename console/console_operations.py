@@ -10,8 +10,7 @@ from calelib import (CycleError,
                      DaemonAlreadyStarted,
                      DaemonIsNotStarted
                      )
-from calelib import Daemon
-from calelib import Status
+from calelib import Daemon, Status
 from calelib.models import Plan, Task, User
 
 
@@ -258,17 +257,27 @@ def operation_plan_remove(db, id):
         return 1
 
 
-def _check_plans_and_tasks(db, daemon=True):
+def check_plans_and_tasks(db, pid_path, daemon=True):
     def check_all():
         for plan in db.get_plans():
-            plan.check_for_create()
+            planned_task = plan.check_for_create()
+            if planned_task:
+                print('created new task')
+                db.create_task(planned_task)
         for task in db.get_tasks():
-            task.check_deadline()
+            overdue_task = task.check_deadline()
+            if overdue_task:
+                choice = input('You overdue task "{}"\n Enter "d" to delete this task or "a" to archive'
+                               .format(overdue_task.info))
+                if choice == 'a':
+                    operation_task_finish(db, overdue_task.id)
+                else:
+                    operation_task_remove(db, overdue_task.id)
 
-    while daemon:
-        check_all()
-        time.sleep(5)
     check_all()
+    time.sleep(1)
+    if daemon:
+        restart_daemon(db, pid_path)
 
 
 def operation_task_restore(db, task_id):
@@ -281,7 +290,7 @@ def operation_task_restore(db, task_id):
 
 def run_daemon(db, pid_path):
     try:
-        Daemon.run(_check_plans_and_tasks, db, pid_path)
+        Daemon.run(check_plans_and_tasks, db, pid_path)
     except (DaemonAlreadyStarted, FileNotFoundError):
         print('Daemon already started')
         return 1
@@ -296,4 +305,4 @@ def stop_daemon(pid_path):
 
 
 def restart_daemon(db, pid_path):
-    Daemon.restart(_check_plans_and_tasks, db, pid_path)
+    Daemon.restart(check_plans_and_tasks, db, pid_path)

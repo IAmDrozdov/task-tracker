@@ -7,6 +7,7 @@ from calelib.models.task import Task
 from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from calelib.notification import call
 
 
 class Plan(models.Model):
@@ -58,11 +59,13 @@ class Plan(models.Model):
         new_task.save()
         self.created = True
         self.last_create = datetime.datetime.now().date()
+        call('Created planned task', self.info)
         return new_task
 
     @logg('Removed planned task')
     def remove_task(self):
         self.created = False
+        call('Removed planned task', self.info)
         Task.objects.get(plan=self.pk)
 
     def check_last_create_day(self):
