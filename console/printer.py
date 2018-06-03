@@ -100,3 +100,13 @@ def print_plans(plans, colored):
         else:
             color = Fore.RESET
         print(color + '|ID {}| {}'.format(plan.id, plan.info))
+
+
+def print_reminder(reminder):
+    tasks = ', '.join([t.id for t in reminder.tasks.all()]) if reminder.tasks.all().exists() else 'No tasks'
+    print('ID : {}\nTasks: {}\nReminding: {}'.format(reminder.id, tasks, reminder))
+
+
+def print_reminders(reminders):
+    for reminder in reminders:
+        print('ID: {} | {}'.format(reminder.id, reminder))

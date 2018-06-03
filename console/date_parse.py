@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from calelib import Constants
 
@@ -22,7 +22,7 @@ def get_deadline(deadline_string):
         hour, minutes = [int(e) for e in time.split(':')]
         curr_year_input = curr_year_input.replace(hour=hour, minute=minutes)
     else:
-        curr_year_input += datetime.timedelta(days=1)
+        curr_year_input += timedelta(days=1)
     if curr_year_input < now:
         return curr_year_input.replace(year=now.year + 1)
     else:

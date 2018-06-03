@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.6
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
-
+# dl - nw < td
 
 from parser import create_parser
 
@@ -77,12 +77,26 @@ def main():
         elif namespace.command == 'change':
             co.operation_plan_change(db, namespace.id, namespace.info, namespace.period_type, namespace.period_value,
                                      namespace.time)
+    elif namespace.target == 'reminder':
+        if namespace.command == 'add':
+            co.operation_reminder_add(db, namespace.remind_type, namespace.remind_value)
+        elif namespace.command == 'remove':
+            co.operation_reminder_remove(db, namespace.id)
+        elif namespace.command == 'apply':
+            co.operation_reminder_apply_task(db, namespace.reminder_id, namespace.task_id)
+        elif namespace.command == 'detach':
+            co.operation_reminder_detach_task(db, namespace.reminder_id, namespace.task_id)
+        elif namespace.command == 'show':
+            co.operation_reminder_show(db, namespace.id)
+        elif namespace.command == 'change':
+            co.operation_reminder_change(db, namespace.id, namespace.remind_type, namespace.remind_value)
     #######################################
-    from calelib.models import Task, Plan, User
-    Task.objects.all().delete()
-    User.objects.all().delete()
-    Plan.objects.all().delete()
-    co.check_plans_and_tasks(db)
+    # from calelib.models import Task, Plan, User, Reminder
+    # Task.objects.all().delete()
+    # User.objects.all().delete()
+    # Plan.objects.all().delete()
+    # Reminder.objects.all().delete()
+    co.check_instances(db)
 
 
 if __name__ == '__main__':

@@ -62,5 +62,11 @@ class Database:
     def get_users(user_nickname):
         return User.objects.get(nickname=user_nickname) if user_nickname else User.objects.all()
 
-    def add_reminder(self, reminder):
+    def create_reminder(self, reminder):
         self._current_user.add_reminder(reminder)
+
+    def remove_reminder(self, reminder_id):
+        self._current_user.remove_reminder(reminder_id)
+
+    def get_reminders(self, reminder_id=None):
+        return self._current_user.reminders.get(pk=reminder_id) if reminder_id else self._current_user.reminders.all()

@@ -1,16 +1,12 @@
 import calendar
 import re
-import time
 
 import date_parse as dp
 import django.core.exceptions as django_ex
-import django.db.utils as django_db_ex
+import django.db.utils
 import printer
-from calelib import (CycleError,
-                     DaemonAlreadyStarted,
-                     DaemonIsNotStarted
-                     )
-from calelib import Daemon, Status
+from calelib import CycleError
+from calelib import Status
 from calelib.models import Plan, Task, User, Reminder
 
 
@@ -19,7 +15,7 @@ def operation_user_add(db, nickname, force, cfg):
         db.create_user(nickname)
         if force:
             operation_user_login(nickname, cfg)
-    except django_db_ex.IntegrityError:
+    except django.db.utils.IntegrityError:
         print('User with nickname "{}" already exist'.format(nickname))
         return 1
 
@@ -76,11 +72,11 @@ def operation_task_add(db, info, priority, deadline, tags, parent_task_id):
         return 1
 
 
-def operation_task_remove(db, id):
+def operation_task_remove(db, task_id):
     try:
-        db.remove_task(id)
+        db.remove_task(task_id)
     except django_ex.ObjectDoesNotExist:
-        print('task with id {} does not exist'.format(id))
+        print('task with id {} does not exist'.format(task_id))
         return 1
 
 
@@ -103,9 +99,9 @@ def operation_task_show(db, choice, selected, colored):
         return 1
 
 
-def operation_task_finish(db, id):
+def operation_task_finish(db, task_id):
     try:
-        task_to_finish = db.get_tasks(id)
+        task_to_finish = db.get_tasks(task_id)
 
         if task_to_finish.plan is None:
             task_to_finish.finish()
@@ -113,7 +109,7 @@ def operation_task_finish(db, id):
         else:
             print('You cannot archive planned task')
     except django_ex.ObjectDoesNotExist:
-        print('task with id {} does not exist'.format(id))
+        print('task with id {} does not exist'.format(task_id))
         return 1
 
 
@@ -138,7 +134,7 @@ def operation_task_move(db, id_from, id_to):
         return 1
 
 
-def operation_task_change(db, id, info, deadline, priority, status, append_tags, remove_tags):
+def operation_task_change(db, task_id, info, deadline, priority, status, append_tags, remove_tags):
     try:
         if status == Status.FINISHED:
             print('You can not finish task using changing. Use "task finish"')
@@ -148,11 +144,11 @@ def operation_task_change(db, id, info, deadline, priority, status, append_tags,
         deadline = dp.get_deadline(deadline) if deadline else None
         append_tags = append_tags.strip().split() if append_tags else None
         remove_tags = remove_tags.strip().split() if remove_tags else None
-        db.change_task(id, info=info, deadline=deadline, priority=priority, status=status,
+        db.change_task(task_id, info=info, deadline=deadline, priority=priority, status=status,
                        plus_tags=append_tags,
                        minus_tags=remove_tags)
     except django_ex.ObjectDoesNotExist:
-        print('Task with id "{}" does not exist'.format(id))
+        print('Task with id "{}" does not exist'.format(task_id))
         return 1
     except ValueError:
         print('Incorrect input date')
@@ -175,14 +171,14 @@ def operation_task_share(db, id_from, nickname_to):
         return 1
 
 
-def operation_task_unshare(db, id):
+def operation_task_unshare(db, task_id):
     """
     Unshare task from all users
-    :param id: id of task to unshare
+    :param task_id: id of task to unshare
     :param db: param for serialization
     """
     try:
-        task_to_unshare = db.get_tasks(id)
+        task_to_unshare = db.get_tasks(task_id)
         performer_list = [db.get_users(performer) for performer in task_to_unshare.performers]
         if db.current_user.nickname not in task_to_unshare.performers:
             for performer in performer_list:
@@ -191,7 +187,7 @@ def operation_task_unshare(db, id):
         else:
             print('You have no permissions to unshare this task')
     except django_ex.ObjectDoesNotExist:
-        print('Task with id {} not found'.format(id))
+        print('Task with id {} not found'.format(task_id))
         return 1
 
 
@@ -237,65 +233,107 @@ def operation_plan_change(db, plan_id, info, period_type, period_value, time_at)
         return 1
 
 
-def operation_plan_show(db, id, colored):
+def operation_plan_show(db, plan_id, colored):
     try:
-        if id:
-            plan = db.get_plans(id)
+        if plan_id:
+            plan = db.get_plans(plan_id)
             printer.print_plan(plan)
         else:
             printer.print_plans(db.get_plans(), colored)
     except django_ex.ObjectDoesNotExist:
-        print('Plan with id "{}" does nit exist'.format(id))
+        print('Plan with id "{}" does nit exist'.format(plan_id))
         return 1
 
 
-def operation_plan_remove(db, id):
+def operation_plan_remove(db, plan_id):
     try:
-        db.remove_plan(id)
+        db.remove_plan(plan_id)
     except django_ex.ObjectDoesNotExist:
-        print('Plan with id "{}" does nit exist'.format(id))
+        print('Plan with id "{}" does nit exist'.format(plan_id))
         return 1
 
 
-def check_plans_and_tasks(db, pid_path):
-    def check_all():
-        for plan in db.get_plans():
-            planned_task = plan.check_for_create()
-            if planned_task:
-                db.create_task(planned_task)
-        for task in db.get_tasks():
-            overdue_task = task.check_deadline()
-            if overdue_task:
-                choice = input('You overdue task "{}"\n Enter "d" to delete this task or "a" to archive:\n'
-                               .format(overdue_task.info))
-                if choice == 'a':
-                    operation_task_finish(db, overdue_task.id)
-                else:
-                    operation_task_remove(db, overdue_task.id)
-
-    check_all()
+def check_instances(db):
+    for plan in db.get_plans():
+        planned_task = plan.check_for_create()
+        if planned_task:
+            db.create_task(planned_task)
+    for task in db.get_tasks():
+        overdue_task = task.check_deadline()
+        if overdue_task:
+            choice = input('You overdue task "{}"\n Enter "d" to delete this task or "a" to archive:\n'
+                           .format(overdue_task.info))
+            if choice == 'a':
+                operation_task_finish(db, overdue_task.id)
+            else:
+                operation_task_remove(db, overdue_task.id)
+    for reminder in db.get_reminders():
+        reminder.check()
 
 
 def operation_task_restore(db, task_id):
     try:
         db.get_tasks(task_id).restore_from_archive()
-    except django_ex.ObjectDoesNotExisttFound:
-        print('Task with id "{}" does not exists'.format(task_id))
-        return 1
-
-
-def operation_reminder_add(db, task_id, remind_type, remind_before, remind_period):
-    try:
-        if remind_period:
-            if remind_period > remind_before:
-                remind_period = None
-                print('Statement when period > value has no effect')
-        reminder = Reminder(remind_type=dp.parse_remind_type(remind_type), remind_before=remind_before,
-                            remind_period=remind_period)
-        reminder.save()
-        reminder.tasks.add(db.get_tasks(task_id))
-        reminder.save()
-        db.add_reminder(reminder)
     except django_ex.ObjectDoesNotExist:
         print('Task with id "{}" does not exists'.format(task_id))
         return 1
+
+
+def operation_reminder_add(db, remind_type, remind_before):
+    reminder = Reminder(remind_type=dp.parse_remind_type(remind_type), remind_before=remind_before)
+    reminder.save()
+    db.create_reminder(reminder)
+
+
+def operation_reminder_remove(db, reminder_id):
+    try:
+        db.remove_reminder(reminder_id)
+    except django_ex.ObjectDoesNotExist:
+        print('Reminder with id "{}" does not exist'.format(reminder_id))
+
+
+def operation_reminder_apply_task(db, reminder_id, task_id):
+    bad_type = 'reminder'
+    try:
+        reminder = db.get_reminders(reminder_id)
+        bad_type = 'task'
+        task_to_append = db.get_tasks(task_id)
+        reminder.apply_task(task_to_append)
+    except django_ex.ObjectDoesNotExist:
+        if bad_type == 'reminder':
+            print('Reminder with id "{}" does not exist'.format(reminder_id))
+        else:
+            print('Task with id "{}" does not exist'.format(task_id))
+
+
+def operation_reminder_detach_task(db, reminder_id, task_id):
+    bad_type = 'reminder'
+    try:
+        reminder = db.get_reminders(reminder_id)
+        bad_type = 'task'
+        task_to_append = db.get_tasks(task_id)
+        reminder.detach_task(task_to_append)
+    except django_ex.ObjectDoesNotExist:
+        if bad_type == 'reminder':
+            print('Reminder with id "{}" does not exist'.format(reminder_id))
+        else:
+            print('Task with id "{}" does not exist'.format(task_id))
+
+
+def operation_reminder_show(db, reminder_id):
+    try:
+        if reminder_id:
+            printer.print_reminder(db.get_reminders(reminder_id))
+        else:
+            printer.print_reminders(db.get_reminders())
+
+    except django_ex.ObjectDoesNotExist:
+        print('Reminder with id "{}" does not exist'.format(reminder_id))
+
+
+def operation_reminder_change(db, reminder_id, remind_type, remind_value):
+    try:
+        reminder = db.get_reminders(reminder_id)
+        reminder.update(remind_type, remind_value)
+    except django_ex.ObjectDoesNotExist:
+        print('Reminder with id "{}" does not exist'.format(reminder_id))

@@ -142,6 +142,7 @@ class Plan(models.Model):
         else:
             return self.check_uncreated()
 
+    @logg('Chaned information about plan')
     def update(self, info, period_type, period_value, time):
         if info:
             self.info = info

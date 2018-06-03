@@ -110,14 +110,25 @@ def create_parser():
     add_reminder = reminder_parser.add_parser('add', help='Create new reminder')
     add_reminder.add_argument('remind_type', choices=('min', 'hour', 'day', 'month'), help='Type of reminding measure')
     add_reminder.add_argument('remind_value', type=int, help='Number of typed measure')
-    add_reminder.add_argument('-p', '--period', type=int, help='Period of remind repeating after first reminding, '
-                                                               + 'measured value in inputted type')
+
     remove_reminder = reminder_parser.add_parser('remove', help='Remove reminder')
     remove_reminder.add_argument('id', type=int, help='ID of reminder to remove')
 
     apply_task = reminder_parser.add_parser('apply', help='Add task to reminder')
+    apply_task.add_argument('reminder_id', type=int, help='ID of reminder')
     apply_task.add_argument('task_id', type=int, help='ID of task to append to reminder')
 
     remove_task_from = reminder_parser.add_parser('detach', help='Remove task from reminder')
-    remove_task_from.add_argument('id', type=int, help='ID of task to remove')
+    remove_task_from.add_argument('reminder_id', type=int, help='Id of reminder')
+    remove_task_from.add_argument('task_id', type=int, help='ID of task to remove')
+
+    show_reminder = reminder_parser.add_parser('show', help='Print information about reminder')
+    show_reminder.add_argument('id', type=int, nargs='?', help='ID of reminder, if None print all reminders')
+
+    change_reminder = reminder_parser.add_parser('change', help='Change information about reminder')
+    change_reminder.add_argument('id', type=int, help='ID of reminder to change')
+
+    change_reminder.add_argument('remind_type', nargs='?', choices=('min', 'hour', 'day', 'month'),
+                                 help='Type of reminding measure')
+    change_reminder.add_argument('remind_value', nargs='?', type=int, help='Number of typed measure')
     return parser

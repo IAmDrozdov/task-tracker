@@ -50,3 +50,8 @@ class User(models.Model):
     def add_reminder(self, reminder):
         self.reminders.add(reminder)
         self.save()
+
+    @logg('Removed reminder')
+    def remove_reminder(self, reminder_id):
+        self.reminders.get(pk=reminder_id).delete()
+        self.save()

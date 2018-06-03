@@ -7,4 +7,4 @@ def call(title, info):
     :param title: title of notification
     :param info: information of notification
     """
-    subprocess.call(['notify-send', title, info])
+    subprocess.check_call(['notify-send', title, info])
