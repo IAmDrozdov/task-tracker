@@ -9,12 +9,24 @@ def get_deadline(deadline_string):
     :param deadline_string: string in format "DAY MONTH"
     :return: string in datetime format
     """
-    input_format = '%d %B%Y'
-    curr_year_input = datetime.strptime(deadline_string + str(datetime.now().year), input_format)
-    if curr_year_input < datetime.now():
-        return str(datetime.strptime(deadline_string + str(datetime.now().year + 1), input_format))
+
+    if len(deadline_string.split(',')) > 1:
+        date, time = [e.strip() for e in deadline_string.split(',')]
     else:
-        return str(curr_year_input)
+        date = deadline_string
+        time = None
+    input_format = '%d %B%Y'
+    now = datetime.now()
+    curr_year_input = datetime.strptime(date + str(now.year), input_format)
+    if time:
+        hour, minutes = [int(e) for e in time.split(':')]
+        curr_year_input = curr_year_input.replace(hour=hour, minute=minutes)
+    else:
+        curr_year_input += datetime.timedelta(days=1)
+    if curr_year_input < now:
+        return curr_year_input.replace(year=now.year + 1)
+    else:
+        return curr_year_input
 
 
 def parse_iso_pretty(date_iso):
@@ -23,7 +35,7 @@ def parse_iso_pretty(date_iso):
     :param date_iso: date in iso-like format
     :return: human-like formated date like "DAY MONTH"
     """
-    return date_iso.strftime('%d %b')
+    return date_iso.strftime('%d %b %Y')
 
 
 def get_first_weekday(month, year):

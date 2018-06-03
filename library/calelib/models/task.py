@@ -8,6 +8,7 @@ from calelib.notification import call
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 
 class Task(models.Model):
@@ -22,10 +23,6 @@ class Task(models.Model):
     plan = models.ForeignKey('Plan', null=True)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
-
-    def save(self, *args, **kwargs):
-        self.updated_at = datetime.now().date()
-        super().save(*args, **kwargs)
 
     @logg('Added subtask')
     def add_subtask(self, task):
@@ -91,7 +88,7 @@ class Task(models.Model):
     @logg('''Checked task's deadline''')
     def check_deadline(self):
         if self.deadline is not None:
-            if self.deadline.date() < datetime.now().date() and self.status == Status.UNFINISHED:
+            if self.deadline < timezone.now() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
                 call('Overdue task', self.info)
                 return self
