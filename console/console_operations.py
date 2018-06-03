@@ -257,7 +257,7 @@ def operation_plan_remove(db, id):
         return 1
 
 
-def check_plans_and_tasks(db, pid_path, daemon=True):
+def check_plans_and_tasks(db, pid_path):
     def check_all():
         for plan in db.get_plans():
             planned_task = plan.check_for_create()
@@ -274,9 +274,6 @@ def check_plans_and_tasks(db, pid_path, daemon=True):
                     operation_task_remove(db, overdue_task.id)
 
     check_all()
-    if daemon:
-        time.sleep(1)
-        restart_daemon(db, pid_path)
 
 
 def operation_task_restore(db, task_id):
@@ -285,26 +282,6 @@ def operation_task_restore(db, task_id):
     except django_ex.ObjectDoesNotExisttFound:
         print('Task with id "{}" does not exists'.format(task_id))
         return 1
-
-
-def run_daemon(db, pid_path):
-    try:
-        Daemon.run(check_plans_and_tasks, db, pid_path)
-    except (DaemonAlreadyStarted, FileNotFoundError):
-        print('Daemon already started')
-        return 1
-
-
-def stop_daemon(pid_path):
-    try:
-        Daemon.stop(pid_path)
-    except DaemonIsNotStarted:
-        print('Daemon is not started')
-        return 1
-
-
-def restart_daemon(db, pid_path):
-    Daemon.restart(check_plans_and_tasks, db, pid_path)
 
 
 def operation_reminder_add(db, task_id, remind_type, remind_before, remind_period):

@@ -14,7 +14,6 @@ from calelib import Config, Constants, Database, configure_logger
 def main():
     cfg = Config(Constants.CONFIG_FILE_PATH)
     log_path = cfg.get_config_field('logging_path')
-    pid_path = cfg.get_config_field('pid_path')
     log_level = cfg.get_config_field('logging_level')
     log_format = cfg.get_config_field('logging_format')
     configure_logger(log_path, log_format, log_level)
@@ -41,12 +40,6 @@ def main():
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
         return
-    #######################################
-    if namespace.daemon:
-        co.run_daemon(db, pid_path)
-        return
-    elif namespace.stop_daemon:
-        co.stop_daemon(pid_path)
     #######################################
     if namespace.target == 'task':
         if namespace.command == 'add':
@@ -85,12 +78,11 @@ def main():
             co.operation_plan_change(db, namespace.id, namespace.info, namespace.period_type, namespace.period_value,
                                      namespace.time)
     #######################################
-    # co.restart_daemon(db, pid_path)
-    # from calelib.models import Task, Plan, User
-    # Task.objects.all().delete()
-    # User.objects.all().delete()
-    # Plan.objects.all().delete()
-    co.check_plans_and_tasks(db, pid_path, False)
+    from calelib.models import Task, Plan, User
+    Task.objects.all().delete()
+    User.objects.all().delete()
+    Plan.objects.all().delete()
+    co.check_plans_and_tasks(db)
 
 
 if __name__ == '__main__':

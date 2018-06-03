@@ -9,7 +9,6 @@ application = get_wsgi_application()
 from .config import Config
 from .constants import Constants, Status
 from .crud import Database
-from .daemon import Daemon
 from .custom_exceptions import (DaemonIsNotStarted,
                                 DaemonAlreadyStarted,
                                 CycleError

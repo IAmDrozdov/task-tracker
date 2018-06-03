@@ -20,7 +20,6 @@ class Config:
         config = configparser.ConfigParser()
         config.add_section(self.section)
         config.set(self.section, 'current_user', '')
-        config.set(self.section, 'pid_path', 'tmp/pid.ini')
         config.set(self.section, 'logging_path', 'tmp/logging.log')
         config.set(self.section, 'logging_level', 'INFO')
         config.set(self.section, 'logging_format', '%%(asctime)s %%(levelname)s %%(message)s')
