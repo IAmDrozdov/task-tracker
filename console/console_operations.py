@@ -1,5 +1,4 @@
 import calendar
-import copy
 import re
 import time
 
@@ -9,8 +8,6 @@ import django.db.utils as django_db_ex
 import printer
 from calelib import Status
 from calelib import (UserNotAuthorized,
-                     UserNotFound,
-                     TaskNotFound,
                      CycleError,
                      DaemonAlreadyStarted,
                      DaemonIsNotStarted)
@@ -54,14 +51,14 @@ def operation_user_info(cfg):
         printer.print_user(user)
 
 
-def operation_task_add(db, description, priority, deadline, tags, parent_task_id):
+def operation_task_add(db, info, priority, deadline, tags, parent_task_id):
     try:
-        task = Task(info=description, priority=priority if priority else 1,
+        task = Task(info=info, priority=priority if priority else 1,
                     deadline=dp.get_deadline(deadline) if deadline else None,
                     tags=tags.strip().split() if tags else [],
                     )
         if parent_task_id:
-            parent_task = Task.objects.get(pk=parent_task_id)
+            parent_task = db.get_tasks(parent_task_id)
 
             task.save()
             parent_task.add_subtask(task)
@@ -117,7 +114,7 @@ def operation_task_move(db, id_from, id_to):
         bad_id = id_from
         task_from = db.get_tasks(id_from)
         if id_to == '0':
-            db.add_task(copy.deepcopy(task_from))
+            db.create_task(task_from.get_copy())
             db.remove_task(task_from.id)
         else:
             bad_id = id_to
@@ -149,20 +146,19 @@ def operation_task_change(db, id, info, deadline, priority, status, append_tags,
         print('Incorrect input date')
 
 
-def operation_task_share(db, id_from, nickname_to, track):
+def operation_task_share(db, id_from, nickname_to):
+    bad_type = 'task'
     try:
         task_from = db.get_tasks(id_from)
+        bad_type = 'user'
         user_to = db.get_users(nickname_to)
-
-        if track:
-            user_to.add_task(task_from)
+        task_from.add_performer(nickname_to)
+        user_to.add_task(task_from)
+    except django_ex.ObjectDoesNotExist:
+        if bad_type == 'task':
+            print('Task with id "{}" does not exist'.format(id_from))
         else:
-            user_to.add_task(task_from.get_copy())
-    except TaskNotFound:
-        print('User with id "{}" does not exist'.format(id_from))
-
-    except UserNotFound:
-        print('User with nickname "{}" does not exist'.format(nickname_to))
+            print('User with nickname "{}" does not exist'.format(nickname_to))
 
 
 def operation_task_unshare(db, id):
@@ -173,14 +169,14 @@ def operation_task_unshare(db, id):
     """
     try:
         task_to_unshare = db.get_tasks(id)
-        user_with_task = db.get_users(task_to_unshare.user['nickname'])
-        for task in user_with_task.get_all_tasks():
-            if task.id == task_to_unshare.user['id']:
-                user_with_task.remove_task(task.id)
-                task_to_unshare.remove_user()
-            db.serialize()
-            break
-    except TaskNotFound:
+        performer_list = [db.get_users(performer) for performer in task_to_unshare.performers]
+        if db.current_user.nickname not in task_to_unshare.performers:
+            for performer in performer_list:
+                performer.tasks.remove(task_to_unshare)
+                task_to_unshare.remove_performer(performer.nickname)
+        else:
+            print('You have no permissions to unshare this task')
+    except django_ex.ObjectDoesNotExist:
         print('Task with id {} not found'.format(id))
 
 
@@ -197,13 +193,29 @@ def operation_calendar_show(tasks, month, year):
         print('Incorrect input')
 
 
-def operation_plan_add(db, description, period_type, period_value, time):
+def operation_plan_add(db, info, period_type, period_value, time):
     try:
-        p_type, p_val = dp.parse_period(period_type, period_value)
-        db.create_plan(Plan(info=description, period=p_val, period_type=p_type,
-                            time_at=dp.parse_time(time) if time else None))
+        period_type, period_value = dp.parse_period(period_type, period_value)
+        time_at = dp.parse_time(time) if time else None
+        plan = Plan(info=info, period=period_value, period_type=period_type,
+                    time_at=time_at)
+        plan.save()
+        db.create_plan(plan)
     except ValueError:
         print('Incorrect input date')
+
+
+def operation_plan_change(db, plan_id, info, period_type, period_value, time_at):
+    try:
+        if not period_value and period_type:
+            raise AttributeError
+        period_type, period_value = dp.parse_period(period_type, period_value)
+        time_at = dp.parse_time(time_at) if time_at else None
+        db.change_plan(plan_id, info, period_type, period_value, time_at)
+    except ValueError:
+        print('Incorrect input date')
+    except AttributeError:
+        print('If you change period data, you should enter both parameters "-pt" and "-pv"')
 
 
 def operation_plan_show(db, id, colored):

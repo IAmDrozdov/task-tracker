@@ -1,4 +1,3 @@
-import django.core.exceptions
 from calelib.models import User
 
 
@@ -24,11 +23,11 @@ class Database:
         if tags:
             return self._current_user.tasks.filter(tags__contains=tags)
         elif task_id:
-            return self._current_user.tasks.get(pk=task_id)
+            return self._current_user.search_task(task_id)
         elif archive:
             return self._current_user.tasks.filter(archived=True)
         else:
-            return self._current_user.tasks.all()
+            return self._current_user.tasks.filter(archived=False)
 
     def remove_task(self, task_id):
         self._current_user.remove_task(task_id)
@@ -37,7 +36,7 @@ class Database:
         self._current_user.add_task(task)
 
     def change_task(self, task_id, info, deadline, priority, status, plus_tags, minus_tags):
-        self._current_user.tasks.get(pk=task_id).update(info, deadline, priority, status, plus_tags, minus_tags)
+        self._current_user.search_task(task_id).update(info, deadline, priority, status, plus_tags, minus_tags)
 
     def get_plans(self, plan_id=None):
         return self._current_user.plans.get(pk=plan_id) if plan_id else self._current_user.plans.all()
@@ -47,6 +46,9 @@ class Database:
 
     def remove_plan(self, plan_id):
         self._current_user.remove_plan(plan_id)
+
+    def change_plan(self, plan_id, info, period_type, period_value, time):
+        self._current_user.plans.get(pk=plan_id).update(info, period_type, period_value, time)
 
     @staticmethod
     def create_user(nickname):

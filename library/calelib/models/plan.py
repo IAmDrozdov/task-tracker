@@ -1,10 +1,11 @@
 import datetime
+import json
 
 from calelib.constants import Constants
 from calelib.logger import logg
 from calelib.models.task import Task
 from dateutil.relativedelta import relativedelta
-from django.contrib.postgres.fields import HStoreField
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
@@ -18,7 +19,7 @@ class Plan(models.Model):
     info = models.CharField(max_length=100)
     created = models.BooleanField(default=False)
     last_create = models.DateField(auto_now=True)
-    time_at = HStoreField(null=True)
+    _time_at = JSONField(null=True, db_column='time_at')
     period_type = models.CharField(max_length=6,
                                    choices=[
                                        (Constants.REPEAT_DAY, 'day'),
@@ -28,7 +29,25 @@ class Plan(models.Model):
                                    ]
                                    )
 
-    period = HStoreField(null=True)
+    _period = JSONField(null=True, db_column='period')
+
+    @property
+    def time_at(self):
+        return json.loads(self._time_at)
+
+    @time_at.setter
+    def time_at(self, not_dumped_time):
+        self._time_at = json.dumps(not_dumped_time)
+        self.save()
+
+    @property
+    def period(self):
+        return json.loads(self._period)
+
+    @period.setter
+    def period(self, not_dumped_period):
+        self._period = json.dumps(not_dumped_period)
+        self.save()
 
     @logg('Created planned task')
     def create_task(self):
@@ -112,3 +131,13 @@ class Plan(models.Model):
             self.check_created()
         else:
             return self.check_uncreated()
+
+    def update(self, info, period_type, period_value, time):
+        if info:
+            self.info = info
+        if time:
+            self.time_at = time
+        if period_type:
+            self.period = period_value
+            self.period_type = period_type
+        self.save()

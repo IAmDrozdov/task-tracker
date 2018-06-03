@@ -9,7 +9,6 @@ import argcomplete
 import console_operations as co
 import django.core.exceptions as django_ex
 from calelib import Config, Constants, Database, configure_logger
-from calelib.models import Task, User, Plan
 
 
 def main():
@@ -66,7 +65,7 @@ def main():
             co.operation_task_change(db, namespace.id, namespace.info, namespace.deadline, namespace.priority,
                                      namespace.status, namespace.append_tags, namespace.remove_tags)
         elif namespace.command == 'share':
-            co.operation_task_share(db, namespace.id_from, namespace.nickname_to, namespace.track)
+            co.operation_task_share(db, namespace.id_from, namespace.nickname_to)
         elif namespace.command == 'restore':
             co.operation_task_restore(db, namespace.id)
         elif namespace.command == 'unshare':
@@ -83,9 +82,13 @@ def main():
             co.operation_plan_show(db, namespace.id, namespace.colored)
         elif namespace.command == 'remove':
             co.operation_plan_remove(db, namespace.id)
+        elif namespace.command == 'change':
+            co.operation_plan_change(db, namespace.id, namespace.info, namespace.period_type, namespace.period_value,
+                                     namespace.time)
     # co.restart_daemon(db))
     # Task.objects.all().delete()
     # User.objects.all().delete()
+
 
 if __name__ == '__main__':
     main()

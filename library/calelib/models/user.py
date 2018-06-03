@@ -1,3 +1,4 @@
+import django.core.exceptions
 from calelib.logger import logg
 from django.db import models
 
@@ -14,7 +15,7 @@ class User(models.Model):
 
     @logg('Removed task from user')
     def remove_task(self, task_id):
-        self.tasks.get(pk=task_id).delete()
+        self.search_task(task_id).delete()
 
     @logg('Added plan to user')
     def add_plan(self, plan):
@@ -25,3 +26,21 @@ class User(models.Model):
     def remove_plan(self, plan_id):
         self.plans.get(pk=plan_id).delete()
         self.save()
+
+    def search_task(self, task_id):
+        def search_in_subtasks(subtasks):
+            if subtasks.exists():
+                for task in subtasks.all():
+                    if task.subtasks.filter(pk=task_id).exists():
+                        return task.subtasks.get(pk=task_id)
+                    else:
+                        return search_in_subtasks(task.subtasks)
+
+        if self.tasks.filter(pk=task_id).exists():
+            return self.tasks.get(pk=task_id)
+        else:
+            found_task = search_in_subtasks(self.tasks)
+            if found_task:
+                return found_task
+            else:
+                raise django.core.exceptions.ObjectDoesNotExist

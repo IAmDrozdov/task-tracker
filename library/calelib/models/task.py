@@ -20,6 +20,7 @@ class Task(models.Model):
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
     plan = models.ForeignKey('Plan', null=True)
     archived = models.BooleanField(default=False)
+    performers = ArrayField(models.CharField(max_length=20), default=list)
 
     def save(self, *args, **kwargs):
         self.updated_at = datetime.now().date()
@@ -34,6 +35,9 @@ class Task(models.Model):
     def get_copy(self):
         copied = deepcopy(self)
         copied.id = None
+        copied.save()
+        for task in self.subtasks.all():
+            copied.add_subtask(task)
         copied.save()
         return copied
 
@@ -100,4 +104,14 @@ class Task(models.Model):
         self.archived = False
         self.unfinish()
         self.created_at = datetime.now().date()
+        self.save()
+
+    @logg('Added performer to task')
+    def add_performer(self, user_nickname):
+        self.performers.append(user_nickname)
+        self.save()
+
+    @logg('Removed performer')
+    def remove_performer(self, user_nickname):
+        self.performers.remove(user_nickname)
         self.save()

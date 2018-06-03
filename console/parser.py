@@ -51,8 +51,7 @@ def create_parser():
     share_task.add_argument('id_from', help='ID task what will be send')
     share_task.add_argument('nickname_to', help='Nickname user what will take task')
     share_task.add_argument('-d', '--delete', action='store_true', help='Deleting task from the sender')
-    share_task.add_argument('-t', '--track', action='store_true', help='if the user has completed the task, '
-                                                                       'complete own too')
+
     restore_task = task_parser.add_parser('restore', help='Restore task from archive')
     restore_task.add_argument('id', type=str, help='ID of task to restore')
 
@@ -90,8 +89,8 @@ def create_parser():
     add_plan.add_argument('description', help='Information for task')
     add_plan.add_argument('period_type', type=str, choices=('day', 'week', 'month', 'year'), help='Type of repeating'
                                                                                                   'plan creation.')
-    add_plan.add_argument('period_value', type=str, help='periodic of creating task')
-    add_plan.add_argument('-t', '--time', type=str, help='time when task will be created')
+    add_plan.add_argument('period_value', type=str, help='Periodic of creating task')
+    add_plan.add_argument('-t', '--time', type=str, help='Time when task will be created')
 
     show_plan = plan_parser.add_parser('show', help='Print list of plans')
     show_plan.add_argument('id', type=str, nargs='?', help='ID of plan to show')
@@ -99,5 +98,13 @@ def create_parser():
 
     remove_plan = plan_parser.add_parser('remove', help='Remove plan')
     remove_plan.add_argument('id', type=str, help='ID of plan to delete')
+
+    change_plan = plan_parser.add_parser('change', help='Change plan')
+    change_plan.add_argument('id', type=str, help='ID of plan to change')
+    change_plan.add_argument('-i', '--info', help='Change information about plan')
+    change_plan.add_argument('-pt', '--period_type', type=str, choices=('day', 'week', 'month', 'year'),
+                             help='Change period type')
+    change_plan.add_argument('-pv', '--period_value', type=str, help='Periodic of creating task')
+    change_plan.add_argument('-t', '--time', type=str, help='Time when task will be created')
 
     return parser

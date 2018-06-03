@@ -90,7 +90,7 @@ def print_calendar(tasks, month, year):
 
 
 def print_plan(plan):
-    created = 'Status: created' if plan.is_created else 'Status: not created'
+    created = 'Status: created' if plan.created else 'Status: not created'
     period_print = 'Period: every '
     time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
     next_print = 'Next creating: '
@@ -114,7 +114,7 @@ def print_plan(plan):
 def print_plans(plans, colored):
     for plan in plans:
         if colored:
-            color = Fore.LIGHTCYAN_EX if plan.is_created else Fore.RED
+            color = Fore.LIGHTCYAN_EX if plan.created else Fore.RED
         else:
             color = Fore.RESET
         print(color + '|ID {}| {}'.format(plan.id, plan.info))

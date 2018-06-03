@@ -117,32 +117,32 @@ def parse_period(period_type, period_value):
     :param period_value: date of period
     :return: dict of readable for plan data for creating tasks
     """
-    hm_period = {'period': None, 'type': None}
+    parsed = {'period': None, 'type': None}
     if period_type == 'day':
-        hm_period['period'] = int(period_value)
-        hm_period['type'] = Constants.REPEAT_DAY
+        parsed['period'] = {'day': int(period_value)}
+        parsed['type'] = Constants.REPEAT_DAY
     elif period_type == 'week':
         weekdays_list = period_value.strip().split()
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
-        hm_period['period'] = list(set(weekdays_digits_list))
-        hm_period['type'] = Constants.REPEAT_WEEKDAY
+        parsed['period'] = {'days': list(set(weekdays_digits_list))}
+        parsed['type'] = Constants.REPEAT_WEEKDAY
     elif period_type == 'month':
         period_value = period_value.strip().split()
         month_list = period_value[1:]
         month_digits_list = [get_month_number(month) for month in month_list]
-        hm_period['period'] = {
+        parsed['period'] = {
             'months': list(set(month_digits_list)),
             'day': int(period_value[0])
         }
-        hm_period['type'] = Constants.REPEAT_MONTH
+        parsed['type'] = Constants.REPEAT_MONTH
     elif period_type == 'year':
         period_value = period_value.strip().split()
-        hm_period['type'] = Constants.REPEAT_YEAR
-        hm_period['period'] = {
+        parsed['type'] = Constants.REPEAT_YEAR
+        parsed['period'] = {
             'day': int(period_value[0]),
             'month': get_month_number(period_value[1])
         }
-    return hm_period['type'], hm['period']
+    return parsed['type'], parsed['period']
 
 
 def parse_time(string_time):
