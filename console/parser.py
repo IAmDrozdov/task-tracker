@@ -128,7 +128,7 @@ def create_parser():
     change_reminder = reminder_parser.add_parser('change', help='Change information about reminder')
     change_reminder.add_argument('id', type=int, help='ID of reminder to change')
 
-    change_reminder.add_argument('remind_type', nargs='?', choices=('min', 'hour', 'day', 'month'),
+    change_reminder.add_argument('-rt', '--remind_type', choices=('min', 'hour', 'day', 'month'),
                                  help='Type of reminding measure')
-    change_reminder.add_argument('remind_value', nargs='?', type=int, help='Number of typed measure')
+    change_reminder.add_argument('-rv', '--remind_value', type=int, help='Number of typed measure')
     return parser

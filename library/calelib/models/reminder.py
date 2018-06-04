@@ -47,10 +47,8 @@ class Reminder(models.Model):
     @logg('Changed information about reminder')
     def update(self, remind_type, remind_before):
         if remind_before:
-            print('changed val')
             self.remind_before = remind_before
         if remind_type:
-            print('changed type')
             self.remind_type = remind_type
         self.save()
 

@@ -94,9 +94,6 @@ def operation_task_show(db, choice, selected, colored):
     except django_ex.ObjectDoesNotExist:
         print('Task with id {} does not exist'.format(selected))
         return 1
-    except UserNotAuthorized:
-        print('Use login to sign in or add new user')
-        return 1
 
 
 def operation_task_finish(db, task_id):
@@ -334,6 +331,6 @@ def operation_reminder_show(db, reminder_id):
 def operation_reminder_change(db, reminder_id, remind_type, remind_value):
     try:
         reminder = db.get_reminders(reminder_id)
-        reminder.update(remind_type, remind_value)
+        reminder.update(dp.parse_remind_type(remind_type), remind_value)
     except django_ex.ObjectDoesNotExist:
         print('Reminder with id "{}" does not exist'.format(reminder_id))
