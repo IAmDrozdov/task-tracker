@@ -7,22 +7,21 @@ import django.db.utils
 import printer
 from calelib import CycleError
 from calelib import Status
-from calelib.models import Plan, Task, User, Reminder
 
 
 def operation_user_add(db, nickname, force, cfg):
     try:
         db.create_user(nickname)
         if force:
-            operation_user_login(nickname, cfg)
+            operation_user_login(nickname, db, cfg)
     except django.db.utils.IntegrityError:
         print('User with nickname "{}" already exist'.format(nickname))
         return 1
 
 
-def operation_user_login(nickname, cfg):
+def operation_user_login(nickname, db, cfg):
     try:
-        User.objects.get(nickname=nickname)
+        db.get_users(nickname)
         cfg.set_current_user(nickname)
     except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
@@ -41,9 +40,9 @@ def operation_user_remove(db, nickname):
         return 1
 
 
-def operation_user_info(cfg):
+def operation_user_info(db, cfg):
     try:
-        user = User.objects.get(nickname=cfg.get_config_field('current_user'))
+        user = db.get_users(cfg.get_config_field('current_user'))
         printer.print_user(user)
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
@@ -52,18 +51,11 @@ def operation_user_info(cfg):
 
 def operation_task_add(db, info, priority, deadline, tags, parent_task_id):
     try:
-        task = Task(info=info, priority=priority if priority else 1,
-                    deadline=dp.get_deadline(deadline) if deadline else None,
-                    tags=tags.strip().split() if tags else [],
-                    )
-        if parent_task_id:
-            parent_task = db.get_tasks(parent_task_id)
+        deadline = dp.get_deadline(deadline) if deadline else None
+        priority = priority if priority else 1
+        tags = tags.strip().split() if tags else []
 
-            task.save()
-            parent_task.add_subtask(task)
-        else:
-            task.save()
-            db.create_task(task)
+        db.create_task(info, priority, deadline, tags, parent_task_id)
     except django_ex.ObjectDoesNotExist:
         print('task with id {} does not exist'.format(parent_task_id))
         return 1
@@ -206,10 +198,7 @@ def operation_plan_add(db, info, period_type, period_value, time):
     try:
         period_type, period_value = dp.parse_period(period_type, period_value)
         time_at = dp.parse_time(time) if time else None
-        plan = Plan(info=info, period=period_value, period_type=period_type,
-                    time_at=time_at)
-        plan.save()
-        db.create_plan(plan)
+        db.create_plan(info, period_value, period_type, time_at)
     except ValueError:
         print('Incorrect input date')
         return 1
@@ -265,7 +254,7 @@ def check_instances(db):
             else:
                 operation_task_remove(db, overdue_task.id)
     for reminder in db.get_reminders():
-        reminder.check()
+        reminder.check_tasks()
 
 
 def operation_task_restore(db, task_id):
@@ -277,9 +266,8 @@ def operation_task_restore(db, task_id):
 
 
 def operation_reminder_add(db, remind_type, remind_before):
-    reminder = Reminder(remind_type=dp.parse_remind_type(remind_type), remind_before=remind_before)
-    reminder.save()
-    db.create_reminder(reminder)
+    remind_type = dp.parse_remind_type(remind_type)
+    db.create_reminder(remind_type, remind_before)
 
 
 def operation_reminder_remove(db, reminder_id):
@@ -287,6 +275,7 @@ def operation_reminder_remove(db, reminder_id):
         db.remove_reminder(reminder_id)
     except django_ex.ObjectDoesNotExist:
         print('Reminder with id "{}" does not exist'.format(reminder_id))
+    return 1
 
 
 def operation_reminder_apply_task(db, reminder_id, task_id):
@@ -301,6 +290,7 @@ def operation_reminder_apply_task(db, reminder_id, task_id):
             print('Reminder with id "{}" does not exist'.format(reminder_id))
         else:
             print('Task with id "{}" does not exist'.format(task_id))
+        return 1
 
 
 def operation_reminder_detach_task(db, reminder_id, task_id):
@@ -315,6 +305,7 @@ def operation_reminder_detach_task(db, reminder_id, task_id):
             print('Reminder with id "{}" does not exist'.format(reminder_id))
         else:
             print('Task with id "{}" does not exist'.format(task_id))
+        return 1
 
 
 def operation_reminder_show(db, reminder_id):
@@ -326,6 +317,7 @@ def operation_reminder_show(db, reminder_id):
 
     except django_ex.ObjectDoesNotExist:
         print('Reminder with id "{}" does not exist'.format(reminder_id))
+    return 1
 
 
 def operation_reminder_change(db, reminder_id, remind_type, remind_value):
@@ -333,3 +325,4 @@ def operation_reminder_change(db, reminder_id, remind_type, remind_value):
         db.change_reminder(reminder_id, dp.parse_remind_type(remind_type), remind_value)
     except django_ex.ObjectDoesNotExist:
         print('Reminder with id "{}" does not exist'.format(reminder_id))
+    return 1

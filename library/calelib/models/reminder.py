@@ -28,7 +28,7 @@ class Reminder(models.Model):
         self.tasks.remove(task)
 
     @logg('Checked reminder')
-    def check(self):
+    def check_tasks(self):
         for task in self.tasks.all():
             if self._get_delta(task.deadline) < timezone.now():
                 call(task.info, self.__str__().replace('before', 'after'))

@@ -1,4 +1,4 @@
-from calelib.models import User
+from calelib.models import User, Task, Plan, Reminder
 import logging
 from calelib.logger import logg
 
@@ -45,7 +45,14 @@ class Calendoola:
         self._current_user.remove_task(task_id)
 
     @logg('Created new task')
-    def create_task(self, task):
+    def create_task(self, info, priority, deadline, tags, parent_task_id):
+        task = Task(info=info, priority=priority, deadline=deadline, tags=tags)
+        if parent_task_id:
+            parent_task = self._current_user.tasks.get(pk=parent_task_id)
+            task.save()
+            parent_task.add_subtask(task)
+        else:
+            task.save()
         self._current_user.add_task(task)
 
     @logg('CHanged task')
@@ -56,7 +63,9 @@ class Calendoola:
         return self._current_user.plans.get(pk=plan_id) if plan_id else self._current_user.plans.all()
 
     @logg('Created plan')
-    def create_plan(self, plan):
+    def create_plan(self, info, period_value, period_type, time_at):
+        plan = Plan(info=info, period=period_value, period_type=period_type, time_at=time_at)
+        plan.save()
         self._current_user.add_plan(plan)
 
     @logg('Removed plan')
@@ -82,7 +91,9 @@ class Calendoola:
         return User.objects.get(nickname=user_nickname) if user_nickname else User.objects.all()
 
     @logg('Created new reminder to user')
-    def create_reminder(self, reminder):
+    def create_reminder(self, remind_type, remind_before):
+        reminder = Reminder(remind_type=remind_type, remind_before=remind_before)
+        reminder.save()
         self._current_user.add_reminder(reminder)
 
     @logg('Removed reminder from user')

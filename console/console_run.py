@@ -24,13 +24,13 @@ def main():
         if namespace.command == 'add':
             co.operation_user_add(db, namespace.nickname, namespace.force, cfg)
         elif namespace.command == 'login':
-            co.operation_user_login(namespace.nickname, cfg)
+            co.operation_user_login(namespace.nickname, db, cfg)
         elif namespace.command == 'logout':
             co.operation_user_logout(cfg)
         elif namespace.command == 'remove':
             co.operation_user_remove(db, namespace.nickname)
         elif namespace.command == 'info':
-            co.operation_user_info(cfg)
+            co.operation_user_info(db, cfg)
         return
     #######################################
     try:
