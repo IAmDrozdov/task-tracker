@@ -8,19 +8,9 @@ application = get_wsgi_application()
 
 from .config import Config
 from .constants import Constants, Status
-from .crud import Database
+from .crud import Calendoola
 from .custom_exceptions import (DaemonIsNotStarted,
                                 DaemonAlreadyStarted,
                                 CycleError
                                 )
 from .notification import call
-import logging
-
-
-def configure_logger(path, log_format, level):
-    clogger = logging.getLogger('calendoola_logger')
-    handler = logging.FileHandler(path)
-    formatter = logging.Formatter(log_format)
-    handler.setFormatter(formatter)
-    clogger.addHandler(handler)
-    clogger.setLevel(getattr(logging, level))

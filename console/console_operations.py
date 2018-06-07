@@ -330,7 +330,6 @@ def operation_reminder_show(db, reminder_id):
 
 def operation_reminder_change(db, reminder_id, remind_type, remind_value):
     try:
-        reminder = db.get_reminders(reminder_id)
-        reminder.update(dp.parse_remind_type(remind_type), remind_value)
+        db.change_reminder(reminder_id, dp.parse_remind_type(remind_type), remind_value)
     except django_ex.ObjectDoesNotExist:
         print('Reminder with id "{}" does not exist'.format(reminder_id))

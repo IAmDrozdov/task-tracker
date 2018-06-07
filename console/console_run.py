@@ -1,14 +1,13 @@
 #!/usr/bin/env python3.6
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
-# dl - nw < td
 
 from parser import create_parser
 
 import argcomplete
 import console_operations as co
 import django.core.exceptions as django_ex
-from calelib import Config, Constants, Database, configure_logger
+from calelib import Config, Constants, Calendoola
 
 
 def main():
@@ -16,9 +15,8 @@ def main():
     log_path = cfg.get_config_field('logging_path')
     log_level = cfg.get_config_field('logging_level')
     log_format = cfg.get_config_field('logging_format')
-    configure_logger(log_path, log_format, log_level)
     parser = create_parser()
-    db = Database()
+    db = Calendoola(log_path, log_format, log_level)
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
