@@ -18,7 +18,7 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = ArrayField(models.CharField(max_length=20), default=list)
     priority = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)], default=1)
-    deadline = models.DateTimeField(null=True, blank=True)  # 'YYYY-MM-DD'
+    deadline = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)

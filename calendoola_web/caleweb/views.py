@@ -1,8 +1,7 @@
 from calelib.crud import Calendoola
-from django.http import HttpResponse
-
+from django.shortcuts import render
 db = Calendoola()
 
 
 def index(request):
-    return HttpResponse('+'.join([t.info for t in db.get_tasks()]))
+    return render(request, 'caleweb/homePage.html')

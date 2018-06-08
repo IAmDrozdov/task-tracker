@@ -51,7 +51,7 @@ ROOT_URLCONF = 'calendoola_web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['caleweb/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,5 +63,4 @@ TEMPLATES = [
         },
     },
 ]
-
 STATIC_URL = '/static/'
