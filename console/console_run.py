@@ -2,12 +2,16 @@
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
 
+
+from calelib import configure_database
+
+configure_database()
 from parser import create_parser
 
 import argcomplete
 import console_operations as co
 import django.core.exceptions as django_ex
-from calelib import Calendoola
+from calelib.crud import Calendoola
 
 
 def main():

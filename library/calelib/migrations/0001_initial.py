@@ -3,14 +3,12 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 import django.core.validators
-from django.db import migrations, models
 import django.db.models.deletion
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -25,7 +23,8 @@ class Migration(migrations.Migration):
                 ('created', models.BooleanField(default=False)),
                 ('last_create', models.DateField(auto_now=True)),
                 ('_time_at', django.contrib.postgres.fields.jsonb.JSONField(db_column='time_at', null=True)),
-                ('period_type', models.CharField(choices=[('d', 'day'), ('wd', 'week'), ('m', 'month'), ('y', 'year')], max_length=6)),
+                ('period_type',
+                 models.CharField(choices=[('d', 'day'), ('wd', 'week'), ('m', 'month'), ('y', 'year')], max_length=6)),
                 ('_period', django.contrib.postgres.fields.jsonb.JSONField(db_column='period', default=dict)),
             ],
         ),
@@ -34,7 +33,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('remind_before', models.IntegerField(default=0)),
-                ('remind_type', models.CharField(choices=[('m', 'minutes'), ('h', 'hours'), ('d', 'days'), ('mth', 'months')], max_length=6)),
+                ('remind_type',
+                 models.CharField(choices=[('m', 'minutes'), ('h', 'hours'), ('d', 'days'), ('mth', 'months')],
+                                  max_length=6)),
             ],
         ),
         migrations.CreateModel(
@@ -44,12 +45,17 @@ class Migration(migrations.Migration):
                 ('info', models.CharField(max_length=100)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('tags', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=20), default=list, size=None)),
-                ('priority', models.IntegerField(default=1, validators=[django.core.validators.MaxValueValidator(5), django.core.validators.MinValueValidator(1)])),
+                ('tags',
+                 django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=20), default=list,
+                                                           size=None)),
+                ('priority', models.IntegerField(default=1, validators=[django.core.validators.MaxValueValidator(5),
+                                                                        django.core.validators.MinValueValidator(1)])),
                 ('deadline', models.DateTimeField(blank=True, null=True)),
                 ('status', models.CharField(default='UNFINISHED', max_length=10)),
                 ('archived', models.BooleanField(default=False)),
-                ('performers', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=20), default=list, size=None)),
+                ('performers',
+                 django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=20), default=list,
+                                                           size=None)),
                 ('plan', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='calelib.Plan')),
                 ('subtasks', models.ManyToManyField(to='calelib.Task')),
             ],
