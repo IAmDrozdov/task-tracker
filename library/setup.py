@@ -7,12 +7,8 @@ from setuptools.command.install import install
 class CustomInstallCommand(install):
     def run(self):
         install.run(self)
-        psql_cmd_create_user = "create user {} password '{}'".format('calendoola',
-                                                                     '1111')
-        os.system("sudo -u postgres psql -c \"{}\"".format(psql_cmd_create_user))
-        psql_cmd_create_db = "create database {} owner {}".format('calendoola_db',
-                                                                  'calendoola')
-        os.system("sudo -u postgres psql -c '{}'".format(psql_cmd_create_db))
+        os.system('sudo -u postgres psql -c "create user calendoola password \'1111\'"')
+        os.system('sudo -u postgres psql -c "create database calendoola_db owner calendoola"')
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'calelib.database_settings.settings')
         from django.core.management import execute_from_command_line
         execute_from_command_line(['manage.py', 'makemigrations'])

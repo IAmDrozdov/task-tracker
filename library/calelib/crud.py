@@ -4,6 +4,7 @@ from calelib.logger import logg, configure_logger
 from calelib.models import User, Task, Plan, Reminder
 from django.core.exceptions import ObjectDoesNotExist
 
+
 class Calendoola:
     def __init__(self, ):
 
