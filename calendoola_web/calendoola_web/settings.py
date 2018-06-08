@@ -13,7 +13,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SECRET_KEY='123'
+SECRET_KEY = '123'
 # Application definition
 
 INSTALLED_APPS = [
