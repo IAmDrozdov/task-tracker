@@ -88,7 +88,7 @@ def main():
             co.operation_reminder_show(db, namespace.id)
         elif namespace.command == 'change':
             co.operation_reminder_change(db, namespace.id, namespace.remind_type, namespace.remind_value)
-    #######################################
+    # ######################################
     # from calelib.models import Task, Plan, User, Reminder
     # Task.objects.all().delete()
     # User.objects.all().delete()

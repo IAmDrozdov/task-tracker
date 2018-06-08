@@ -18,7 +18,14 @@ class Calendoola:
 
     @current_user.setter
     def current_user(self, nickname):
-        self._current_user = User.objects.get(nickname=nickname)
+        try:
+            self._current_user = User.objects.get(nickname=nickname)
+        except:
+            if not self.get_users().exists():
+                self.create_user('default')
+                self.current_user = 'default'
+            else:
+                self.current_user = self.get_users().first().nickname
 
     @current_user.getter
     def current_user(self):
