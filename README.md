@@ -1,4 +1,3 @@
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ![](https://cdn1.savepice.ru/uploads/2018/6/8/356b8ce2066e0af12499c56adf2cb590-full.png)
 
 ![Python](https://img.shields.io/badge/python-v3.6-blue.svg)
