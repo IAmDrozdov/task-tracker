@@ -20,7 +20,7 @@ class Task(models.Model):
     priority = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)], default=1)
     deadline = models.DateTimeField(null=True, blank=True)  # 'YYYY-MM-DD'
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
-    plan = models.ForeignKey('Plan', null=True)
+    plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
 

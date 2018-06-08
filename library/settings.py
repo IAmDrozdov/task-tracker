@@ -1,17 +1,17 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'primarydb',
-        'USER': 'test',
+        'NAME': 'calendoola_db',
+        'USER': 'calendoola',
         'PASSWORD': '1111',
         'HOST': 'localhost',
         'PORT': '',
     }
 }
-
 INSTALLED_APPS = (
-    'calelib',
     'django.contrib.postgres',
+    'calelib',
+
 )
 
 SECRET_KEY = 'REPLACE_ME'

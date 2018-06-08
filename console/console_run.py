@@ -7,34 +7,30 @@ from parser import create_parser
 import argcomplete
 import console_operations as co
 import django.core.exceptions as django_ex
-from calelib import Config, Constants, Calendoola
+from calelib import Calendoola
 
 
 def main():
-    cfg = Config(Constants.CONFIG_FILE_PATH)
-    log_path = cfg.get_config_field('logging_path')
-    log_level = cfg.get_config_field('logging_level')
-    log_format = cfg.get_config_field('logging_format')
     parser = create_parser()
-    db = Calendoola(log_path, log_format, log_level)
+    db = Calendoola()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
-            co.operation_user_add(db, namespace.nickname, namespace.force, cfg)
+            co.operation_user_add(db, namespace.nickname, namespace.force)
         elif namespace.command == 'login':
-            co.operation_user_login(namespace.nickname, db, cfg)
+            co.operation_user_login(namespace.nickname, db)
         elif namespace.command == 'logout':
-            co.operation_user_logout(cfg)
+            co.operation_user_logout(db)
         elif namespace.command == 'remove':
             co.operation_user_remove(db, namespace.nickname)
         elif namespace.command == 'info':
-            co.operation_user_info(db, cfg)
+            co.operation_user_info(db)
         return
     #######################################
     try:
-        db.current_user = cfg.get_config_field('current_user')
+        db.current_user = db.cfg.get_config_field('current_user')
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
         return

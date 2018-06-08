@@ -1,4 +1,5 @@
 import logging
+import logging.handlers
 from functools import wraps
 
 
@@ -29,4 +30,13 @@ def _log_error(fn, ex, err, inst, logger):
 
 def _log_info(fn, res, mes, inst, logger):
     logger.info('function: %s; result: %s; %s; %s; %s',
-                fn.__name__, res, inst.__class__.__name__, id, mes)
+                fn.__name__, res, inst.__class__.__name__, inst, mes)
+
+
+def configure_logger(path, format, level):
+    clogger = logging.getLogger('calendoola_logger')
+    handler = logging.handlers.RotatingFileHandler(path, maxBytes=200)
+    formatter = logging.Formatter(format)
+    handler.setFormatter(formatter)
+    clogger.addHandler(handler)
+    clogger.setLevel(getattr(logging, level))

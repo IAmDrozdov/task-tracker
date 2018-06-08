@@ -6,11 +6,12 @@ setup(
     packages=[
         'calelib',
         'calelib.models',
-        'calelib.database_settings'
+        'calelib.database_settings',
     ],
     install_requires=[
         'colorama',
         'argcomplete',
-    ]
+    ],
+    data_files=['settings.py', 'manage.py']
     , include_package_data=True
 )

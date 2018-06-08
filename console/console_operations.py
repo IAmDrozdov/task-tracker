@@ -9,27 +9,28 @@ from calelib import CycleError
 from calelib import Status
 
 
-def operation_user_add(db, nickname, force, cfg):
+def operation_user_add(db, nickname, force):
     try:
         db.create_user(nickname)
         if force:
-            operation_user_login(nickname, db, cfg)
+            operation_user_login(nickname, db)
     except django.db.utils.IntegrityError:
         print('User with nickname "{}" already exist'.format(nickname))
         return 1
 
 
-def operation_user_login(nickname, db, cfg):
+def operation_user_login(nickname, db):
     try:
         db.get_users(nickname)
-        cfg.set_current_user(nickname)
+        db.cfg.set_current_user(nickname)
     except django_ex.ObjectDoesNotExist:
         print('User with nickname "{}" not exist'.format(nickname))
         return 1
 
 
-def operation_user_logout(cfg):
-    cfg.set_current_user('')
+def operation_user_logout(db):
+    del db.current_user
+    db.cfg.set_current_user('')
 
 
 def operation_user_remove(db, nickname):
@@ -40,11 +41,11 @@ def operation_user_remove(db, nickname):
         return 1
 
 
-def operation_user_info(db, cfg):
+def operation_user_info(db):
     try:
-        user = db.get_users(cfg.get_config_field('current_user'))
+        user = db.get_users(db.cfg.get_config_field('current_user'))
         printer.print_user(user)
-    except django_ex.ObjectDoesNotExist:
+    except AttributeError:
         print('You did not sign in. Please login')
         return 1
 

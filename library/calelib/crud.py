@@ -1,21 +1,19 @@
+from calelib.config import Config
+from calelib.constants import Constants
+from calelib.logger import logg, configure_logger
 from calelib.models import User, Task, Plan, Reminder
-import logging
-from calelib.logger import logg
-
-
-def configure_logger(path, log_format, level):
-    clogger = logging.getLogger('calendoola_logger')
-    handler = logging.FileHandler(path)
-    formatter = logging.Formatter(log_format)
-    handler.setFormatter(formatter)
-    clogger.addHandler(handler)
-    clogger.setLevel(getattr(logging, level))
 
 
 class Calendoola:
-    def __init__(self, log_path, log_format, log_level):
+    def __init__(self, ):
+
+        self.cfg = Config(Constants.CONFIG_FILE_PATH)
+        log_path = self.cfg.get_config_field('logging_path')
+        log_level = self.cfg.get_config_field('logging_level')
+        log_format = self.cfg.get_config_field('logging_format')
         self._current_user = None
         configure_logger(log_path, log_format, log_level)
+
     current_user = property()
 
     @current_user.setter
@@ -87,7 +85,7 @@ class Calendoola:
         User.objects.get(nickname=nickname).delete()
 
     @staticmethod
-    def get_users(user_nickname):
+    def get_users(user_nickname=None):
         return User.objects.get(nickname=user_nickname) if user_nickname else User.objects.all()
 
     @logg('Created new reminder to user')
