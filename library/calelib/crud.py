@@ -2,7 +2,7 @@ from calelib.config import Config
 from calelib.constants import Constants
 from calelib.logger import logg, configure_logger
 from calelib.models import User, Task, Plan, Reminder
-
+from django.core.exceptions import ObjectDoesNotExist
 
 class Calendoola:
     def __init__(self, ):
@@ -11,7 +11,11 @@ class Calendoola:
         log_path = self.cfg.get_config_field('logging_path')
         log_level = self.cfg.get_config_field('logging_level')
         log_format = self.cfg.get_config_field('logging_format')
-        self._current_user = User.objects.get(nickname='default')
+        try:
+            self._current_user = User.objects.get(nickname='guess')
+        except ObjectDoesNotExist:
+            User.objects.create(nickname='guess')
+            self._current_user = User.objects.get(nickname='guess')
         configure_logger(log_path, log_format, log_level)
 
     @property
@@ -20,18 +24,11 @@ class Calendoola:
 
     @current_user.setter
     def current_user(self, nickname):
-        try:
-            self._current_user = User.objects.get(nickname=nickname)
-        except:
-            if not self.get_users().exists():
-                self.create_user('default')
-                self.current_user = 'default'
-            else:
-                self.current_user = self.get_users().first().nickname
+        self._current_user = User.objects.get(nickname=nickname)
 
     @current_user.deleter
     def current_user(self):
-        self._current_user = None
+        self.cfg.set_current_user('guess')
 
     def get_tasks(self, task_id=None, tags=None, archive=False):
         if tags:

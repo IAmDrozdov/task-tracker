@@ -30,7 +30,8 @@ This library require:
 
 * Go to **library** repository and install:
 
-`python3 setup.py install --user`
+`sudo python3 setup.py install --user`
+(You should use **sudo** because postgres can work only with superuser privileges)
 
 Library automatically create postgres user **calendoola** with password **1111** and database **calendoola_db** and run migrations.
 You can user your own `settings.py` file, for this change default pass in 'configure.py' and run migrations.
