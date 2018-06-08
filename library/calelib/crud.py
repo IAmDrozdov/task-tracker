@@ -11,10 +11,12 @@ class Calendoola:
         log_path = self.cfg.get_config_field('logging_path')
         log_level = self.cfg.get_config_field('logging_level')
         log_format = self.cfg.get_config_field('logging_format')
-        self._current_user = None
+        self._current_user = User.objects.get(nickname='default')
         configure_logger(log_path, log_format, log_level)
 
-    current_user = property()
+    @property
+    def current_user(self):
+        return self._current_user
 
     @current_user.setter
     def current_user(self, nickname):
@@ -26,10 +28,6 @@ class Calendoola:
                 self.current_user = 'default'
             else:
                 self.current_user = self.get_users().first().nickname
-
-    @current_user.getter
-    def current_user(self):
-        return self._current_user
 
     @current_user.deleter
     def current_user(self):
