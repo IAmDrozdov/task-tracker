@@ -46,7 +46,7 @@ class Calendoola:
         self._current_user.remove_task(task_id)
 
     @logg('Created new task')
-    def create_task(self, info, priority, deadline, tags, parent_task_id):
+    def create_task(self, info=None, priority=None, deadline=None, tags=None, parent_task_id=None):
         task = Task(info=info, priority=priority, deadline=deadline, tags=tags)
         if parent_task_id:
             parent_task = self._current_user.tasks.get(pk=parent_task_id)

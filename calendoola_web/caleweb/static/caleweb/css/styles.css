@@ -1,0 +1,69 @@
+/*edit later*/
+body {
+    margin: 0;
+}
+
+.header {
+    width: 100%;
+    height: 100px;
+    background: #64b5f6;
+}
+
+.left-bar {
+    width: 150px;
+    height: 100vh;
+    background-color: #bbdefb;
+}
+
+.packing {
+    display: flex;
+    flex-direction: row;
+}
+
+/*////////////////////////////*/
+
+.instances_container {
+    background: #e5ffff;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.task-preview {
+    border: .5px darkolivegreen solid;
+    margin-bottom: 1px;
+    background: #81b9bf;
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.left-bar_btn-add, .task_preview_btn-delete {
+    text-align: center;
+    display: block;
+    background-color: #b39ddb;
+    width: 100%;
+    height: 30px;
+    margin-bottom: 5px;
+}
+.task_preview_btn-delete{
+    height: 100%;
+}
+
+.task-full {
+    width: 100%;
+    background-color: #c8e6c9;
+}
+
+.text-input {
+    position: absolute;
+    background: #ffecb3;
+    width: 20%;
+}
+
+.form-add {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}

@@ -1,0 +1,12 @@
+{% extends 'caleweb/wrapper.html' %}
+{% load humanize %}
+{% block content %}
+    <div class="task-full">
+        <h1>{{ task.info }}</h1>
+        <h3>Created at: {{ task.created_at }}</h3>
+        <h3>Deadline: {{ task.deadline }}</h3>
+        <button>Edit</button>
+        <button>Delete</button>
+        <button>Share</button>
+    </div>
+{% endblock %}

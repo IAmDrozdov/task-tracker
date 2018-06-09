@@ -25,7 +25,7 @@ class Task(models.Model):
     performers = ArrayField(models.CharField(max_length=20), default=list)
 
     @logg('Added subtask')
-    def add_subtask(self, task):
+    def add_subtask(fself, task):
         self.subtasks.add(task)
         self.save()
 

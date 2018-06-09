@@ -1,0 +1,21 @@
+{% extends 'caleweb/wrapper.html' %}
+{% block content %}
+    info:
+    <br>
+    priority:
+    <br>
+    deadline:
+    <br>
+    tags:
+    <form action="{% url 'add_task' %}" class="form-add" method="POST" role="form">
+        {% csrf_token %}
+        {{ add_form.info }}
+        {{ add_form.priority }}
+        {{ add_form.deadline }}
+        {{ add_form.tags }}
+{#        {{ add_form.parent_id }}#}
+        <input class="text-input" style="margin-top: 100px;" type="submit">Add/>
+    </form>
+
+{% endblock %}
+
