@@ -1,4 +1,4 @@
-{% extends 'caleweb/wrapper.html' %}
+{% extends 'caleweb/index.html' %}
 {% block content %}
     info:
     <br>
@@ -9,10 +9,7 @@
     tags:
     <form action="{% url 'add_task' %}" class="form-add" method="POST" role="form">
         {% csrf_token %}
-        {{ add_form.info }}
-        {{ add_form.priority }}
-        {{ add_form.deadline }}
-        {{ add_form.tags }}
+        {{ add_form }}
         <input class="text-input" style="margin-top: 100px;" type="submit"/>
     </form>
 

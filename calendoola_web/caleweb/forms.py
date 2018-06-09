@@ -35,12 +35,11 @@ class AddPlanForm(forms.Form):
                                                                                 'style': 'margin-top:40px;'}))
 
     time_at = forms.TimeField(widget=forms.TimeInput(attrs={'class': 'text-input', 'style': 'margin-top:60px',
-                                                            'placeholder': '1-5'}))
+                                                            'placeholder': '1-5'}), required=False)
 
 
 class EditTaskForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        print(kwargs)
         self.tags_old = kwargs.pop('tags_old')
         self.info_old = kwargs.pop('info_old')
         self.deadline_old = kwargs.pop('deadline_old')
@@ -55,3 +54,24 @@ class EditTaskForm(forms.Form):
     info = forms.CharField(max_length=40, widget=forms.TextInput(), required=False)
     deadline = forms.DateTimeField(widget=forms.DateTimeInput(), required=False)
     tags = forms.CharField(widget=forms.TextInput(), required=False)
+
+
+class EditPlanForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.info = kwargs.pop('info_old')
+        self.time_at = kwargs.pop('time_at_old')
+        self.period_value = kwargs.pop('period_value_old')
+        self.period_type = kwargs.pop('period_type_old')
+        self.plan_id = kwargs.pop('id')
+        super(EditPlanForm, self).__init__(*args, **kwargs)
+        self.fields['info'].initial = self.info
+        self.fields['id'].initial = self.plan_id
+        self.fields['time_at'].initial = self.time_at
+        self.fields['period_type'].initial = self.period_type
+        self.fields['period_value'].initial = self.period_value
+
+    id = forms.CharField(widget=forms.HiddenInput())
+    info = forms.CharField(max_length=40, widget=forms.TextInput(), required=False)
+    period_type = forms.CharField(widget=forms.TextInput(), required=False)
+    period_value = forms.CharField(widget=forms.TextInput(), required=False)
+    time_at = forms.CharField(widget=forms.TextInput(), required=False)

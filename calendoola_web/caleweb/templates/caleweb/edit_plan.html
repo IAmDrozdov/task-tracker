@@ -1,7 +1,7 @@
 {% extends 'caleweb/index.html' %}
 {% load humanize %}
 {% block content %}
-    <form action="{% url 'save_task' %}" method="POST" role="form">
+    <form action="{% url 'save_plan' %}" method="POST" role="form">
         {% csrf_token %}
         <table class="">
             {{ form_change }}

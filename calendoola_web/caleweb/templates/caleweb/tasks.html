@@ -1,0 +1,30 @@
+{% extends 'caleweb/index.html' %}
+{% load humanize %}
+{% block content %}
+    <div class="instances_container">
+        {% for task in tasks %}
+            <div class="task-preview">
+                <div class="task-preview_info">
+                    <div>
+                        <a href="/tasks/{{ task.id }}">{{ task.info }}</a>
+                    </div>
+                    <div>
+                        {{ task.created_at|naturaltime }}
+                    </div>
+                </div>
+                <div class="task-preview_deadline">
+                    <div>
+                        {% if task.deadline %}
+                            {{ task.deadline|naturaltime }}
+                        {% else %}
+                            No deadline
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{% url 'remove_task' task.pk %}" class="task_preview_btn-delete">delete</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

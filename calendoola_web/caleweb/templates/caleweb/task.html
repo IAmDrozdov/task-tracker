@@ -1,12 +1,12 @@
-{% extends 'caleweb/wrapper.html' %}
+{% extends 'caleweb/index.html' %}
 {% load humanize %}
 {% block content %}
-    <div class="task-full">
+    <div class="instance-full">
         <h1>{{ task.info }}</h1>
         <h3>Created at: {{ task.created_at }}</h3>
         <h3>Deadline: {{ task.deadline }}</h3>
-        <a href="edit/">Edit</a>
-        <button>Delete</button>
+        <a href="edit/" style="display: block">Edit</a>
+        <a href="{% url 'remove_task' task.pk %}" style="display: block">delete</a>
         <button>Share</button>
     </div>
 {% endblock %}

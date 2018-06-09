@@ -3,13 +3,18 @@ from . import views
 
 urlpatterns = [
     url(r'^tasks/$', views.tasks, name='tasks'),
+    url(r'^plans/$', views.plans, name='plans'),
     url(r'^$', views.index, name='homepage'),
     url(r'^tasks/(?P<pk>\d+)/$', views.task, name='task'),
+    url(r'^plans/(?P<pk>\d+)/$', views.plan, name='plan'),
     url(r'^tasks/create-task/$', views.create_task, name='create_task'),
     url(r'^tasks/add-task$', views.add_task, name='add_task'),
     url(r'tasks/remove/(?P<pk>\d+)/$', views.delete_task, name='remove_task'),
+    url(r'plans/remove/(?P<pk>\d+)/$', views.remove_plan, name='remove_plan'),
     url(r'plans/create-plan$', views.create_plan, name='create_plan'),
     url(r'^plans/add-plan$', views.add_plan, name='add_plan'),
     url(r'^tasks/(?P<pk>\d+)/edit/$', views.edit_task, name='edit_task'),
-    url(r'^tasks/save-task$', views.save_task, name='save_task')
+    url(r'^plans/(?P<pk>\d+)/edit/$', views.edit_plan, name='edit_plan'),
+    url(r'^tasks/save-task$', views.save_task, name='save_task'),
+    url(r'^tasks/save-plan$', views.save_plan, name='save_plan')
 ]

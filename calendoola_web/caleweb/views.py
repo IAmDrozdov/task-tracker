@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from calelib.crud import Calendoola
-from django.template.defaultfilters import register
 
-from .forms import AddTaskForm, AddPlanForm, EditTaskForm
+from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
 from django.views.decorators.http import require_POST
 
 db = Calendoola()
@@ -14,12 +13,22 @@ def index(request):
 
 def tasks(request):
     tasks = db.get_tasks()
-    return render(request, 'caleweb/home-page.html', {'tasks': tasks})
+    return render(request, 'caleweb/tasks.html', {'tasks': tasks})
+
+
+def plans(request):
+    plans = db.get_plans()
+    return render(request, 'caleweb/plans.html', {'plans': plans})
 
 
 def task(request, pk):
     task = db.get_tasks(pk)
     return render(request, 'caleweb/task.html', {'task': task})
+
+
+def plan(request, pk):
+    plan = db.get_plans(pk)
+    return render(request, 'caleweb/plan.html', {'plan': plan})
 
 
 def create_task(request):
@@ -38,7 +47,7 @@ def add_task(request):
 
 def delete_task(request, pk):
     db.remove_task(pk)
-    return redirect('tasks')
+    return redirect('/')
 
 
 def create_plan(request):
@@ -52,7 +61,7 @@ def add_plan(request):
     if form.is_valid():
         db.create_plan(request.POST.get('info', None), request.POST.get('period_value'),
                        request.POST.get('period_type'), request.POST.get('time_at'))
-    return redirect('tasks')
+    return redirect('/plans')
 
 
 def edit_task(request, pk):
@@ -63,7 +72,25 @@ def edit_task(request, pk):
 
 @require_POST
 def save_task(request):
-    print(request.POST)
-    db.change_task(request.POST.get('id'), request.POST.get('info', None),request.POST.get('deadline', None),
+    db.change_task(request.POST.get('id'), request.POST.get('info', None), request.POST.get('deadline', None),
                    request.POST.get('priority', None), request.POST.get('status', None), None, None)
-    return redirect('tasks')
+    return redirect('/')
+
+
+def edit_plan(request, pk):
+    plan = db.get_plans(pk)
+    form = EditPlanForm(id=pk, info_old=plan.info, period_type_old=plan.period_type, period_value_old=plan.period,
+                        time_at_old=plan.time_at)
+    return render(request, 'caleweb/edit_plan.html', {'form_change': form})
+
+
+@require_POST
+def save_plan(request):
+    db.change_plan(request.POST.get('id'), request.POST.get('info'), request.POST.get('period_type'),
+                   request.POST.get('period_value'), request.POST.get('time_at'))
+    return redirect('/plans')
+
+
+def remove_plan(request, pk):
+    db.remove_plan(pk)
+    return redirect('/plans')

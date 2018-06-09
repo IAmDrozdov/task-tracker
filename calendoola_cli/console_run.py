@@ -94,7 +94,7 @@ def main():
     # User.objects.all().delete()
     # Plan.objects.all().delete()
     # Reminder.objects.all().delete()
-    co.check_instances(db)
+    # co.check_instances(db)
 
 
 if __name__ == '__main__':
