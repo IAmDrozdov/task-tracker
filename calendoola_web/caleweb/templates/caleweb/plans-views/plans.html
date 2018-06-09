@@ -1,0 +1,16 @@
+{% extends 'caleweb/index.html' %}
+{% load humanize %}
+{% block content %}
+    <div class="instances_container">
+        {% for plan in plans %}
+            <div class="preview">
+                <div>
+                    <a class="text-dark" href="{% url 'plan' plan.id %}">{{ plan.info }}</a>
+                </div>
+                <div>
+                    <a href="{% url 'remove_plan' plan.id %}" class="text-white btn btn-light bg-dark">delete</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -3,16 +3,16 @@
 {% block content %}
     <div class="instances_container">
         {% for task in tasks %}
-            <div class="task-preview">
-                <div class="task-preview_info">
+            <div class="preview">
+                <div>
                     <div>
-                        <a href="/tasks/{{ task.id }}">{{ task.info }}</a>
+                        <a class="text-dark" href="{% url 'task' task.id %}">{{ task.info }}</a>
                     </div>
                     <div>
                         {{ task.created_at|naturaltime }}
                     </div>
                 </div>
-                <div class="task-preview_deadline">
+                <div>
                     <div>
                         {% if task.deadline %}
                             {{ task.deadline|naturaltime }}
@@ -21,7 +21,7 @@
                         {% endif %}
                     </div>
                     <div>
-                        <a href="{% url 'remove_task' task.pk %}" class="task_preview_btn-delete">delete</a>
+                        <a href="{% url 'remove_task' task.pk %}" class="text-white btn btn-sm btn-light preview_btn-delete bg-dark">delete</a>
                     </div>
                 </div>
             </div>

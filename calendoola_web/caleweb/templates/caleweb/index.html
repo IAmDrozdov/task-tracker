@@ -5,11 +5,12 @@
     <title>Calendoola</title>
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static 'caleweb/css/styles.css' %}" type="text/css">
-    <link rel="stylesheet" href="{% static 'caleweb/css/bootstrap.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="https://bootswatch.com/4/superhero/bootstrap.min.css" type="text/css">
 </head>
 <body>
 {% include 'caleweb/includes/header.html' %}
-<div class="packing">
+
+<div class="packing table-info ">
     {% include 'caleweb/includes/left-bar.html' %}
     {% block content %}
     {% endblock %}
