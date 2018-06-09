@@ -3,7 +3,7 @@ from django import forms
 
 
 class AddTaskForm(forms.Form):
-    info = forms.CharField(max_length=40,  widget=forms.TextInput(attrs={'placeholder': 'Enter what to do'}))
+    info = forms.CharField(max_length=40, widget=forms.TextInput(attrs={'placeholder': 'Enter what to do'}))
     priority = forms.IntegerField(widget=forms.NumberInput(attrs={'placeholder': '1-5'}), required=False)
     deadline = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'placeholder': '%Y-%m-%d %H:%M'}), required=False)
     tags = forms.CharField(max_length=40, widget=forms.TextInput(), required=False)

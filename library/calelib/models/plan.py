@@ -34,10 +34,8 @@ class Plan(models.Model):
 
     @property
     def time_at(self):
-        try:
-            return json.loads(self._time_at)
-        except TypeError:
-            return None
+        return json.loads(self._time_at)
+
 
     @time_at.setter
     def time_at(self, not_dumped_time):
