@@ -13,9 +13,12 @@ class Calendoola:
         log_level = self.cfg.get_config_field('logging_level')
         log_format = self.cfg.get_config_field('logging_format')
         try:
-            self._current_user = User.objects.get(nickname='guess')
+            self._current_user = User.objects.get(nickname=self.cfg.get_config_field('current_user'))
         except ObjectDoesNotExist:
-            User.objects.create(nickname='guess')
+            try:
+                self._current_user = User.objects.get(nickname='guess')
+            except ObjectDoesNotExist:
+                User.objects.create(nickname='guess')
             self._current_user = User.objects.get(nickname='guess')
         configure_logger(log_path, log_format, log_level)
 
@@ -26,6 +29,7 @@ class Calendoola:
     @current_user.setter
     def current_user(self, nickname):
         self._current_user = User.objects.get(nickname=nickname)
+        self.cfg.set_current_user(nickname)
 
     @current_user.deleter
     def current_user(self):

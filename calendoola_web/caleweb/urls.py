@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^plans/(?P<pk>\d+)/edit/$', views.edit_plan, name='edit_plan'),
     url(r'^tasks/save-task$', views.save_task, name='save_task'),
     url(r'^tasks/save-plan$', views.save_plan, name='save_plan'),
+    url(r'^logout$', views.logout, name='logout')
 ]

@@ -1,6 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-dark ">
+<div class="header">
+    <div>
+        <a class="navbar-brand" href="{% url 'tasks' %}">TASKS</a>
+        <a class="navbar-brand" href="{% url 'plans' %}">PLANS</a>
+    </div>
+    <div>
+        <div class="dropdown">
+            <button class="btn btn-outline-info btn-lg" >{{ user_nickname }}</button>
+            <div class="dropdown-content">
+                <a href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </div>
 
-    <a class="navbar-brand" href="{% url 'tasks' %}">TASKS</a>
-    <a class="navbar-brand" href="{% url 'plans' %}">PLANS</a>
-
-</nav>
+</div>

@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
-
 from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
 
 db = Calendoola()
@@ -14,39 +13,50 @@ def index(request):
 
 
 def tasks(request):
-    tasks = db.get_tasks()
-    return render(request, 'caleweb/tasks-views/tasks.html', {'tasks': tasks})
+    current = db.current_user.nickname
+    tasks_list = db.get_tasks()
+    context = {'tasks': tasks_list, 'current': current}
+    return render(request, 'caleweb/tasks-views/tasks.html', context)
 
 
 def plans(request):
-    plans = db.get_plans()
-    return render(request, 'caleweb/plans-views/plans.html', {'plans': plans})
+    current = db.current_user.nickname
+    plans_list = db.get_plans()
+    context = {'plans': plans_list, 'current': current}
+    return render(request, 'caleweb/plans-views/plans.html', context)
 
 
 def task(request, pk):
     try:
-        task = db.get_tasks(pk)
-        return render(request, 'caleweb/tasks-views/task.html', {'task': task})
+        single_task = db.get_tasks(pk)
+        current = db.current_user.nickname
+        context = {'task': single_task, 'current': current}
+        return render(request, 'caleweb/tasks-views/task.html', context)
     except ObjectDoesNotExist:
         raise Http404("Task does not exist")
 
 
 def plan(request, pk):
     try:
-        plan = db.get_plans(pk)
-        return render(request, 'caleweb/plans-views/plan.html', {'plan': plan})
+        single_plan = db.get_plans(pk)
+        current = db.current_user.nickname
+        context = {'plan': single_plan, 'current': current}
+        return render(request, 'caleweb/plans-views/plan.html', context)
     except ObjectDoesNotExist:
         raise Http404("Plan does not exist")
 
 
 def create_task(request):
     form = AddTaskForm()
-    return render(request, 'caleweb/tasks-views/create-task.html', {'add_form': form})
+    current = db.current_user.nickname
+    context = {'add_form': form, 'current': current}
+    return render(request, 'caleweb/tasks-views/create-task.html', context)
 
 
 @require_POST
 def add_task(request):
     form = AddTaskForm(request.POST)
+
     if form.is_valid():
         db.create_task(request.POST['info'], request.POST.get('priority', 1), request.POST.get('deadline', None),
                        request.POST.get('tags', '').strip().split(), None)
@@ -60,7 +70,9 @@ def delete_task(request, pk):
 
 def create_plan(request):
     form = AddPlanForm()
-    return render(request, 'caleweb/plans-views/create-plan.html', {'add_form': form})
+    current = db.current_user.nickname
+    context = {'add_form': form, 'current': current}
+    return render(request, 'caleweb/plans-views/create-plan.html', context)
 
 
 @require_POST
@@ -75,7 +87,9 @@ def add_plan(request):
 def edit_task(request, pk):
     task = db.get_tasks(pk)
     form = EditTaskForm(info_old=task.info, deadline_old=task.deadline, tags_old=task.tags, id=pk)
-    return render(request, 'caleweb/tasks-views/edit_task.html', {'form_change': form})
+    current = db.current_user.nickname
+    context = {'form_change': form, 'current': current}
+    return render(request, 'caleweb/tasks-views/edit_task.html', context)
 
 
 @require_POST
@@ -89,7 +103,9 @@ def edit_plan(request, pk):
     plan = db.get_plans(pk)
     form = EditPlanForm(id=pk, info_old=plan.info, period_type_old=plan.period_type, period_value_old=plan.period,
                         time_at_old=plan.time_at)
-    return render(request, 'caleweb/plans-views/edit_plan.html', {'form_change': form})
+    current = db.current_user.nickname
+    context = {'form_change': form, 'current': current}
+    return render(request, 'caleweb/plans-views/edit_plan.html', context)
 
 
 @require_POST
@@ -112,3 +128,11 @@ def finish_task(request, pk):
 def unfinish_task(request, pk):
     db.get_tasks(pk).unfinish()
     return redirect('/tasks/{}/'.format(pk))
+
+
+def logout(request):
+    if db.current_user.nickname =='SASHA':
+        db.current_user = 'guess'
+    else:
+        db.current_user = 'SASHA'
+    return redirect('/')

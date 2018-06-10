@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Calendoola</title>
-    {% load staticfiles %}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'caleweb/css/styles.css' %}" type="text/css">
+
     <link rel="stylesheet" href="https://bootswatch.com/4/superhero/bootstrap.min.css" type="text/css">
 </head>
 <body>
-{% include 'caleweb/includes/header.html' %}
+{% include 'caleweb/includes/header.html' with user_nickname=current %}
 
-<div class="packing table-info ">
+<div class="packing table-info bg-info">
     {% include 'caleweb/includes/left-bar.html' %}
     {% block content %}
     {% endblock %}

@@ -52,8 +52,11 @@ TEMPLATES = [
         },
     },
 ]
-STATICFILES_DIRS = ['caleweb/static']
-STATIC_URL = '/static/'
+import os
+STATICFILES_DIRS = [
+    os.path.join('caleweb', "static"),
+]
+STATIC_URL = '/caleweb/static/'
 
 USE_TZ = True
 TIME_ZONE = 'Europe/Minsk'
