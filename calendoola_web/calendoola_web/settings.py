@@ -53,6 +53,7 @@ TEMPLATES = [
     },
 ]
 import os
+
 STATICFILES_DIRS = [
     os.path.join('caleweb', "static"),
 ]

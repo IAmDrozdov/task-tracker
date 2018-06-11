@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
+from . import value_parsers as vp
 
 db = Calendoola()
 
@@ -49,7 +50,7 @@ def plan(request, pk):
 def create_task(request):
     form = AddTaskForm()
     current = db.current_user.nickname
-    context = {'add_form': form, 'current': current}
+    context = {'add_form': form.as_table(), 'current': current}
     return render(request, 'caleweb/tasks-views/create-task.html', context)
 
 
@@ -58,8 +59,8 @@ def add_task(request):
     form = AddTaskForm(request.POST)
 
     if form.is_valid():
-        db.create_task(request.POST['info'], request.POST.get('priority', 1), request.POST.get('deadline', None),
-                       request.POST.get('tags', '').strip().split(), None)
+        db.create_task(request.POST['info'], request.POST.get('priority'), request.POST.get('deadline', None),
+                       request.POST['tags'], None)
     return redirect('tasks')
 
 
@@ -79,14 +80,19 @@ def create_plan(request):
 def add_plan(request):
     form = AddPlanForm(request.POST)
     if form.is_valid():
-        db.create_plan(request.POST.get('info', None), request.POST.get('period_value'),
-                       request.POST.get('period_type'), request.POST.get('time_at'))
+        period_type, period_value = vp.parse_period(request.POST.get('period_type'), request.POST.get('period_value'))
+        time_at = vp.parse_time(request.POST.get('time_at')) if request.POST.get('time_at') else None
+        db.create_plan(request.POST.get('info', None), period_value, period_type, time_at)
     return redirect('/plans')
 
 
 def edit_task(request, pk):
     task = db.get_tasks(pk)
-    form = EditTaskForm(info_old=task.info, deadline_old=task.deadline, tags_old=task.tags, id=pk)
+    form_data = {'id': pk,
+                 'info': task.info,
+                 'deadline': task.deadline,
+                 'tags': task.tags}
+    form = EditTaskForm(form_data)
     current = db.current_user.nickname
     context = {'form_change': form, 'current': current}
     return render(request, 'caleweb/tasks-views/edit_task.html', context)
@@ -94,15 +100,19 @@ def edit_task(request, pk):
 
 @require_POST
 def save_task(request):
-    db.change_task(request.POST.get('id'), request.POST.get('info', None), request.POST.get('deadline', None),
+    db.change_task(request.POST.get('id'), request.POST.get('info', None), None,
                    request.POST.get('priority', None), request.POST.get('status', None), None, None)
     return redirect('/')
 
 
 def edit_plan(request, pk):
     plan = db.get_plans(pk)
-    form = EditPlanForm(id=pk, info_old=plan.info, period_type_old=plan.period_type, period_value_old=plan.period,
-                        time_at_old=plan.time_at)
+    form_data = {'id': pk,
+                 'info': plan.info,
+                 'period_type': plan.period_type,
+                 'period_value': plan.period,
+                 'time_at': plan.time_at}
+    form = EditPlanForm(form_data)
     current = db.current_user.nickname
     context = {'form_change': form, 'current': current}
     return render(request, 'caleweb/plans-views/edit_plan.html', context)
@@ -131,7 +141,7 @@ def unfinish_task(request, pk):
 
 
 def logout(request):
-    if db.current_user.nickname =='SASHA':
+    if db.current_user.nickname == 'SASHA':
         db.current_user = 'guess'
     else:
         db.current_user = 'SASHA'

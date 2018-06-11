@@ -20,7 +20,7 @@ class Plan(models.Model):
     info = models.CharField(max_length=100)
     created = models.BooleanField(default=False)
     last_create = models.DateField(auto_now=True)
-    _time_at = JSONField(null=True, db_column='time_at')
+    _time_at = JSONField(null=True, db_column='time_at', blank=True)
     period_type = models.CharField(max_length=6,
                                    choices=[
                                        (Constants.REPEAT_DAY, 'day'),
@@ -35,7 +35,6 @@ class Plan(models.Model):
     @property
     def time_at(self):
         return json.loads(self._time_at)
-
 
     @time_at.setter
     def time_at(self, not_dumped_time):

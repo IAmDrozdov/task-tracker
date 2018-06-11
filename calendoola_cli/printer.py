@@ -90,8 +90,9 @@ def print_calendar(tasks, month, year):
 def print_plan(plan):
     created = 'created' if plan.created else 'not created'
     time = plan.time_at if plan.time_at else 'No time'
-    print('ID: {}\nStatus: {}\nInfo: {}\nType: {}\nDate: {} Time:{}'.format(plan.id, created, plan.info, plan.period_type,
-                                                                    plan.period, time))
+    print(
+        'ID: {}\nStatus: {}\nInfo: {}\nType: {}\nDate: {} Time:{}'.format(plan.id, created, plan.info, plan.period_type,
+                                                                          plan.period, time))
 
 
 def print_plans(plans, colored):

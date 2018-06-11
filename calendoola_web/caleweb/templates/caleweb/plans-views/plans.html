@@ -11,6 +11,8 @@
                     <a href="{% url 'remove_plan' plan.id %}" class="text-white btn btn-light bg-dark">delete</a>
                 </div>
             </div>
+            {% empty %}
+            <h3>No plans</h3>
         {% endfor %}
     </div>
 {% endblock %}

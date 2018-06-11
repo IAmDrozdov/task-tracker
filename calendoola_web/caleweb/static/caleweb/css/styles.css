@@ -6,6 +6,7 @@ body {
 .left-bar {
     width: 150px;
     height: 100vh;
+
 }
 
 .packing {
@@ -28,7 +29,13 @@ body {
     display: flex;
     justify-content: space-between;
     background-color: #90a4ae;
+
+
 }
+.preview:hover{
+    background-color: rgb(240, 173, 78);
+}
+
 
 .left-bar_btn-add, .preview_btn-delete {
     width: 100%;
@@ -42,12 +49,6 @@ body {
     width: 100%;
 }
 
-.form-add {
-    position: absolute;
-    margin: 10px 10px 10px 160px;
-    border: 1px black solid;
-    width: 17%;
-}
 
 .header {
     display: flex;
@@ -66,6 +67,7 @@ body {
     padding: 12px 16px;
     display: block;
 }
+
 .dropdown:hover .dropdown-content {
     display: block;
 }

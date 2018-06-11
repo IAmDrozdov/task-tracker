@@ -5,7 +5,7 @@
         <h1>{{ task.info }}</h1>
         <h3>Priority: {{ task.priority }}</h3>
         <h3>Created at: {{ task.created_at }}</h3>
-        <h3>Deadline: {{ task.deadline }}</h3>
+        <h3>Deadline: {{ task.deadline|default:"No deadline" }}</h3>
         <h3>Status: {{ task.status }}</h3>
         <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning" style="display: block">Edit</a>
         <a href="{% url 'remove_task' task.pk %}" class="btn btn-light" style="display: block">delete</a>

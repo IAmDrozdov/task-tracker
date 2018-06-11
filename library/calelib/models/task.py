@@ -16,16 +16,17 @@ class Task(models.Model):
     subtasks = models.ManyToManyField('self', symmetrical=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    tags = ArrayField(models.CharField(max_length=20), default=list)
+    tags = ArrayField(models.CharField(null=True, max_length=20), default=list)
     priority = models.IntegerField(validators=[MaxValueValidator(5), MinValueValidator(1)], default=1)
-    deadline = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
+    deadline = models.DateField(null=True)
+
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
 
     @logg('Added subtask')
-    def add_subtask(fself, task):
+    def add_subtask(self, task):
         self.subtasks.add(task)
         self.save()
 
