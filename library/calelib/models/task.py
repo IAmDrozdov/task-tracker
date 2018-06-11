@@ -6,7 +6,6 @@ from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from calelib.notification import call
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -19,7 +18,7 @@ class Task(models.Model):
     tags = ArrayField(models.CharField(null=True, max_length=20), default=list)
     priority = models.IntegerField(default=1)
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
-    deadline = models.DateField(null=True, default=None)
+    deadline = models.DateTimeField(null=True, default=None)
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)

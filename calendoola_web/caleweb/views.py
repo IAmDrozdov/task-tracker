@@ -50,17 +50,17 @@ def new_task(request):
         if form.is_valid():
             deadline = None if not form['deadline'].value() else form['deadline'].value()
             priority = 1 if not form['priority'].value() else int(form['priority'].value())
-            if not form['parent_task_id']:
+            if not form['parent_task']:
                 db.create_task(form['info'].value(), priority, deadline, form['tags'].value().strip().split())
             else:
                 db.create_task(form['info'].value(), priority, deadline,
-                               form['tags'].value().strip().split(), int(form['parent_task_id'].value()))
+                               form['tags'].value().strip().split(), int(form['parent_task'].value()))
         return redirect('/')
     else:
         form = AddTaskForm()
-        tuple_tasks = [(str(t.pk), t.info) for t in db.get_tasks()]
-        form.fields['parent_task_id'].widget.choices = [('', 'no'), ] + tuple_tasks
-        context = {'add_form': form.as_table()}
+        tuple_tasks = [(str(t.pk), t.info[:10]) for t in db.get_tasks()]
+        form.fields['parent_task'].widget.choices = [('', 'no'), ] + tuple_tasks
+        context = {'add_form': form}
         return render(request, 'caleweb/tasks-views/create-task.html', context)
 
 
