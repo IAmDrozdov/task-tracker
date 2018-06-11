@@ -1,13 +1,17 @@
 {% extends 'caleweb/index.html' %}
+
+{% load plan_period_filter %}
+{% load humanize %}
 {% block content %}
     <div class="instance-full">
-        <h1>{{ plan.info }}</h1>
-        <h3>Period type: {{ plan.period_type }}</h3>
-        <h3>Periodic: {{ plan.period }}</h3>
+        <h1>Information: {{ plan.info }}</h1>
+        <h3>Periodic: {{ plan.period|humanize_period:plan.period_type }}</h3>
         <h3>Created: {{ plan.created }}</h3>
-
-        <a href="{% url 'edit_plan' plan.id %}" class="btn btn-warning" style="display: block">Edit</a>
-        <a href="{% url 'remove_plan' plan.id %}" class="btn btn-light" style="display: block">delete</a>
+        {% if plan.time_at %}
+            <h3>Time at: {{ plan.time_at|naturaltime }}</h3>
+        {% endif %}
+        <a href="{% url 'edit_plan' plan.id %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'remove_plan' plan.id %}" class="btn btn-light">delete</a>
 
     </div>
 {% endblock %}

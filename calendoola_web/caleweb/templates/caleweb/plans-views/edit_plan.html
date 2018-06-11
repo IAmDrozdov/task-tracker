@@ -1,11 +1,13 @@
 {% extends 'caleweb/index.html' %}
 {% load humanize %}
 {% block content %}
-    <form action="{% url 'save_plan' %}" method="POST" role="form">
-        {% csrf_token %}
-        <table class="">
-            {{ form_change }}
-        </table>
-        <input type="submit"/>
-    </form>
+    <div >
+        <form style="color: white" class="form-control bg-dark" action="{% url 'save_plan' %}" method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form_change }}
+            </table>
+            <input class="btn-success" type="submit"/>
+        </form>
+    </div>
 {% endblock %}

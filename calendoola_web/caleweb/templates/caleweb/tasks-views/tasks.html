@@ -9,16 +9,12 @@
                         <a class="text-dark" href="{% url 'task' task.id %}">{{ task.info }}</a>
                     </div>
                     <div>
-                        {{ task.created_at|naturaltime }}
+                        {{ task.created_at }}
                     </div>
                 </div>
                 <div>
                     <div>
-                        {% if task.deadline %}
-                            {{ task.deadline|naturaltime }}
-                        {% else %}
-                            No deadline
-                        {% endif %}
+                        {{ task.deadline|default:'No deadline' }}
                     </div>
                     <div>
                         <a href="{% url 'remove_task' task.pk %}"

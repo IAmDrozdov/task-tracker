@@ -71,3 +71,7 @@ body {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
+.btn {
+    display: block !important;
+}

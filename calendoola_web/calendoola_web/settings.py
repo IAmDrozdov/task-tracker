@@ -49,7 +49,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'plan_period_filter': 'caleweb.templatetags.plan_period_filter',
+                'current_user_tag': 'caleweb.templatetags.current_user_tag'
+            }
+
         },
+
     },
 ]
 import os

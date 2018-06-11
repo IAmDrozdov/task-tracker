@@ -3,8 +3,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
-from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
+
 from . import value_parsers as vp
+from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
 
 db = Calendoola()
 
@@ -14,54 +15,53 @@ def index(request):
 
 
 def tasks(request):
-    current = db.current_user.nickname
     tasks_list = db.get_tasks()
-    context = {'tasks': tasks_list, 'current': current}
+    context = {'tasks': tasks_list}
     return render(request, 'caleweb/tasks-views/tasks.html', context)
 
 
 def plans(request):
-    current = db.current_user.nickname
     plans_list = db.get_plans()
-    context = {'plans': plans_list, 'current': current}
+    context = {'plans': plans_list}
     return render(request, 'caleweb/plans-views/plans.html', context)
 
 
-def task(request, pk):
+def task_detail(request, pk):
     try:
-        single_task = db.get_tasks(pk)
-        current = db.current_user.nickname
-        context = {'task': single_task, 'current': current}
+        task = db.get_tasks(pk)
+        context = {'task': task}
         return render(request, 'caleweb/tasks-views/task.html', context)
     except ObjectDoesNotExist:
         raise Http404("Task does not exist")
 
 
-def plan(request, pk):
+def plan_detail(request, pk):
     try:
-        single_plan = db.get_plans(pk)
-        current = db.current_user.nickname
-        context = {'plan': single_plan, 'current': current}
+        plan = db.get_plans(pk)
+        context = {'plan': plan}
         return render(request, 'caleweb/plans-views/plan.html', context)
     except ObjectDoesNotExist:
         raise Http404("Plan does not exist")
 
 
-def create_task(request):
-    form = AddTaskForm()
-    current = db.current_user.nickname
-    context = {'add_form': form.as_table(), 'current': current}
-    return render(request, 'caleweb/tasks-views/create-task.html', context)
-
-
-@require_POST
-def add_task(request):
-    form = AddTaskForm(request.POST)
-
-    if form.is_valid():
-        db.create_task(request.POST['info'], request.POST.get('priority'), request.POST.get('deadline', None),
-                       request.POST['tags'], None)
-    return redirect('tasks')
+def new_task(request):
+    if request.method == 'POST':
+        form = AddTaskForm(request.POST)
+        if form.is_valid():
+            deadline = None if not form['deadline'].value() else form['deadline'].value()
+            priority = 1 if not form['priority'].value() else int(form['priority'].value())
+            if not form['parent_task_id']:
+                db.create_task(form['info'].value(), priority, deadline, form['tags'].value().strip().split())
+            else:
+                db.create_task(form['info'].value(), priority, deadline,
+                               form['tags'].value().strip().split(), int(form['parent_task_id'].value()))
+        return redirect('/')
+    else:
+        form = AddTaskForm()
+        tuple_tasks = [(str(t.pk), t.info) for t in db.get_tasks()]
+        form.fields['parent_task_id'].widget.choices = [('', 'no'), ] + tuple_tasks
+        context = {'add_form': form.as_table()}
+        return render(request, 'caleweb/tasks-views/create-task.html', context)
 
 
 def delete_task(request, pk):
@@ -71,8 +71,8 @@ def delete_task(request, pk):
 
 def create_plan(request):
     form = AddPlanForm()
-    current = db.current_user.nickname
-    context = {'add_form': form, 'current': current}
+
+    context = {'add_form': form}
     return render(request, 'caleweb/plans-views/create-plan.html', context)
 
 
@@ -81,9 +81,9 @@ def add_plan(request):
     form = AddPlanForm(request.POST)
     if form.is_valid():
         period_type, period_value = vp.parse_period(request.POST.get('period_type'), request.POST.get('period_value'))
-        time_at = vp.parse_time(request.POST.get('time_at')) if request.POST.get('time_at') else None
-        db.create_plan(request.POST.get('info', None), period_value, period_type, time_at)
-    return redirect('/plans')
+        db.create_plan(request.POST.get('info', None), period_value, period_type,
+                       request.POST.get('time_at'))
+        return redirect('/plans')
 
 
 def edit_task(request, pk):
@@ -93,8 +93,8 @@ def edit_task(request, pk):
                  'deadline': task.deadline,
                  'tags': task.tags}
     form = EditTaskForm(form_data)
-    current = db.current_user.nickname
-    context = {'form_change': form, 'current': current}
+
+    context = {'form_change': form}
     return render(request, 'caleweb/tasks-views/edit_task.html', context)
 
 
@@ -113,8 +113,8 @@ def edit_plan(request, pk):
                  'period_value': plan.period,
                  'time_at': plan.time_at}
     form = EditPlanForm(form_data)
-    current = db.current_user.nickname
-    context = {'form_change': form, 'current': current}
+
+    context = {'form_change': form}
     return render(request, 'caleweb/plans-views/edit_plan.html', context)
 
 

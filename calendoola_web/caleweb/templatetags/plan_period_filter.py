@@ -1,5 +1,4 @@
 from django import template
-from django.template.defaultfilters import stringfilter
 
 register = template.Library()
 
@@ -40,13 +39,17 @@ def get_weekday_word(number):
     return weekdays[number]
 
 
-@register.filter
-@stringfilter
-def word_months(month_list):
-    return [get_month_word(e) for e in month_list]
-
-
-@register.filter
-@stringfilter
-def word_weekdays(weekdays_list):
-    return [get_weekday_word(e) for e in weekdays_list]
+@register.filter(name='humanize_period')
+def word_months(period, type):
+    if type == 'm':
+        return 'Every {}th of {}'.format(period['day'], ', '.join([get_month_word(e).capitalize() for e in period['months']]))
+    elif type == 'd':
+        not_plural = 'Every {} day'.format(period['day'])
+        if period['day'] > 1:
+            return not_plural + 's'
+        else:
+            return not_plural
+    elif type == 'wd':
+        return 'Every {}'.format(', '.join([get_weekday_word(e).capitalize() for e in period['days']]))
+    else:
+        return 'Every year on {} {}'.format(get_month_word(period['month']), period['day'])

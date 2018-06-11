@@ -2,18 +2,31 @@
 {% load humanize %}
 {% block content %}
     <div>
-        <h1>{{ task.info }}</h1>
+        <h1>Information: {{ task.info }}</h1>
         <h3>Priority: {{ task.priority }}</h3>
-        <h3>Created at: {{ task.created_at }}</h3>
+        <h3>Created: {{ task.created_at }}</h3>
+        <h3>Last update: {{ task.updated_at }}</h3>
+
         <h3>Deadline: {{ task.deadline|default:"No deadline" }}</h3>
         <h3>Status: {{ task.status }}</h3>
-        <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning" style="display: block">Edit</a>
-        <a href="{% url 'remove_task' task.pk %}" class="btn btn-light" style="display: block">delete</a>
-        {% if task.status != 'FINISHED' %}
-            <a href="{% url 'finish_task' task.pk %}" class="btn btn-success" style="display: block">Finish</a>
-        {% else %}
-            <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success" style="display: block">UNFINISH</a>
+        <h3>Tags:
+            {% for tag in task.tags %}
+                {{ tag }}
+                {% empty %}
+                No tags
+            {% endfor %}
+        </h3>
+        {% if task.parent_id %}
+            <h3>Parent task: {{ task.parent_id }}</h3>
         {% endif %}
-        <a class="btn btn-primary" style="display: block">Share</a>
+        <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'remove_task' task.pk %}" class="btn btn-light">delete</a>
+        {% if task.status != 'FINISHED' %}
+            <a href="{% url 'finish_task' task.pk %}" class="btn btn-success">Finish</a>
+        {% else %}
+            <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success">UNFINISH</a>
+        {% endif %}
+        <a class="btn btn-primary">Share</a>
+        <a class="btn btn-dark">Move</a>
     </div>
 {% endblock %}

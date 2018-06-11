@@ -1,3 +1,4 @@
+{% load current_user_tag %}
 <div class="header">
     <div>
         <a class="navbar-brand" href="{% url 'tasks' %}">TASKS</a>
@@ -5,10 +6,11 @@
     </div>
     <div>
         <div class="dropdown">
-            <button class="btn btn-outline-info">{{ user_nickname }}</button>
+            <button class="btn btn-outline-info">{% current_user %}</button>
             <div class="dropdown-content">
                 <a class="" href="{% url 'logout' %}">Logout</a>
             </div>
+
         </div>
     </div>
 </div>
