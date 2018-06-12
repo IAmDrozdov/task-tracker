@@ -3,15 +3,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
-
+from django.views.generic import ListView, DetailView, CreateView
 from . import value_parsers as vp
 from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
-
+import calelib.models as cm
 db = Calendoola()
 
 
 def index(request):
     return redirect('tasks')
+
+
+
 
 
 def tasks(request):

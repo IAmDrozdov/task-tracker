@@ -48,3 +48,6 @@ class User(models.Model):
     def remove_reminder(self, reminder_id):
         self.reminders.get(pk=reminder_id).delete()
         self.save()
+
+    def __str__(self):
+        return self.nickname

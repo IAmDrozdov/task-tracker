@@ -1,12 +1,12 @@
 from copy import deepcopy
 from datetime import datetime
-
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from calelib.notification import call
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -22,6 +22,9 @@ class Task(models.Model):
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
+
+    def get_absolute_url(self):
+        return reverse('caleweb:task-detail', kwargs={'pk': self.pk})
 
     @logg('Added subtask')
     def add_subtask(self, task):
@@ -114,3 +117,6 @@ class Task(models.Model):
     def remove_performer(self, user_nickname):
         self.performers.remove(user_nickname)
         self.save()
+
+    def __str__(self):
+        return '{} {}'.format(self.info, self.deadline if self.deadline else 'no deadline')

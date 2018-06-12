@@ -6,7 +6,7 @@
             <div class="preview">
                 <div>
                     <div>
-                        <a class="text-dark" href="{% url 'task' task.id %}">{{ task.info }}</a>
+                        <a class="text-dark" href="{% url 'task-detail' task.id %}">{{ task.info }}</a>
                     </div>
                     <div>
                         {{ task.created_at }}

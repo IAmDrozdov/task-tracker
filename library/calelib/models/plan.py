@@ -183,3 +183,6 @@ class Plan(models.Model):
             self.period = period_value
             self.period_type = period_type
         self.save()
+
+    def __str__(self):
+        return '{} {} {}'.format(self.info, self.period_type, self.period)
