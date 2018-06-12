@@ -86,9 +86,11 @@ def main():
                                      namespace.time)
     #######################################
     # co.restart_daemon(db, pid_path)
+    # from calelib.models import Task, Plan, User
     # Task.objects.all().delete()
     # User.objects.all().delete()
-    # co.check_plans_and_tasks(db, False)
+    # Plan.objects.all().delete()
+    co.check_plans_and_tasks(db, pid_path, False)
 
 
 if __name__ == '__main__':

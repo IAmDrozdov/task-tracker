@@ -16,4 +16,4 @@ INSTALLED_APPS = (
 
 SECRET_KEY = 'REPLACE_ME'
 USE_TZ = True
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Minsk'

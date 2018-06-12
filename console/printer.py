@@ -90,25 +90,9 @@ def print_calendar(tasks, month, year):
 
 
 def print_plan(plan):
-    created = 'Status: created' if plan.created else 'Status: not created'
-    period_print = 'Period: every '
-    time_print = 'in ' + plan.time_at + " o'clock" if plan.time_at else ''
-    next_print = 'Next creating: '
-    if plan.period_type == Constants.REPEAT_DAY:
-        period_print += str(plan.period) + ' days'
-        next_print += dp.parse_iso_pretty(plan.next_create)
-    else:
-        weekdays = []
-        for day in plan.period:
-            weekdays.append(dp.get_weekday_word(day))
-        period_print += ', '.join(weekdays)
-        if len(plan.period) > 1:
-            next_print += dp.get_weekday_word(
-                min(filter(lambda x: x > datetime.now().weekday(), plan.period)))
-        else:
-            next_print += dp.get_weekday_word(plan.period[0])
-    print('Information: {}\n{}\nID: {}\n{}\n{} {}'
-          .format(plan.info, created, plan.id, next_print, period_print, time_print))
+    created = 'created' if plan.created else 'not created'
+    print('ID: {}\nStatus: {}\nInfo: {}\nType: {}\nDate: {}'.format(plan.id, created, plan.info, plan.period_type,
+                                                                    plan.period))
 
 
 def print_plans(plans, colored):

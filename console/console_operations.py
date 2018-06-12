@@ -266,7 +266,7 @@ def check_plans_and_tasks(db, pid_path, daemon=True):
         for task in db.get_tasks():
             overdue_task = task.check_deadline()
             if overdue_task:
-                choice = input('You overdue task "{}"\n Enter "d" to delete this task or "a" to archive'
+                choice = input('You overdue task "{}"\n Enter "d" to delete this task or "a" to archive:\n'
                                .format(overdue_task.info))
                 if choice == 'a':
                     operation_task_finish(db, overdue_task.id)
@@ -274,8 +274,8 @@ def check_plans_and_tasks(db, pid_path, daemon=True):
                     operation_task_remove(db, overdue_task.id)
 
     check_all()
-    time.sleep(1)
     if daemon:
+        time.sleep(1)
         restart_daemon(db, pid_path)
 
 

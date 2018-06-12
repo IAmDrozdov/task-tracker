@@ -106,6 +106,7 @@ class Task(models.Model):
         self.archived = False
         self.unfinish()
         self.created_at = datetime.now().date()
+        self.deadline = None
         self.save()
 
     @logg('Added performer to task')

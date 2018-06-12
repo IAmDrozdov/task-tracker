@@ -55,10 +55,11 @@ class Plan(models.Model):
 
     @logg('Created planned task')
     def create_task(self):
-        new_task = Task(info=self.info, plan=self.pk)
+        new_task = Task(info=self.info, plan=self)
         new_task.save()
         self.created = True
         self.last_create = datetime.datetime.now().date()
+        self.save()
         call('Created planned task', self.info)
         return new_task
 
@@ -66,7 +67,8 @@ class Plan(models.Model):
     def remove_task(self):
         self.created = False
         call('Removed planned task', self.info)
-        Task.objects.get(plan=self.pk)
+        self.save()
+        Task.objects.get(plan=self).delete()
 
     def check_last_create_day(self):
         return self.last_create + relativedelta(days=int(self.period['day'])) != datetime.datetime.now().date()
@@ -79,11 +81,13 @@ class Plan(models.Model):
         now = datetime.datetime.now()
         if self.time_at:
             if self.time_at['with_minutes']:
-                if self.time_at['hour'] <= now.hour:
+                if self.time_at['hour'] == now.hour:
                     if self.time_at['minutes'] <= now.minute:
                         return True
+                elif self.time_at['hour'] < now.hour:
+                    return True
             else:
-                if self.time_at['hour'] <= now.hour:
+                if self.time_at['hour'] >= now.hour:
                     return True
         else:
             return True
@@ -95,7 +99,7 @@ class Plan(models.Model):
                 if self.check_last_create_day():
                     return False
             elif self.period_type == Constants.REPEAT_WEEKDAY:
-                if now.weekday() not in json.loads(self.period['days']):
+                if now.weekday() not in self.period['days']:
                     return False
             elif self.period_type == Constants.REPEAT_MONTH:
                 if now.month not in json.loads(self.period['months']) or now.day != self.period['day']:
