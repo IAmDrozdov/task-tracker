@@ -1,8 +1,9 @@
 {% extends 'caleweb/index.html' %}
 {% load humanize %}
 {% block content %}
-    <div>
-        <h1>Information: {{ task.info }}</h1>
+    <div style="width: 30%;">
+        <h1 style="  word-wrap: break-word;">Information: {{ task.info }}</h1>
+        <hr>
         <h3>Priority: {{ task.priority }}</h3>
         <h3>Created: {{ task.created_at }}</h3>
         <h3>Last update: {{ task.updated_at }}</h3>
@@ -16,9 +17,14 @@
                 No tags
             {% endfor %}
         </h3>
-        {% if task.parent_id %}
-            <h3>Parent task: {{ task.parent_id }}</h3>
+        {% if subtasks|length > 0 %}
+            <h3>Subtasks:
+        {% for sub in subtasks %}
+            {{ sub }};
+        {% endfor %}
+            </h3>
         {% endif %}
+
         <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning">Edit</a>
         <a href="{% url 'remove_task' task.pk %}" class="btn btn-light">delete</a>
         {% if task.status != 'FINISHED' %}

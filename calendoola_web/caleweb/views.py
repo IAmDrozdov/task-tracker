@@ -29,7 +29,8 @@ def plans(request):
 def task_detail(request, pk):
     try:
         task = db.get_tasks(pk)
-        context = {'task': task}
+        subtasks = [t.info for t in task.subtasks.all()]
+        context = {'task': task, 'subtasks': subtasks}
         return render(request, 'caleweb/tasks-views/task.html', context)
     except ObjectDoesNotExist:
         raise Http404("Task does not exist")
@@ -50,12 +51,15 @@ def new_task(request):
         if form.is_valid():
             deadline = None if not form['deadline'].value() else form['deadline'].value()
             priority = 1 if not form['priority'].value() else int(form['priority'].value())
-            if not form['parent_task']:
+            print(not form['parent_task'].value())
+            if not form['parent_task'].value():
                 db.create_task(form['info'].value(), priority, deadline, form['tags'].value().strip().split())
             else:
                 db.create_task(form['info'].value(), priority, deadline,
                                form['tags'].value().strip().split(), int(form['parent_task'].value()))
-        return redirect('/')
+                print('addded subtask')
+                print(db.get_tasks(form['parent_task'].value()).info)
+            return redirect('/')
     else:
         form = AddTaskForm()
         tuple_tasks = [(str(t.pk), t.info[:10]) for t in db.get_tasks()]
