@@ -1,28 +1,34 @@
 {% extends 'caleweb/base.html' %}
 {% load humanize %}
 {% block content %}
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap card-group">
         {% for task in tasks %}
             <div class="flex-fill p-2">
-                <div class="card">
+                <div class="card-face">
                     <div class="front">
-                        <div class="card-block">
-                            <h4 class="card-title">
-                                {{ task.info|slice:':20' }}{% if task.info|length > 20 %}...{% endif %}</h4>
-                            <p class="card-text" style="text-align: center">
-                                {{ task.deadline|default:'No deadline' }}</p>
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Priority {{ task.priority }}</h5>
+                            </div>
+                            <div class="card-body">
+                                {{ task.info|slice:':20' }}{% if task.info|length > 20 %}...{% endif %}
+                            </div>
+                            <div class="card-footer" style="text-align: center">
+                                    {{ task.deadline|default:'No deadline' }}
+                            </div>
+                        <small class="text-muted">{{ task.created_at }}</small>
+
                         </div>
-                        <div class="card-footer">
-                            <small class="text-muted">{{ task.created_at }}</small>
-                        </div>
+
                     </div>
 
                     <div class="back">
-                        <a href="{% url 'task-detail' task.pk %}" class="btn btn-block">Details</a>
+                        <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
                         <a href="{% url 'remove_task' task.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>
+
             {% empty %}
             <h3>No tasks</h3>
         {% endfor %}

@@ -46,6 +46,9 @@ class TaskCreateView(CreateView):
     template_name = 'caleweb/task_form.html'
     fields = ['info', 'deadline', 'priority', 'tags']
 
+    def get_queryset(self):
+        return db.get_tasks()
+
     def form_valid(self, form):
         return redirect('tasks')
 
