@@ -1,15 +1,25 @@
 from calelib.crud import Calendoola
+from django.contrib.auth import (authenticate,
+                                 login,
+                                 logout)
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import (ListView,
+                                  DetailView,
+                                  CreateView)
 from . import value_parsers as vp
-from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
+from .forms import (AddTaskForm,
+                    AddPlanForm,
+                    EditTaskForm,
+                    EditPlanForm)
+from django.contrib.auth.mixins import LoginRequiredMixin
 from calelib.models import Task, User, Plan, Reminder
 
 db = Calendoola()
 
 
-class TaskListView(ListView):
+class TaskListView(LoginRequiredMixin, ListView):
     template_name = 'caleweb/tasks.html'
     context_object_name = 'tasks'
 
@@ -17,7 +27,7 @@ class TaskListView(ListView):
         return db.get_tasks()
 
 
-class TaskDetailView(DetailView):
+class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     context_object_name = 'task'
     template_name = 'caleweb/task_details.html'
@@ -26,7 +36,7 @@ class TaskDetailView(DetailView):
         return db.get_tasks()
 
 
-class PlanListView(ListView):
+class PlanListView(LoginRequiredMixin, ListView):
     template_name = 'caleweb/plans.html'
     context_object_name = 'plans'
 
@@ -34,12 +44,28 @@ class PlanListView(ListView):
         return db.get_plans()
 
 
-class PlanDetailView(DetailView):
+class PlanDetailView(LoginRequiredMixin, DetailView):
     template_name = 'caleweb/plan.html'
     context_object_name = 'plan'
 
     def get_queryset(self):
         return db.get_plans()
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            db.create_user(username=username)
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 class TaskCreateView(CreateView):
@@ -152,11 +178,3 @@ def finish_task(request, pk):
 def unfinish_task(request, pk):
     db.get_tasks(pk).unfinish()
     return redirect('/tasks/{}/'.format(pk))
-
-
-def logout(request):
-    if db.current_user.nickname == 'SASHA':
-        db.current_user = 'guess'
-    else:
-        db.current_user = 'SASHA'
-    return redirect('/')

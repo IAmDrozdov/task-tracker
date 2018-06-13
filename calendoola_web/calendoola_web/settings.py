@@ -3,6 +3,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 SECRET_KEY = '123'
+LOGIN_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,13 +53,13 @@ TEMPLATES = [
             ],
             'libraries': {
                 'plan_period_filter': 'caleweb.templatetags.plan_period_filter',
-                'current_user_tag': 'caleweb.templatetags.current_user_tag'
             }
 
         },
 
     },
 ]
+
 import os
 
 STATICFILES_DIRS = [
