@@ -1,5 +1,12 @@
 /*edit later*/
+html {
+    width: 100%;
+    height: 100%;
+}
+
 body {
+    width: 100%;
+    height: 100%;
     margin: 0;
     background-image: url("background.jpg");
 }
@@ -66,12 +73,11 @@ body {
     position: relative;
     margin-top: 5%;
     margin-left: 1%;
-    background: transparent !important;
+    background: transparent;
     perspective: 1000px;
-    border: none !important;
-    height: 15rem !important;
-    min-width: 15rem !important;
-    max-width: 20rem !important;
+    height: 15rem;
+    min-width: 15rem;
+    max-width: 20rem;
 }
 
 .front, .back {
@@ -80,13 +86,14 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #e6e7e8 !important;
+    background: #e6e7e8;
 
     padding: 1%;
 }
 
 .back {
     display: flex;
+    padding: 20%;
     justify-content: space-around;
     flex-direction: column;
     transform: rotateY(180deg);
@@ -104,15 +111,14 @@ body {
     position: absolute;
     width: 30%;
     margin: 3%;
-    padding: 5px;
+    padding: 1%;
+    border: whitesmoke solid;
     border-radius: 20px;
-    box-shadow: inset 100px 0px 150px #28a745;
-
+    background: #e6e7e8;
 }
 
 .card {
     border-radius: 20px;
-
     height: 100%;
 
 }

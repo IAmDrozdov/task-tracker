@@ -1,45 +1,49 @@
 {% load current_user_tag %}
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="{% url 'homepage' %}" style="font-family: 'BioRhyme Expanded', serif;">Calendoola</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link {% ifequal request.path '/tasks/' %}active{% endifequal %}"
-                   href="{% url 'tasks' %}">Tasks <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% ifequal request.path '/plans/' %}active{% endifequal %}" href="{% url 'plans' %}">Plans
-                    <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <div class="dropdown">
-                    <a class="nav-link {% if 'new' in request.path %}active{% endif %}"
-                       style="cursor: pointer;" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-plus-circle"></i> Add
-                    </a>
-                    <div class="dropdown-menu" style="background-color: #343a40;">
-                        <a href="{% url 'new-task' %}" class="btn" style="text-decoration: #000000;  color: white;"><i
-                                class="fas fa-thumbtack"></i> Task</a>
-                        <a href="{% url 'new-plan' %}" class="btn" style="text-decoration: #000000; color: white;"><i
-                                class="fas fa-tasks"></i> Plan</a>
+    {% ifnotequal request.path '/login/' %}
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link {% ifequal request.path '/tasks/' %}active{% endifequal %}"
+                       href="{% url 'tasks' %}">Tasks <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% ifequal request.path '/plans/' %}active{% endifequal %}"
+                       href="{% url 'plans' %}">Plans
+                        <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <div class="dropdown">
+                        <a class="nav-link {% if 'new' in request.path %}active{% endif %}"
+                           style="cursor: pointer;" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </a>
+                        <div class="dropdown-menu" style="background-color: #343a40;">
+                            <a href="{% url 'new-task' %}" class="btn" style="text-decoration: #000000;  color: white;"><i
+                                    class="fas fa-thumbtack"></i> Task</a>
+                            <a href="{% url 'new-plan' %}" class="btn"
+                               style="text-decoration: #000000; color: white;"><i
+                                    class="fas fa-tasks"></i> Plan</a>
+                        </div>
                     </div>
+                </li>
+            </ul>
+            <div class="dropdown">
+                <button class="btn btn-secondary" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% current_user %}
+                </button>
+                <div class="dropdown-menu" style="background-color: #343a40;" aria-labelledby="dropdownMenuButton">
+                    <a href="{% url 'logout' %}" class="btn" style="text-decoration: #000000; color: white;"><i
+                            class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>
-            </li>
-        </ul>
-        <div class="dropdown">
-            <button class="btn btn-secondary" type="button" id="dropdownMenuButton"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {% current_user %}
-            </button>
-            <div class="dropdown-menu" style="background-color: #343a40;" aria-labelledby="dropdownMenuButton">
-                <a href="{% url 'logout' %}" class="btn" style="text-decoration: #000000; color: white;"><i
-                        class="fas fa-sign-out-alt"></i>Logout</a>
             </div>
         </div>
-    </div>
+    {% endifnotequal %}
 </nav>

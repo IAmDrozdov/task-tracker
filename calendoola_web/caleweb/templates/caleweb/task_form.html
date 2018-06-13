@@ -1,6 +1,7 @@
 {% extends 'caleweb/base.html' %}
 {% block content %}
     <div class="form-wrapper">
+        <h4>New task</h4>
         {% if error_message %}
             <p><strong>{{ error_message }}</strong></p>
         {% endif %}
@@ -9,7 +10,7 @@
             {% include 'caleweb/includes/custom_form.html' %}
             <div class="form-group">
                 <div class="">
-                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </div>
         </form>
