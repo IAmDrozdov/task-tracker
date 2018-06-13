@@ -42,7 +42,8 @@ def get_weekday_word(number):
 @register.filter(name='humanize_period')
 def word_months(period, type):
     if type == 'm':
-        return 'Every {}th of {}'.format(period['day'], ', '.join([get_month_word(e).capitalize() for e in period['months']]))
+        return 'Every {}th of {}'.format(period['day'],
+                                         ', '.join([get_month_word(e).capitalize() for e in period['months']]))
     elif type == 'd':
         not_plural = 'Every {} day'.format(period['day'])
         if period['day'] > 1:

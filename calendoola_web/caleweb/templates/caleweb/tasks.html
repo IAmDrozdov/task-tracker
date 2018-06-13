@@ -1,9 +1,9 @@
-{% extends 'caleweb/index.html' %}
+{% extends 'caleweb/base.html' %}
 {% load humanize %}
 {% block content %}
     <div class="d-flex flex-wrap">
         {% for task in tasks %}
-            <div>
+            <div class="flex-fill p-2">
                 <div class="card">
                     <div class="front">
                         <div class="card-block">

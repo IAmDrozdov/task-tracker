@@ -1,0 +1,12 @@
+{% extends 'caleweb/base.html' %}
+{% block content %}
+    <div class="">
+        <form style="color: white" class="form-control bg-dark" action="{% url 'new_task' %}" method="post">
+            {% csrf_token %}
+            {% include 'caleweb/includes/custom_form.html' with form=add_form %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+{% endblock %}
+

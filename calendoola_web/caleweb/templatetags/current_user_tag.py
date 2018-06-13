@@ -1,6 +1,7 @@
 from django import template
 from calelib.config import Config
 from calelib.constants import Constants
+
 register = template.Library()
 
 

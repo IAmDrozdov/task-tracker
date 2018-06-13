@@ -1,8 +1,8 @@
-{% extends 'caleweb/index.html' %}
+{% extends 'caleweb/base.html' %}
 {% load humanize %}
 {% block content %}
-    <div style="width: 30%;">
-        <h1 style="  word-wrap: break-word;">Information: {{ task.info }}</h1>
+    <div style="width: 30%; background: lightblue;">
+        <h1 style="  word-wrap: break-word;">{{ task.info }}</h1>
         <hr>
         <h3>Priority: {{ task.priority }}</h3>
         <h3>Created: {{ task.created_at }}</h3>
@@ -19,9 +19,9 @@
         </h3>
         {% if subtasks|length > 0 %}
             <h3>Subtasks:
-        {% for sub in subtasks %}
-            {{ sub }};
-        {% endfor %}
+                {% for sub in subtasks %}
+                    {{ sub }};
+                {% endfor %}
             </h3>
         {% endif %}
 

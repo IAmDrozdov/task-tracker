@@ -11,20 +11,23 @@ from django.utils import timezone
 
 
 class Task(models.Model):
-    info = models.CharField(max_length=100)
+    PRIORITIES = ((1, 1),
+                  (2, 2),
+                  (3, 3),
+                  (4, 4),
+                  (5, 5)
+                  )
+    info = models.CharField(max_length=100, help_text='Enter what to do')
     subtasks = models.ManyToManyField('self', symmetrical=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    tags = ArrayField(models.CharField(null=True, max_length=20), default=list)
-    priority = models.IntegerField(default=1)
+    tags = models.CharField(null=True, blank=True, max_length=20, help_text='Some grouping info')
+    priority = models.IntegerField(choices=PRIORITIES, default=1, help_text='Need for speed')
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
-    deadline = models.DateTimeField(null=True, default=None)
+    deadline = models.DateTimeField(null=True, blank=True,default=None, help_text='When you will lose task')
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
-
-    def get_absolute_url(self):
-        return reverse('caleweb:task-detail', kwargs={'pk': self.pk})
 
     @logg('Added subtask')
     def add_subtask(self, task):

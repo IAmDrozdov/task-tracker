@@ -1,51 +1,57 @@
 from calelib.crud import Calendoola
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView
 from . import value_parsers as vp
 from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
-import calelib.models as cm
+from calelib.models import Task, User, Plan, Reminder
 db = Calendoola()
+
+
+class TaskListView(ListView):
+    template_name = 'caleweb/tasks.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        return db.get_tasks()
+
+
+class TaskDetailView(DetailView):
+    model = Task
+    context_object_name = 'task'
+    template_name = 'caleweb/task_details.html'
+
+    def get_queryset(self):
+        return db.get_tasks()
+
+
+class PlanListView(ListView):
+    template_name = 'caleweb/plans.html'
+    context_object_name = 'plans'
+
+    def get_queryset(self):
+        return db.get_plans()
+
+
+class PlanDetailView(DetailView):
+    template_name = 'caleweb/plan.html'
+    context_object_name = 'plan'
+
+    def get_queryset(self):
+        return db.get_plans()
+
+
+class TaskCreateView(CreateView):
+    model = Task
+    template_name = 'caleweb/task_form.html'
+    fields = ['info', 'deadline', 'priority', 'tags']
+
+    def form_valid(self, form):
+        return redirect('tasks')
 
 
 def index(request):
     return redirect('tasks')
-
-
-
-
-
-def tasks(request):
-    tasks_list = db.get_tasks()
-    context = {'tasks': tasks_list}
-    return render(request, 'caleweb/tasks-views/tasks.html', context)
-
-
-def plans(request):
-    plans_list = db.get_plans()
-    context = {'plans': plans_list}
-    return render(request, 'caleweb/plans-views/plans.html', context)
-
-
-def task_detail(request, pk):
-    try:
-        task = db.get_tasks(pk)
-        subtasks = [t.info for t in task.subtasks.all()]
-        context = {'task': task, 'subtasks': subtasks}
-        return render(request, 'caleweb/tasks-views/task.html', context)
-    except ObjectDoesNotExist:
-        raise Http404("Task does not exist")
-
-
-def plan_detail(request, pk):
-    try:
-        plan = db.get_plans(pk)
-        context = {'plan': plan}
-        return render(request, 'caleweb/plans-views/plan.html', context)
-    except ObjectDoesNotExist:
-        raise Http404("Plan does not exist")
 
 
 def new_task(request):
@@ -54,21 +60,18 @@ def new_task(request):
         if form.is_valid():
             deadline = None if not form['deadline'].value() else form['deadline'].value()
             priority = 1 if not form['priority'].value() else int(form['priority'].value())
-            print(not form['parent_task'].value())
             if not form['parent_task'].value():
                 db.create_task(form['info'].value(), priority, deadline, form['tags'].value().strip().split())
             else:
                 db.create_task(form['info'].value(), priority, deadline,
                                form['tags'].value().strip().split(), int(form['parent_task'].value()))
-                print('addded subtask')
-                print(db.get_tasks(form['parent_task'].value()).info)
             return redirect('/')
     else:
         form = AddTaskForm()
         tuple_tasks = [(str(t.pk), t.info[:10]) for t in db.get_tasks()]
         form.fields['parent_task'].widget.choices = [('', 'no'), ] + tuple_tasks
         context = {'add_form': form}
-        return render(request, 'caleweb/tasks-views/create-task.html', context)
+        return render(request, 'caleweb/create-task.html', context)
 
 
 def delete_task(request, pk):
@@ -80,7 +83,7 @@ def create_plan(request):
     form = AddPlanForm()
 
     context = {'add_form': form}
-    return render(request, 'caleweb/plans-views/create-plan.html', context)
+    return render(request, 'caleweb/create-plan.html', context)
 
 
 @require_POST
@@ -102,7 +105,7 @@ def edit_task(request, pk):
     form = EditTaskForm(form_data)
 
     context = {'form_change': form}
-    return render(request, 'caleweb/tasks-views/edit_task.html', context)
+    return render(request, 'caleweb/edit_task.html', context)
 
 
 @require_POST
@@ -122,7 +125,7 @@ def edit_plan(request, pk):
     form = EditPlanForm(form_data)
 
     context = {'form_change': form}
-    return render(request, 'caleweb/plans-views/edit_plan.html', context)
+    return render(request, 'caleweb/edit_plan.html', context)
 
 
 @require_POST

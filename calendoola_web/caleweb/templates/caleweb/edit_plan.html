@@ -1,7 +1,7 @@
-{% extends 'caleweb/index.html' %}
+{% extends 'caleweb/base.html' %}
 {% load humanize %}
 {% block content %}
-    <div >
+    <div>
         <form style="color: white" class="form-control bg-dark" action="{% url 'save_plan' %}" method="POST">
             {% csrf_token %}
             <table>
