@@ -24,7 +24,7 @@ class Task(models.Model):
     tags = models.CharField(null=True, blank=True, max_length=20, help_text='Some grouping info')
     priority = models.IntegerField(choices=PRIORITIES, default=1, help_text='Need for speed')
     status = models.CharField(max_length=10, default=Status.UNFINISHED)
-    deadline = models.DateTimeField(null=True, blank=True,default=None, help_text='When you will lose task')
+    deadline = models.DateTimeField(null=True, blank=True, default=None, help_text='When you will lose task')
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)

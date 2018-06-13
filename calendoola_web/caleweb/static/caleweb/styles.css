@@ -66,27 +66,24 @@ body {
     position: relative;
     margin-top: 5%;
     margin-left: 1%;
-    background: transparent!important;
+    background: transparent !important;
     perspective: 1000px;
     border: none !important;
-    height: 15rem!important;
-    min-width: 15rem!important;
+    height: 15rem !important;
+    min-width: 15rem !important;
     max-width: 20rem !important;
 }
 
 .front, .back {
-
     transition: 1s;
     backface-visibility: hidden;
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #e6e7e8!important;
+    background: #e6e7e8 !important;
 
-    border-radius: 5%;
     padding: 1%;
 }
-
 
 .back {
     display: flex;
@@ -112,6 +109,10 @@ body {
     box-shadow: inset 100px 0px 150px #28a745;
 
 }
+
 .card {
+    border-radius: 20px;
+
     height: 100%;
+
 }

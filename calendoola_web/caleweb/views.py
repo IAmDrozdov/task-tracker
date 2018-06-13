@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView, CreateView
 from . import value_parsers as vp
 from .forms import AddTaskForm, AddPlanForm, EditTaskForm, EditPlanForm
 from calelib.models import Task, User, Plan, Reminder
+
 db = Calendoola()
 
 
