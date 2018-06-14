@@ -79,14 +79,18 @@ class Calendoola:
     @staticmethod
     def get_users(username=None):
         if username:
+            print('in if')
             try:
                 user = Customer.objects.get(nickname=username)
+                print('in try', user)
                 return user
             except Customer.DoesNotExist:
                 user = Customer(nickname=username)
                 user.save()
+                print('in except', user)
                 return user
         else:
+            print('in else')
             return Customer.objects.all()
 
     @logg('Created new reminder to user')

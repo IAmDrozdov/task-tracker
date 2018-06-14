@@ -1,0 +1,16 @@
+{% extends 'caleweb/base.html' %}
+{% block content %}
+     <div class="form-wrapper">
+        <h4>Share with</h4>
+        <form role="form" action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'caleweb/includes/custom_form.html' %}
+            <div class="form-group">
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Share</button>
+                    <a  class="btn" style="background: lightgray;" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -32,7 +32,7 @@
         {% else %}
             <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success">UNFINISH</a>
         {% endif %}
-        <a class="btn btn-primary">Share</a>
+        <a href="{% url 'share_task' task.pk %}" class="btn btn-primary">Share</a>
         <a class="btn btn-dark">Move</a>
     </div>
 {% endblock %}

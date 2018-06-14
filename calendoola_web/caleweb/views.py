@@ -1,5 +1,6 @@
 from calelib.crud import Calendoola
 from calelib.models import Task
+from django import forms
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,13 +10,12 @@ from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
-                                  DeleteView
-                                  )
+                                  DeleteView, )
+from django.contrib.auth.decorators import login_required
 
 from . import value_parsers as vp
 from .forms import (
     AddPlanForm,
-    EditTaskForm,
     EditPlanForm,
 )
 
@@ -67,15 +67,31 @@ class TaskDeleteView(DeleteView):
     template_name = 'caleweb/task_confirm_delete.html'
     success_url = '/'
 
-    def get_context_data(self, **kwargs):
-        context = super(TaskDeleteView, self).get_context_data(**kwargs)
-        user = self.request.user.username
-        context['tasks'] = db.get_tasks(user)
-        return context
-
     def get_queryset(self):
         username = self.request.user.username
         return db.get_tasks(username)
+
+
+class TaskShareForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('user')
+        super(TaskShareForm, self).__init__()
+        self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in db.get_users().exclude(nickname=self.user))
+    user_to = forms.ChoiceField(widget=forms.Select, label='Users')
+
+
+@login_required
+def share_task(request, pk):
+    if request.method == 'POST':
+        form = TaskShareForm(request.POST)
+        username = db.get_users(username=request.user.username)
+        user_to = db.get_users(username=request.POST['user_to'])
+        task_to_share = db.get_tasks(username, pk)
+        user_to.add_task(task_to_share)
+        return redirect('/')
+
+    form = TaskShareForm(user=request.user.username)
+    return render(request, 'caleweb/task_share.html', {'form': form})
 
 
 # ###T###A###S###K###S###
@@ -132,25 +148,6 @@ def add_plan(request):
         db.create_plan(request.POST.get('info', None), period_value, period_type,
                        request.POST.get('time_at'))
         return redirect('/plans')
-
-
-def edit_task(request, pk):
-    task = db.get_tasks(pk)
-    form_data = {'id': pk,
-                 'info': task.info,
-                 'deadline': task.deadline,
-                 'tags': task.tags}
-    form = EditTaskForm(form_data)
-
-    context = {'form_change': form}
-    return render(request, 'caleweb/edit_task.html', context)
-
-
-@require_POST
-def save_task(request):
-    db.change_task(request.POST.get('id'), request.POST.get('info', None), None,
-                   request.POST.get('priority', None), request.POST.get('status', None), None, None)
-    return redirect('/')
 
 
 def edit_plan(request, pk):
