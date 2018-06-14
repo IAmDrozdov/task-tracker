@@ -2,7 +2,7 @@ import django.core.exceptions
 from django.db import models
 
 
-class User(models.Model):
+class Customer(models.Model):
     nickname = models.CharField(max_length=20, unique=True)
     tasks = models.ManyToManyField('Task')
     plans = models.ManyToManyField('Plan', symmetrical=False)

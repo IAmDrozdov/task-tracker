@@ -11,17 +11,14 @@
                                 <h5>Priority {{ task.priority }}</h5>
                             </div>
                             <div class="card-body">
-                                {{ task.info|slice:':20' }}{% if task.info|length > 20 %}...{% endif %}
+                                {{ task.info|slice:':40' }}{% if task.info|length > 40 %}...{% endif %}
                             </div>
                             <div class="card-footer" style="text-align: center">
                                 {{ task.deadline|default:'No deadline' }}
                             </div>
                             <small class="text-muted offset-1">{{ task.created_at }}</small>
-
                         </div>
-
                     </div>
-
                     <div class="back">
                         <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
                         <a href="{% url 'remove_task' task.pk %}" class="btn btn-danger">Delete</a>
@@ -30,7 +27,7 @@
             </div>
 
             {% empty %}
-            <h3>No tasks</h3>
+            <h1 class="display-3">No tasks</h1>
         {% endfor %}
     </div>
 

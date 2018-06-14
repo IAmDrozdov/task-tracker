@@ -1,0 +1,18 @@
+{% extends 'caleweb/base.html' %}
+{% block content %}
+    <div class="form-wrapper">
+        {% if error_message %}
+            <p><strong>{{ error_message }}</strong></p>
+        {% endif %}
+        <form role="form" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include 'caleweb/includes/custom_form.html' %}
+            <div class="form-group">
+                <div class="">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

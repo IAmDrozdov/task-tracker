@@ -28,7 +28,7 @@
         <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning">Edit</a>
         <a href="{% url 'remove_task' task.pk %}" class="btn btn-light">delete</a>
         {% if task.status != 'FINISHED' %}
-            <a href="{% url 'finish_task' task.pk %}" class="btn btn-success">Finish</a>
+            <a href="{% url 'finish_task' task.pk %}" class="btn btn-success">FINISH</a>
         {% else %}
             <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success">UNFINISH</a>
         {% endif %}

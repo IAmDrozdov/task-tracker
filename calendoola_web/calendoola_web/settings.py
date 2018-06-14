@@ -4,6 +4,7 @@ ALLOWED_HOSTS = []
 
 SECRET_KEY = '123'
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'login'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
