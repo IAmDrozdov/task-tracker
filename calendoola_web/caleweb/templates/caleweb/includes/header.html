@@ -34,14 +34,13 @@
                 </li>
             </ul>
             <div class="dropdown">
-                <button class="btn btn-secondary" type="button" id="dropdownMenuButton"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary" type="button" data-toggle="dropdown">
                     {{ request.user.username|upper }}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" style="background-color: #343a40;"
-                     aria-labelledby="dropdownMenuButton">
-                    <a href="{% url 'logout' %}" class="btn" style="text-decoration: #000000; color: white;"><i
-                            class="fas fa-sign-out-alt"></i>Exit</a>
+                <div class="dropdown-menu" style="background-color: #343a40; left: auto; right: -20px;  border-radius: 20px">
+                    <a style="color: white; border-bottom: #5a6268 solid" class="nav-link" href="{% url 'archive' %}">Archive</a>
+                    <a href="{% url 'logout' %}" class="nav-link" style="color: white;">Exit</a>
+
                 </div>
             </div>
         </div>

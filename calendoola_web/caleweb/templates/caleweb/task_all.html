@@ -21,6 +21,7 @@
                     </div>
                     <div class="back">
                         <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
+                        <a href="{% url 'share_task' task.pk %}" class="btn btn-warning">Share</a>
                         <a href="{% url 'remove_task' task.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>

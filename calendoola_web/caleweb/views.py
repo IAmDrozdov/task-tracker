@@ -12,6 +12,7 @@ from django.views.generic import (ListView,
                                   UpdateView,
                                   DeleteView, )
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 from . import value_parsers as vp
 from .forms import (
@@ -33,6 +34,15 @@ class TaskListView(LoginRequiredMixin, ListView):
         return db.get_tasks(username)
 
 
+class TaskArchiveListView(LoginRequiredMixin, ListView):
+    template_name = 'caleweb/task_all.html'
+    context_object_name = 'tasks'
+
+    def get_queryset(self):
+        username = self.request.user.username
+        return db.get_tasks(username, archive=True)
+
+
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     context_object_name = 'task'
@@ -40,7 +50,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         username = self.request.user.username
-        return db.get_tasks(username)
+        return db.get_tasks(username) | db.get_tasks(username, archive=True)
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -61,7 +71,9 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
     template_name = 'caleweb/task_update.html'
     fields = ['info', 'deadline', 'priority', 'tags']
-    success_url = '/'
+
+    def get_success_url(self):
+        return reverse('task-detail', args=[self.kwargs['pk']])
 
 
 class TaskDeleteView(DeleteView):
@@ -180,11 +192,16 @@ def remove_plan(request, pk):
 
 def finish_task(request, pk):
     username = request.user.username
-    db.get_tasks(username, pk).finish()
-    return redirect('/tasks/{}/'.format(pk))
+    task = db.get_tasks(username, pk)
+    task.finish()
+    task.pass_to_archive()
+
+    return redirect('/tasks/archive/')
 
 
 def unfinish_task(request, pk):
     username = request.user.username
-    db.get_tasks(username, pk).unfinish()
-    return redirect('/tasks/{}/'.format(pk))
+    task = db.get_tasks(username, pk)
+    task.restore_from_archive()
+    task.unfinish()
+    return redirect('/')
