@@ -1,5 +1,6 @@
 {% extends 'caleweb/base.html' %}
 {% load humanize %}
+{% load tags_display_filter %}
 {% block content %}
     <div class="form-wrapper">
         <table>
@@ -33,7 +34,11 @@
                         <th>{{ task.status }}</th>
                     </tr>
                     {% if task.tags|length > 0 %}
-                        {{ task.tags|join:', ' }}
+                        <tr>
+                            <th>Tags:</th>
+                            <th>{{ task.tags|humanize_tags }}</th>
+
+                        </tr>
                     {% endif %}
                     {% if task.subtasks.all|length > 0 %}
                         <tr>
@@ -58,11 +63,12 @@
                                     <th>Performers:</th>
                                     <th>
                                         <div class="btn-group" style="width: 100%;">
-                                            <button style="width: 100%;" class="btn btn-sm">{{ task.performers.0 }}</button>
+                                            <button style="width: 100%;"
+                                                    class="btn btn-sm">{{ task.performers.0 }}</button>
                                             {% if request.user.username == task.owner %}
                                                 <a href="{% url 'unshare-task' pk=task.pk name=task.performers.0 %}"
                                                    class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
-                                                                            style="color: #e6e7e8"></i></a>
+                                                                                   style="color: #e6e7e8"></i></a>
                                             {% endif %}
                                         </div>
                                     </th>
@@ -73,11 +79,13 @@
                                             <th></th>
                                             <td>
                                                 <div class="btn-group " style="width: 100%;">
-                                                    <button style="width: 100%;" class="btn btn-sm">{{ performer }}</button>
+                                                    <button style="width: 100%;"
+                                                            class="btn btn-sm">{{ performer }}</button>
                                                     {% if request.user.username == task.owner %}
                                                         <a href="{% url 'unshare-task' pk=task.pk name=performer %}"
-                                                           class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
-                                                                                    style="color: #e6e7e8"></i></a>
+                                                           class="btn bg-danger btn-sm"><i
+                                                                class="fas fa-trash-alt white"
+                                                                style="color: #e6e7e8"></i></a>
                                                     {% endif %}
                                                 </div>
                                             </td>

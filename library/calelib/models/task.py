@@ -15,7 +15,7 @@ class Task(models.Model):
                   (2, 2),
                   (3, 3),
                   (4, 4),
-                  (5, 5)
+                  (5, 5),
                   )
     owner = models.CharField(max_length=30, default=str)
     info = models.CharField(max_length=100, help_text='Enter what to do')
