@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block content %}
     <div>
-        <form style="color: white" class="form-control bg-dark" action="{% url 'save_plan' %}" method="POST">
+        <form style="color: white" class="form-control bg-dark" action="{% url 'save-plan' %}" method="POST">
             {% csrf_token %}
             <table>
                 {{ form_change }}

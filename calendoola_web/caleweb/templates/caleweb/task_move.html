@@ -2,7 +2,7 @@
 {% block content %}
     <div class="form-wrapper">
         <h4>Share with</h4>
-        <form role="form" action="" method="POST" enctype="multipart/form-data">
+        <form role="form" method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             {% include 'caleweb/includes/custom_form.html' %}
             <div class="form-group">

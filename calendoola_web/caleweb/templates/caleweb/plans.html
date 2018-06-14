@@ -8,7 +8,7 @@
                     <a class="text-dark" href="{% url 'plan' plan.id %}">{{ plan.info }}</a>
                 </div>
                 <div>
-                    <a href="{% url 'remove_plan' plan.id %}" class="text-white btn btn-light bg-dark">delete</a>
+                    <a href="{% url 'remove-plan' plan.id %}" class="text-white btn btn-light bg-dark">delete</a>
                 </div>
             </div>
             {% empty %}

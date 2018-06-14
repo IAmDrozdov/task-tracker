@@ -10,8 +10,8 @@
         {% if plan.time_at %}
             <h3>Time at: {{ plan.time_at|naturaltime }}</h3>
         {% endif %}
-        <a href="{% url 'edit_plan' plan.id %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'remove_plan' plan.id %}" class="btn btn-light">delete</a>
+        <a href="{% url 'edit-plan' plan.id %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'remove-plan' plan.id %}" class="btn btn-light">delete</a>
 
     </div>
 {% endblock %}

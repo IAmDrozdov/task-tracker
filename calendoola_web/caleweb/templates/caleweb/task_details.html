@@ -36,15 +36,17 @@
                         {{ task.tags|join:', ' }}
                     {% endif %}
                     {% if task.subtasks.all|length > 0 %}
-
                         <tr>
                             <th>Subtasks:</th>
-                            <th>{{ task.subtasks.all.first.info }}</th>
+                            <th><a href="{% url 'task-detail' task.subtasks.all.first.pk %}"
+                                   class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
                         </tr>
                         {% for sub in task.subtasks.all|slice:"1:" %}
                             <tr>
                                 <th></th>
-                                <td>{{ sub.info }}</td>
+                                <td>
+                                    <a href="{% url 'task-detail' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
+                                </td>
                             </tr>
                         {% endfor %}
                     {% endif %}
@@ -65,14 +67,14 @@
                 </table>
             </th>
             <th width="50%">
-                    <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning wtf">Edit</a>
-                <a href="{% url 'remove_task' task.pk %}" class="btn btn-danger wtf">Delete</a>
+                <a href="{% url 'edit-task' task.pk %}" class="btn btn-warning wtf">Edit</a>
+                <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger wtf">Delete</a>
                 {% if task.status != 'FINISHED' %}
-                    <a href="{% url 'finish_task' task.pk %}" class="btn btn-success wtf">Finish</a>
+                    <a href="{% url 'finish-task' task.pk %}" class="btn btn-success wtf">Finish</a>
                 {% else %}
-                    <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success wtf">Restore</a>
+                    <a href="{% url 'restore-task' task.pk %}" class="btn btn-success wtf">Restore</a>
                 {% endif %}
-                <a href="{% url 'move_task' task.pk %}" class="btn bg-info wtf">Move</a>
+                <a href="{% url 'move-task' task.pk %}" class="btn bg-info wtf">Move</a>
             </th>
         </table>
     </div>

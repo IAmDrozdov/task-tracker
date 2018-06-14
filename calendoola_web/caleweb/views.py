@@ -7,23 +7,41 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.decorators.http import require_POST
+from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
                                   DeleteView, )
 
-from . import value_parsers as vp
-from .forms import (
-    AddPlanForm,
-    EditPlanForm,
-)
-
 db = Calendoola()
 
 
+def index(request):
+    return redirect('tasks')
+
+
 # ###T###A###S###K###S###
+
+
+@login_required
+def finish_task(request, pk):
+    username = request.user.username
+    task = db.get_tasks(username, pk)
+    task.finish()
+    task.pass_to_archive()
+
+    return redirect('/tasks/archive/')
+
+
+@login_required
+def restore_task(request, pk):
+    username = request.user.username
+    task = db.get_tasks(username, pk)
+    task.restore_from_archive()
+    task.unfinish()
+    return redirect('/')
+
 
 class TaskListView(LoginRequiredMixin, ListView):
     template_name = 'caleweb/task_all.html'
@@ -48,9 +66,8 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'task'
     template_name = 'caleweb/task_details.html'
 
-    def get_queryset(self):
-        username = self.request.user.username
-        return db.get_tasks(username) | db.get_tasks(username, archive=True)
+    def get_object(self, queryset=None):
+        return db.get_tasks(self.request.user.username, self.kwargs['pk'])
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -110,26 +127,44 @@ def share_task(request, pk):
     return render(request, 'caleweb/task_share.html', {'form': form})
 
 
+def check_possible_tasks(username, id_from, id_to):
+    try:
+        task_from = db.get_tasks(username, id_from)
+        task_from.is_parent(id_to)
+    except CycleError:
+        return False
+    else:
+        return True
+
+
 class TaskMoveForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.get('user')
         self.task = kwargs.get('task')
         super(TaskMoveForm, self).__init__()
         tasks = db.get_tasks(self.user).exclude(pk=self.task)
-        self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks)
+        self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
+                                          if check_possible_tasks(self.user, self.task, t.pk))
 
+    to_main = forms.NullBooleanField(help_text='Pass task to main view')
     task_to = forms.ChoiceField(widget=forms.Select, label='Available tasks')
 
 
 @login_required
 def move_task(request, pk):
+    username = request.user.username
+
     if request.method == 'POST':
-        task_to = db.get_tasks(username=request.user.username, task_id=request.POST['task_to'])
-        task_from = db.get_tasks(username=request.user.username, task_id=pk)
-        task_to.add_subtask(task_from.get_copy())
-        db.remove_task(request.user.username, pk)
+        task_from = db.get_tasks(username=username, task_id=pk)
+        if request.POST['to_main'] == '2':
+            db.add_completed(username, 'task', task_from.get_copy())
+            db.remove_task(username, pk)
+        else:
+            task_to = db.get_tasks(username=username, task_id=request.POST['task_to'])
+            task_to.add_subtask(task_from.get_copy())
+            db.remove_task(username, pk)
         return redirect('/')
-    form = TaskMoveForm(user=request.user.username, task=pk)
+    form = TaskMoveForm(user=username, task=pk)
     return render(request, 'caleweb/task_move.html', {'form': form})
 
 
@@ -166,66 +201,3 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
-
-
-def index(request):
-    return redirect('tasks')
-
-
-def create_plan(request):
-    form = AddPlanForm()
-
-    context = {'add_form': form}
-    return render(request, 'caleweb/create-plan.html', context)
-
-
-@require_POST
-def add_plan(request):
-    form = AddPlanForm(request.POST)
-    if form.is_valid():
-        period_type, period_value = vp.parse_period(request.POST.get('period_type'), request.POST.get('period_value'))
-        db.create_plan(request.POST.get('info', None), period_value, period_type,
-                       request.POST.get('time_at'))
-        return redirect('/plans')
-
-
-def edit_plan(request, pk):
-    plan = db.get_plans(pk)
-    form_data = {'id': pk,
-                 'info': plan.info,
-                 'period_type': plan.period_type,
-                 'period_value': plan.period,
-                 'time_at': plan.time_at}
-    form = EditPlanForm(form_data)
-
-    context = {'form_change': form}
-    return render(request, 'caleweb/edit_plan.html', context)
-
-
-@require_POST
-def save_plan(request):
-    db.change_plan(request.POST.get('id'), request.POST.get('info'), request.POST.get('period_type'),
-                   request.POST.get('period_value'), request.POST.get('time_at'))
-    return redirect('/plans')
-
-
-def remove_plan(request, pk):
-    db.remove_plan(pk)
-    return redirect('/plans')
-
-
-def finish_task(request, pk):
-    username = request.user.username
-    task = db.get_tasks(username, pk)
-    task.finish()
-    task.pass_to_archive()
-
-    return redirect('/tasks/archive/')
-
-
-def unfinish_task(request, pk):
-    username = request.user.username
-    task = db.get_tasks(username, pk)
-    task.restore_from_archive()
-    task.unfinish()
-    return redirect('/')

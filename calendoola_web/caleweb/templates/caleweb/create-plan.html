@@ -1,7 +1,7 @@
 {% extends 'caleweb/base.html' %}
 {% block content %}
     <div>
-        <form style="color: white" class="form-control bg-dark" action="{% url 'add_plan' %}" method="POST">
+        <form style="color: white" class="form-control bg-dark" action="{% url 'add-plan' %}" method="POST">
             {% csrf_token %}
             <table>
                 {{ add_form }}
