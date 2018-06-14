@@ -37,7 +37,8 @@
                 <button class="btn btn-secondary" type="button" data-toggle="dropdown">
                     {{ request.user.username|upper }}
                 </button>
-                <div class="dropdown-menu" style="background-color: #343a40; left: auto; right: -20px;  border-radius: 20px">
+                <div class="dropdown-menu"
+                     style="background-color: #343a40; left: auto; right: -20px;  border-radius: 20px">
                     <a style="color: white; border-bottom: #5a6268 solid" class="nav-link" href="{% url 'archive' %}">Archive</a>
                     <a href="{% url 'logout' %}" class="nav-link" style="color: white;">Exit</a>
 

@@ -1,47 +1,79 @@
 {% extends 'caleweb/base.html' %}
 {% load humanize %}
 {% block content %}
-    <div style="width: 30%; background: lightblue;">
-        <hr>
-    <h3 class="text-center text-muted">It is {% if task.owner == request.user.username  %}<b>your</b> {% else %}<b>{{ task.owner }}'s</b> {% endif %}task</h3>
-        <hr>
-        <h1 style="  word-wrap: break-word;">{{ task.info }}</h1>
-        <hr>
+    <div class="form-wrapper">
+        <table>
+            <th>
+                <h3 class="text-center text-muted">It is {% if task.owner == request.user.username %}
+                    <b>your</b> {% else %}
+                    <b>{{ task.owner }}'s</b> {% endif %}task</h3>
+                <hr>
+                <p style=" word-wrap: break-word;">{{ task.info }}</p>
+                <hr>
+                <table class="table borderless">
 
-        <h3>Priority: {{ task.priority }}</h3>
-        <h3>Created: {{ task.created_at }}</h3>
-        <h3>Last update: {{ task.updated_at }}</h3>
+                    <tr>
+                        <th>Priority:</th>
+                        <th>{{ task.priority }}</th>
+                    </tr>
+                    <tr>
+                        <th>Created:</th>
+                        <th>{{ task.created_at }}</th>
+                    </tr>
+                    <tr>
+                        <th>Last update:</th>
+                        <th>{{ task.updated_at }}</th>
+                    </tr>
+                    <tr>
+                        <th>Deadline:</th>
+                        <th>{{ task.deadline|default:"No deadline" }}</th>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <th>{{ task.status }}</th>
+                    </tr>
+                    {% if task.tags|length > 0 %}
+                        {{ task.tags|join:', ' }}
+                    {% endif %}
+                    {% if task.subtasks.all|length > 0 %}
 
-        <h3>Deadline: {{ task.deadline|default:"No deadline" }}</h3>
-        <h3>Status: {{ task.status }}</h3>
-        <h3>Tags:
-            {% for tag in task.tags %}
-                {{ tag }}
-                {% empty %}
-                No tags
-            {% endfor %}
-        </h3>
-        {% if subtasks|length > 0 %}
-            <h3>Subtasks:
-                {% for sub in subtasks %}
-                    {{ sub }};
-                {% endfor %}
-            </h3>
-        {% endif %}
-        {% if task.performers|length > 0 %}
-            <h3>Performers:
-            {% for p in task.performers %}
-                {{ p }}
-            {% endfor %}
-            </h3>
-        {% endif %}
-        <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'remove_task' task.pk %}" class="btn btn-light">delete</a>
-        {% if task.status != 'FINISHED' %}
-            <a href="{% url 'finish_task' task.pk %}" class="btn btn-success">FINISH</a>
-        {% else %}
-            <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success">UNFINISH</a>
-        {% endif %}
-        <a class="btn btn-dark">Move</a>
+                        <tr>
+                            <th>Subtasks:</th>
+                            <th>{{ task.subtasks.all.first.info }}</th>
+                        </tr>
+                        {% for sub in task.subtasks.all|slice:"1:" %}
+                            <tr>
+                                <th></th>
+                                <td>{{ sub.info }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    {% if task.performers|length > 0 %}
+                        {% if task.performers|length > 0 %}
+                            <tr>
+                                <th>Performers:</th>
+                                <th>{{ task.performers.0 }}</th>
+                            </tr>
+                            {% for performer in task.performers|slice:"1:" %}
+                                <tr>
+                                    <th></th>
+                                    <td>{{ performer }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                </table>
+            </th>
+            <th width="50%">
+                    <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning wtf">Edit</a>
+                <a href="{% url 'remove_task' task.pk %}" class="btn btn-danger wtf">Delete</a>
+                {% if task.status != 'FINISHED' %}
+                    <a href="{% url 'finish_task' task.pk %}" class="btn btn-success wtf">Finish</a>
+                {% else %}
+                    <a href="{% url 'unfinish_task' task.pk %}" class="btn btn-success wtf">Restore</a>
+                {% endif %}
+                <a href="{% url 'move_task' task.pk %}" class="btn bg-info wtf">Move</a>
+            </th>
+        </table>
     </div>
 {% endblock %}

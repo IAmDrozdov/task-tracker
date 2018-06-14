@@ -13,7 +13,7 @@ class Calendoola:
         configure_logger(log_path, log_format, log_level)
 
     @logg('Removed task')
-    def remove_task(self, task_id, username):
+    def remove_task(self, username, task_id):
         user = self.get_users(username)
         user.remove_task(task_id)
 
@@ -79,18 +79,14 @@ class Calendoola:
     @staticmethod
     def get_users(username=None):
         if username:
-            print('in if')
             try:
                 user = Customer.objects.get(nickname=username)
-                print('in try', user)
                 return user
             except Customer.DoesNotExist:
                 user = Customer(nickname=username)
                 user.save()
-                print('in except', user)
                 return user
         else:
-            print('in else')
             return Customer.objects.all()
 
     @logg('Created new reminder to user')

@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^tasks/(?P<pk>\d+)/unfinish/$', views.unfinish_task, name='unfinish_task'),
     url(r'^tasks/(?P<pk>\d+)/finish/$', views.finish_task, name='finish_task'),
     url(r'^tasks/(?P<pk>\d+)/share/$', views.share_task, name='share_task'),
+    url(r'^tasks/(?P<pk>\d+)/move/$', views.move_task, name='move_task'),
     url(r'^tasks/remove/(?P<pk>\d+)/$', views.TaskDeleteView.as_view(), name='remove_task'),
     url(r'^plans/remove/(?P<pk>\d+)/$', views.remove_plan, name='remove_plan'),
 

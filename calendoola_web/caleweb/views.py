@@ -2,17 +2,17 @@ from calelib.crud import Calendoola
 from calelib.models import Task
 from django import forms
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
                                   DeleteView, )
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 
 from . import value_parsers as vp
 from .forms import (
@@ -90,14 +90,15 @@ class TaskShareForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.get('user')
         super(TaskShareForm, self).__init__()
-        self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in db.get_users().exclude(nickname=self.user))
+        users = db.get_users().exclude(nickname=self.user)
+        self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in users)
+
     user_to = forms.ChoiceField(widget=forms.Select, label='Users')
 
 
 @login_required
 def share_task(request, pk):
     if request.method == 'POST':
-        form = TaskShareForm(request.POST)
         username = db.get_users(username=request.user.username)
         user_to = db.get_users(username=request.POST['user_to'])
         task_to_share = db.get_tasks(username, pk)
@@ -107,6 +108,29 @@ def share_task(request, pk):
 
     form = TaskShareForm(user=request.user.username)
     return render(request, 'caleweb/task_share.html', {'form': form})
+
+
+class TaskMoveForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('user')
+        self.task = kwargs.get('task')
+        super(TaskMoveForm, self).__init__()
+        tasks = db.get_tasks(self.user).exclude(pk=self.task)
+        self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks)
+
+    task_to = forms.ChoiceField(widget=forms.Select, label='Available tasks')
+
+
+@login_required
+def move_task(request, pk):
+    if request.method == 'POST':
+        task_to = db.get_tasks(username=request.user.username, task_id=request.POST['task_to'])
+        task_from = db.get_tasks(username=request.user.username, task_id=pk)
+        task_to.add_subtask(task_from.get_copy())
+        db.remove_task(request.user.username, pk)
+        return redirect('/')
+    form = TaskMoveForm(user=request.user.username, task=pk)
+    return render(request, 'caleweb/task_move.html', {'form': form})
 
 
 # ###T###A###S###K###S###

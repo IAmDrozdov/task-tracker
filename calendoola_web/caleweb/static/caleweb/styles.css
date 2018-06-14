@@ -109,7 +109,7 @@ body {
 
 .form-wrapper {
     position: absolute;
-    width: 30%;
+    min-width: 20%;
     margin: 3%;
     padding: 1%;
     border: whitesmoke solid;
@@ -121,4 +121,13 @@ body {
     border-radius: 20px;
     height: 100%;
 
+}
+
+table.borderless td, table.borderless th {
+    border: none !important;
+}
+
+.wtf {
+    margin-top: 25%;
+    margin-bottom: 25%;
 }
