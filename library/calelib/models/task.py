@@ -1,12 +1,12 @@
 from copy import deepcopy
 from datetime import datetime
+
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from calelib.notification import call
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 
 

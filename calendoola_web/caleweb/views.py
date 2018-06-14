@@ -1,11 +1,9 @@
 from calelib.crud import Calendoola
 from calelib.models import Task
-from django.contrib.auth import (login,
-                                 )
+from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import (ListView,
                                   DetailView,
@@ -78,6 +76,7 @@ class TaskDeleteView(DeleteView):
     def get_queryset(self):
         username = self.request.user.username
         return db.get_tasks(username)
+
 
 # ###T###A###S###K###S###
 

@@ -15,7 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'calelib',
-    'widget_tweaks',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [

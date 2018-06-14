@@ -38,7 +38,8 @@
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{ request.user.username|upper }}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right" style="background-color: #343a40;" aria-labelledby="dropdownMenuButton">
+                <div class="dropdown-menu dropdown-menu-right" style="background-color: #343a40;"
+                     aria-labelledby="dropdownMenuButton">
                     <a href="{% url 'logout' %}" class="btn" style="text-decoration: #000000; color: white;"><i
                             class="fas fa-sign-out-alt"></i>Exit</a>
                 </div>
