@@ -98,9 +98,8 @@ class TaskDeleteView(DeleteView):
     template_name = 'caleweb/task_confirm_delete.html'
     success_url = '/'
 
-    def get_queryset(self):
-        username = self.request.user.username
-        return db.get_tasks(username)
+    def get_object(self, queryset=None):
+        return db.get_tasks(self.request.user.username, self.kwargs['pk'])
 
 
 class TaskShareForm(forms.Form):
@@ -109,7 +108,6 @@ class TaskShareForm(forms.Form):
         super(TaskShareForm, self).__init__()
         users = db.get_users().exclude(nickname=self.user)
         self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in users)
-
     user_to = forms.ChoiceField(widget=forms.Select, label='Users')
 
 
@@ -122,7 +120,6 @@ def share_task(request, pk):
         user_to.add_task(task_to_share)
         task_to_share.add_performer(user_to.nickname)
         return redirect('/')
-
     form = TaskShareForm(user=request.user.username)
     return render(request, 'caleweb/task_share.html', {'form': form})
 
@@ -168,6 +165,15 @@ def move_task(request, pk):
     return render(request, 'caleweb/task_move.html', {'form': form})
 
 
+def unshare_task(request, pk, name):
+    username = request.user.username
+    task = db.get_tasks(username, pk)
+    performer = db.get_users(name)
+    performer.tasks.remove(task)
+    task.remove_performer(name)
+    return redirect('/tasks/{}/'.format(pk))
+
+
 # ###T###A###S###K###S###
 
 
@@ -201,3 +207,4 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
+

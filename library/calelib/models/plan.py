@@ -32,14 +32,6 @@ class Plan(models.Model):
 
     _period = JSONField(db_column='period', default=dict)
 
-    # @property
-    # def time_at(self):
-    #     return json.loads(self._time_at)
-    #
-    # @time_at.setter
-    # def time_at(self, not_dumped_time):
-    #     self._time_at = json.dumps(not_dumped_time)
-    #     self.save()
 
     @property
     def period(self):

@@ -22,14 +22,17 @@
                     <div class="back">
                         <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
                         <a href="{% url 'share-task' task.pk %}" class="btn btn-warning">Share</a>
+                        {% if task.status != 'FINISHED' %}
+                            <a href="{% url 'finish-task' task.pk %}" class="btn btn-success">Finish</a>
+                        {% else %}
+                            <a href="{% url 'restore-task' task.pk %}" class="btn btn-success">Restore</a>
+                        {% endif %}
                         <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>
-
             {% empty %}
             <h1 class="display-3">No tasks</h1>
         {% endfor %}
     </div>
-
 {% endblock %}

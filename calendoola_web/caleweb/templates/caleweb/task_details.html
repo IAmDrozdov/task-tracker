@@ -6,7 +6,7 @@
             <th>
                 <h3 class="text-center text-muted">It is {% if task.owner == request.user.username %}
                     <b>your</b> {% else %}
-                    <b>{{ task.owner }}'s</b> {% endif %}task</h3>
+                    <b>{{ task.owner }}</b>'s {% endif %}task</h3>
                 <hr>
                 <p style=" word-wrap: break-word;">{{ task.info }}</p>
                 <hr>
@@ -51,30 +51,48 @@
                         {% endfor %}
                     {% endif %}
                     {% if task.performers|length > 0 %}
-                        {% if task.performers|length > 0 %}
-                            <tr>
-                                <th>Performers:</th>
-                                <th>{{ task.performers.0 }}</th>
-                            </tr>
-                            {% for performer in task.performers|slice:"1:" %}
+                        {% if task.performers|length == 1 and request.user.username in task.performers %}
+                        {% else %}
+                            {% if task.performers|length > 0 %}
                                 <tr>
-                                    <th></th>
-                                    <td>{{ performer }}</td>
+                                    <th>Performers:</th>
+                                    <th>
+                                        <div class="btn-group" style="width: 100%;">
+                                            <button style="width: 100%;" class="btn btn-sm">{{ task.performers.0 }}</button>
+                                            {% if request.user.username == task.owner %}
+                                                <a href="{% url 'unshare-task' pk=task.pk name=task.performers.0 %}"
+                                                   class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
+                                                                            style="color: #e6e7e8"></i></a>
+                                            {% endif %}
+                                        </div>
+                                    </th>
                                 </tr>
-                            {% endfor %}
+                                {% for performer in task.performers|slice:"1:" %}
+                                    {% if performer != request.user.username %}
+                                        <tr>
+                                            <th></th>
+                                            <td>
+                                                <div class="btn-group " style="width: 100%;">
+                                                    <button style="width: 100%;" class="btn btn-sm">{{ performer }}</button>
+                                                    {% if request.user.username == task.owner %}
+                                                        <a href="{% url 'unshare-task' pk=task.pk name=performer %}"
+                                                           class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
+                                                                                    style="color: #e6e7e8"></i></a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </table>
             </th>
             <th width="50%">
-                <a href="{% url 'edit-task' task.pk %}" class="btn btn-warning wtf">Edit</a>
-                <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger wtf">Delete</a>
-                {% if task.status != 'FINISHED' %}
-                    <a href="{% url 'finish-task' task.pk %}" class="btn btn-success wtf">Finish</a>
-                {% else %}
-                    <a href="{% url 'restore-task' task.pk %}" class="btn btn-success wtf">Restore</a>
-                {% endif %}
-                <a href="{% url 'move-task' task.pk %}" class="btn bg-info wtf">Move</a>
+                <a href="{% url 'edit-task' task.pk %}" class="btn btn-warning detail-vew-buttons">Edit</a>
+                <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger detail-vew-buttons">Delete</a>
+                <a href="{% url 'move-task' task.pk %}" class="btn bg-info detail-vew-buttons">Move</a>
             </th>
         </table>
     </div>

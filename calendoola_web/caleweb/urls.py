@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^tasks/(?P<pk>\d+)/share/$', views.share_task, name='share-task'),
     url(r'^tasks/(?P<pk>\d+)/move/$', views.move_task, name='move-task'),
     url(r'^tasks/remove/(?P<pk>\d+)/$', views.TaskDeleteView.as_view(), name='remove-task'),
+    url(r'^tasks/(?P<pk>\d+)/unshare/(?P<name>\w+)', views.unshare_task, name='unshare-task'),
     # ####PLAN####URLS####
     url(r'^plans/$', views.PlanListView.as_view(), name='plans'),
     url(r'^plans/(?P<pk>\d+)/$', views.PlanDetailView.as_view(), name='plan'),

@@ -93,7 +93,7 @@ body {
 
 .back {
     display: flex;
-    padding: 20%;
+    padding: 10%;
     justify-content: space-around;
     flex-direction: column;
     transform: rotateY(180deg);
@@ -127,7 +127,7 @@ table.borderless td, table.borderless th {
     border: none !important;
 }
 
-.wtf {
+.detail-vew-buttons {
     margin-top: 25%;
     margin-bottom: 25%;
 }
