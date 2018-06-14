@@ -2,8 +2,12 @@
 {% load humanize %}
 {% block content %}
     <div style="width: 30%; background: lightblue;">
+        <hr>
+    <h3 class="text-center text-muted">It is {% if task.owner == request.user.username  %}<b>your</b> {% else %}<b>{{ task.owner }}'s</b> {% endif %}task</h3>
+        <hr>
         <h1 style="  word-wrap: break-word;">{{ task.info }}</h1>
         <hr>
+
         <h3>Priority: {{ task.priority }}</h3>
         <h3>Created: {{ task.created_at }}</h3>
         <h3>Last update: {{ task.updated_at }}</h3>
@@ -24,7 +28,13 @@
                 {% endfor %}
             </h3>
         {% endif %}
-
+        {% if task.performers|length > 0 %}
+            <h3>Performers:
+            {% for p in task.performers %}
+                {{ p }}
+            {% endfor %}
+            </h3>
+        {% endif %}
         <a href="{% url 'edit_task' task.pk %}" class="btn btn-warning">Edit</a>
         <a href="{% url 'remove_task' task.pk %}" class="btn btn-light">delete</a>
         {% if task.status != 'FINISHED' %}

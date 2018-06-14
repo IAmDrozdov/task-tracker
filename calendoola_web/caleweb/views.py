@@ -50,7 +50,9 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         username = self.request.user.username
-        new_task = form.save()
+        new_task = form.save(commit=False)
+        new_task.owner = self.request.user.username
+        new_task.save()
         db.add_completed(username, 'task', new_task)
         return redirect('tasks')
 
@@ -88,6 +90,7 @@ def share_task(request, pk):
         user_to = db.get_users(username=request.POST['user_to'])
         task_to_share = db.get_tasks(username, pk)
         user_to.add_task(task_to_share)
+        task_to_share.add_performer(user_to.nickname)
         return redirect('/')
 
     form = TaskShareForm(user=request.user.username)

@@ -17,6 +17,7 @@ class Task(models.Model):
                   (4, 4),
                   (5, 5)
                   )
+    owner = models.CharField(max_length=30, default=str)
     info = models.CharField(max_length=100, help_text='Enter what to do')
     subtasks = models.ManyToManyField('self', symmetrical=False)
     created_at = models.DateTimeField(auto_now_add=True)
