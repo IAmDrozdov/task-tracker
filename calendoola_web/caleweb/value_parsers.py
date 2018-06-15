@@ -45,55 +45,23 @@ def parse_period(period_type, period_value):
     :return: dict of readable for plan data for creating tasks
     """
 
-    parsed = {'period': None, 'type': None}
-    if period_type == 'd':
-        parsed['period'] = {'day': int(period_value)}
-        parsed['type'] = Constants.REPEAT_DAY
-    elif period_type == 'wd':
+    parsed_period = {}
+    if period_type == Constants.REPEAT_DAY:
+        parsed_period = {'day': int(period_value)}
+    elif period_type == Constants.REPEAT_WEEKDAY:
         weekdays_list = period_value.strip().split()
         weekdays_digits_list = [get_weekday_number(day) for day in weekdays_list]
-        parsed['period'] = {'days': list(set(weekdays_digits_list))}
-        parsed['type'] = Constants.REPEAT_WEEKDAY
-    elif period_type == 'm':
+        parsed_period = {'days': list(set(weekdays_digits_list))}
+    elif period_type == Constants.REPEAT_MONTH:
         period_value = period_value.strip().split()
         month_list = period_value[1:]
         month_digits_list = [get_month_number(month) for month in month_list]
-        parsed['period'] = {
+        parsed_period = {
             'months': list(set(month_digits_list)),
             'day': int(period_value[0])
         }
-        parsed['type'] = Constants.REPEAT_MONTH
-    elif period_type == 'y':
-        period_value = period_value.strip().split()
-        parsed['type'] = Constants.REPEAT_YEAR
-        parsed['period'] = {
-            'day': int(period_value[0]),
-            'month': get_month_number(period_value[1])
-        }
-    return parsed['type'], parsed['period']
 
-
-def parse_time(string_time):
-    """
-    Parse time for plans.
-    :param string_time: time in format HH:MM or only HH
-    :return: depending on param return dict with type and value of time
-    """
-    hm_time = {'hour': None,
-               'minutes': None,
-               'with_minutes': None
-               }
-    if ':' in string_time:
-        hm_time['hour'] = int(string_time.split(':')[0])
-        hm_time['minutes'] = int(string_time.split(':')[1])
-        hm_time['with_minutes'] = True
-        if hm_time['hour'] > 24 or hm_time['hour'] < 0 or hm_time['minutes'] > 60 or hm_time['minutes'] < 0:
-            raise ValueError
-
-    else:
-        hm_time['hour'] = int(string_time)
-        hm_time['with_minutes'] = False
-    return hm_time
+    return parsed_period
 
 
 def parse_remind_type(string_type):

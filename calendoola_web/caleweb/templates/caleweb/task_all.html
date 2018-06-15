@@ -8,7 +8,7 @@
                     <div class="front">
                         <div class="card">
                             <div class="card-header">
-                                <h5>Priority {{ task.priority }}</h5>
+                                <h5 class="text-center">Priority {{ task.priority }}</h5>
                             </div>
                             <div class="card-body">
                                 {{ task.info|slice:':40' }}{% if task.info|length > 40 %}...{% endif %}
@@ -20,7 +20,7 @@
                         </div>
                     </div>
                     <div class="back">
-                        <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
+                        <a href="{% url 'task-details' task.pk %}" class="btn btn-primary">Details</a>
                         <a href="{% url 'share-task' task.pk %}" class="btn btn-warning">Share</a>
                         {% if task.status != 'FINISHED' %}
                             <a href="{% url 'finish-task' task.pk %}" class="btn btn-success">Finish</a>

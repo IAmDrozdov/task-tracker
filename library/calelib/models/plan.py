@@ -19,17 +19,14 @@ class Plan(models.Model):
     """
     info = models.CharField(max_length=100)
     created = models.BooleanField(default=False)
-    last_create = models.DateField(auto_now=True)
-    time_at = models.TimeField(null=True)
+    last_create = models.DateTimeField(auto_now=True)
+    time_at = models.TimeField(null=True, blank=True)
     period_type = models.CharField(max_length=6,
                                    choices=[
                                        (Constants.REPEAT_DAY, 'day'),
                                        (Constants.REPEAT_WEEKDAY, 'week'),
-                                       (Constants.REPEAT_MONTH, 'month'),
-                                       (Constants.REPEAT_YEAR, 'year')
-                                   ]
-                                   )
-
+                                       (Constants.REPEAT_MONTH, 'month'), ])
+    able = models.BooleanField(default=True)
     _period = JSONField(db_column='period', default=dict)
 
     @property
@@ -73,14 +70,6 @@ class Plan(models.Model):
         """
         return self.last_create + relativedelta(days=int(self.period['day'])) != datetime.datetime.now().date()
 
-    def check_last_create_year(self):
-        """
-        Comparing now date and date, when last plan created
-        :return: True or False
-        """
-        now = datetime.datetime.now()
-        return self.period['day'] != now.day and self.period['month'] != now.month
-
     def check_time(self):
         """
         Comparing time for creating. If plan has no time_at, returns True
@@ -88,17 +77,8 @@ class Plan(models.Model):
         """
         now = datetime.datetime.now()
         if self.time_at:
-            if self.time_at['with_minutes']:
-                if self.time_at['hour'] == now.hour:
-                    if self.time_at['minutes'] <= now.minute:
-                        return True
-                elif self.time_at['hour'] < now.hour:
-                    return True
-            else:
-                if self.time_at['hour'] >= now.hour:
-                    return True
-        else:
-            return True
+            if self.time_at > now.time():
+                return True
 
     def check_uncreated(self):
         """
@@ -116,9 +96,6 @@ class Plan(models.Model):
             elif self.period_type == Constants.REPEAT_MONTH:
                 if now.month not in json.loads(self.period['months']) or now.day != self.period['day']:
                     return False
-            elif self.period_type == Constants.REPEAT_YEAR:
-                if self.check_last_create_year():
-                    return False
             return self.create_task()
 
     def check_created_days(self):
@@ -133,10 +110,6 @@ class Plan(models.Model):
         if datetime.datetime.now().month not in self.period['months']:
             self.remove_task()
 
-    def check_created_year(self):
-        if self.last_create - datetime.datetime.now().date():
-            self.remove_task()
-
     def check_created(self):
         """
         Selecting created plan for period types
@@ -148,8 +121,6 @@ class Plan(models.Model):
             return self.check_created_wdays()
         elif self.period_type == Constants.REPEAT_MONTH:
             return self.check_created_months()
-        elif self.period_type == Constants.REPEAT_YEAR:
-            return self.check_created_year()
 
     @logg('Checked plan')
     def check_for_create(self):
@@ -160,6 +131,11 @@ class Plan(models.Model):
             self.check_created()
         else:
             return self.check_uncreated()
+
+    @logg('Changed state')
+    def set_state(self):
+        self.able = not self.able
+        self.save()
 
     @logg('Chaned information about plan')
     def update(self, info, period_type, period_value, time):

@@ -1,4 +1,5 @@
 from django import template
+from calelib.constants import Constants
 
 register = template.Library()
 
@@ -41,16 +42,13 @@ def get_weekday_word(number):
 
 @register.filter(name='humanize_period')
 def word_months(period, type):
-    if type == 'm':
+    if type == Constants.REPEAT_MONTH:
         return 'Every {}th of {}'.format(period['day'],
                                          ', '.join([get_month_word(e).capitalize() for e in period['months']]))
-    elif type == 'd':
-        not_plural = 'Every {} day'.format(period['day'])
+    elif type == Constants.REPEAT_DAY:
         if period['day'] > 1:
-            return not_plural + 's'
+            return 'Every {} days'.format(period['day'])
         else:
-            return not_plural
-    elif type == 'wd':
+            return 'Every day'
+    elif type == Constants.REPEAT_WEEKDAY:
         return 'Every {}'.format(', '.join([get_weekday_word(e).capitalize() for e in period['days']]))
-    else:
-        return 'Every year on {} {}'.format(get_month_word(period['month']), period['day'])

@@ -1,0 +1,42 @@
+{% extends 'caleweb/base.html' %}
+{% load plan_period_filter %}
+{% load humanize %}
+{% block content %}
+    <div class="d-flex flex-wrap card-group">
+        {% for plan in plans %}
+            <div class="flex-fill p-2">
+                <div class="card-face">
+                    <div class="front" {% if not plan.able %}style="opacity: 0.4"{% endif %}>
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="text-center">{% if plan.created %}Created{% else %}Not
+                                    created{% endif %}</h5>
+                            </div>
+                            <div class="card-body">
+                                {{ plan.info }}
+                            </div>
+                            <div class="card-footer" style="text-align: center">
+                                {{ plan.period|humanize_period:plan.period_type }}{% if plan.time_at %}
+                                    at {{ plan.time_at|naturaltime }}
+                                {% endif %}
+                            </div>
+                            <small class="text-muted offset-1">Latest: {{ plan.last_create }}</small>
+                        </div>
+                    </div>
+                    <div class="back">
+                        {% if plan.info|length > 40 %}
+                            <button class="btn bg-info" disabled data-toggle="tooltip" title={{ plan.info }}>Full
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'edit-plan' plan.pk %}" class="btn btn-primary">Edit</a>
+                        <a class="btn bg-warning" style="color: white;" href="{% url 'plan-set-state' plan.pk %}">
+                            {% if plan.able %}Disable{% else %}Activate{% endif %}</a>
+                        <a href="{% url 'remove-plan' plan.pk %}" class="btn btn-danger detail-vew-buttons">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <h1 class="display-3">No Plans</h1>
+        {% endfor %}
+    </div>
+{% endblock %}

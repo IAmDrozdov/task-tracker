@@ -1,25 +1,37 @@
 from calelib.crud import Calendoola
-from calelib.models import Task
+from calelib.models import Task, Plan
 from django import forms
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from .value_parsers import parse_period
 from django.urls import reverse
 from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
-                                  DeleteView,
-                                  )
+                                  DeleteView, )
 
 db = Calendoola()
 
 
 def index(request):
     return redirect('tasks')
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 # ###T###A###S###K###S###
@@ -82,12 +94,12 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     template_name = 'caleweb/task_details.html'
 
     def get_object(self, queryset=None):
-        return db.get_tasks(self.request.user.username, self.kwargs['pk'])
+        return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
-    template_name = 'caleweb/task_create.html'
+    template_name = 'caleweb/create-form.html'
     fields = ['info', 'deadline', 'priority', 'tags']
 
     def form_valid(self, form):
@@ -101,16 +113,16 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    template_name = 'caleweb/task_update.html'
+    template_name = 'caleweb/update-form.html'
     fields = ['info', 'deadline', 'priority', 'tags']
 
     def get_success_url(self):
-        return reverse('task-detail', args=[self.kwargs['pk']])
+        return reverse('task-details', args=[self.kwargs['pk']])
 
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
-    template_name = 'caleweb/task_confirm_delete.html'
+    template_name = 'caleweb/confirm_delete-form.html'
     success_url = '/'
 
     def get_object(self, queryset=None):
@@ -159,8 +171,9 @@ class TaskMoveForm(forms.Form):
         self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
                                           if check_possible_tasks(self.user, self.task, t.pk))
 
-    to_main = forms.NullBooleanField(help_text='Pass task to main view')
-    task_to = forms.ChoiceField(widget=forms.Select, label='Available tasks')
+    to_main = forms.NullBooleanField(help_text='Pass task to main view',
+                                     widget=forms.Select(choices=((1, 'No'), (2, 'Yes'))))
+    task_to = forms.ChoiceField(label='Available tasks')
 
 
 @login_required
@@ -194,32 +207,48 @@ def unshare_task(request, pk, name):
 
 
 class PlanListView(LoginRequiredMixin, ListView):
-    template_name = 'caleweb/plans.html'
+    template_name = 'caleweb/plan_all.html'
     context_object_name = 'plans'
 
     def get_queryset(self):
         username = self.request.user.username
-
         return db.get_plans(username)
 
 
-class PlanDetailView(LoginRequiredMixin, DetailView):
-    template_name = 'caleweb/plan.html'
-    context_object_name = 'plan'
+class PlanCreateForm(forms.ModelForm):
+    _period = forms.CharField(widget=forms.TextInput(), initial='')
+
+    class Meta:
+        model = Plan
+        fields = ['info', 'time_at', 'period_type', '_period']
+
+
+class PlanCreateView(LoginRequiredMixin, CreateView):
+    model = Plan
+    form_class = PlanCreateForm
+    template_name = 'caleweb/create-form.html'
+
+    def form_valid(self, form):
+        username = self.request.user.username
+        new_plan = form.save(commit=False)
+
+        new_plan.period = parse_period(new_plan.period_type, new_plan._period)
+        new_plan.save()
+        db.add_completed(username, 'plan', new_plan)
+        return redirect('plans')
+
+
+class PlanDeleteView(LoginRequiredMixin, DeleteView):
+    model = Plan
+    template_name = 'caleweb/confirm_delete-form.html'
+    success_url = 'plans'
 
     def get_queryset(self):
-        username = self.request.user.username
-
-        return db.get_plans(username)
+        return db.get_plans(self.request.user.username)
 
 
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('/')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+def plan_set_state(request, pk):
+    username = db.get_users(request.user.username)
+    plan = db.get_plans(username, pk)
+    plan.set_state()
+    return redirect('plans')

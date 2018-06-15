@@ -36,8 +36,7 @@ class Calendoola:
         user = self.get_users(username)
         if tags:
             return user.tasks.reduce(operator.and_, (Q(tags__contains=tag) for tag in tags))
-
-        if info:
+        elif info:
             return user.tasks.filter(info__contains=info)
         elif task_id:
             return user.search_task(task_id)

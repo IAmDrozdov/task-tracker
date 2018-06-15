@@ -3,105 +3,100 @@
 {% load tags_display_filter %}
 {% block content %}
     <div class="form-wrapper">
-        <table>
-            <th>
-                <h3 class="text-center text-muted">It is {% if task.owner == request.user.username %}
-                    <b>your</b> {% else %}
-                    <b>{{ task.owner }}</b>'s {% endif %}task</h3>
-                <hr>
-                <p style=" word-wrap: break-word;">{{ task.info }}</p>
-                <hr>
-                <table class="table borderless">
+        <h3 class="text-center text-muted">It is {% if task.owner == request.user.username %}
+            <b>your</b> {% else %}
+            <b>{{ task.owner }}</b>'s {% endif %}task</h3>
+        <hr>
+        <p style=" word-wrap: break-word;">{{ task.info }}</p>
+        <hr>
+        <table class="table borderless">
+            <tr>
+                <th>Priority:</th>
+                <th>{{ task.priority }}</th>
+            </tr>
+            <tr>
+                <th>Created:</th>
+                <th>{{ task.created_at }}</th>
+            </tr>
+            <tr>
+                <th>Last update:</th>
+                <th>{{ task.updated_at }}</th>
+            </tr>
+            <tr>
+                <th>Deadline:</th>
+                <th>{{ task.deadline|default:"No deadline" }}</th>
+            </tr>
+            <tr>
+                <th>Status:</th>
+                <th>{{ task.status }}</th>
+            </tr>
+            {% if task.tags|length > 0 %}
+                <tr>
+                    <th>Tags:</th>
+                    <th>{{ task.tags|humanize_tags }}</th>
 
+                </tr>
+            {% endif %}
+            {% if task.subtasks.all|length > 0 %}
+                <tr>
+                    <th>Subtasks:</th>
+                    <th><a href="{% url 'task-details' task.subtasks.all.first.pk %}"
+                           class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
+                </tr>
+                {% for sub in task.subtasks.all|slice:"1:" %}
                     <tr>
-                        <th>Priority:</th>
-                        <th>{{ task.priority }}</th>
+                        <th></th>
+                        <td>
+                            <a href="{% url 'task-details' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
+                        </td>
                     </tr>
-                    <tr>
-                        <th>Created:</th>
-                        <th>{{ task.created_at }}</th>
-                    </tr>
-                    <tr>
-                        <th>Last update:</th>
-                        <th>{{ task.updated_at }}</th>
-                    </tr>
-                    <tr>
-                        <th>Deadline:</th>
-                        <th>{{ task.deadline|default:"No deadline" }}</th>
-                    </tr>
-                    <tr>
-                        <th>Status:</th>
-                        <th>{{ task.status }}</th>
-                    </tr>
-                    {% if task.tags|length > 0 %}
-                        <tr>
-                            <th>Tags:</th>
-                            <th>{{ task.tags|humanize_tags }}</th>
-
-                        </tr>
-                    {% endif %}
-                    {% if task.subtasks.all|length > 0 %}
-                        <tr>
-                            <th>Subtasks:</th>
-                            <th><a href="{% url 'task-detail' task.subtasks.all.first.pk %}"
-                                   class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
-                        </tr>
-                        {% for sub in task.subtasks.all|slice:"1:" %}
-                            <tr>
-                                <th></th>
-                                <td>
-                                    <a href="{% url 'task-detail' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if task.performers|length > 0 %}
+                {% if task.performers|length == 1 and request.user.username in task.performers %}
+                {% else %}
                     {% if task.performers|length > 0 %}
-                        {% if task.performers|length == 1 and request.user.username in task.performers %}
-                        {% else %}
-                            {% if task.performers|length > 0 %}
+                        <tr>
+                            <th>Performers:</th>
+                            <th>
+                                <div class="btn-group" style="width: 100%;">
+                                    <button style="width: 100%;"
+                                            class="btn btn-sm">{{ task.performers.0 }}</button>
+                                    {% if request.user.username == task.owner %}
+                                        <a href="{% url 'unshare-task' pk=task.pk name=task.performers.0 %}"
+                                           class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
+                                                                           style="color: #e6e7e8"></i></a>
+                                    {% endif %}
+                                </div>
+                            </th>
+                        </tr>
+                        {% for performer in task.performers|slice:"1:" %}
+                            {% if performer != request.user.username %}
                                 <tr>
-                                    <th>Performers:</th>
-                                    <th>
-                                        <div class="btn-group" style="width: 100%;">
+                                    <th></th>
+                                    <td>
+                                        <div class="btn-group " style="width: 100%;">
                                             <button style="width: 100%;"
-                                                    class="btn btn-sm">{{ task.performers.0 }}</button>
+                                                    class="btn btn-sm">{{ performer }}</button>
                                             {% if request.user.username == task.owner %}
-                                                <a href="{% url 'unshare-task' pk=task.pk name=task.performers.0 %}"
-                                                   class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
-                                                                                   style="color: #e6e7e8"></i></a>
+                                                <a href="{% url 'unshare-task' pk=task.pk name=performer %}"
+                                                   class="btn bg-danger btn-sm"><i
+                                                        class="fas fa-trash-alt white"
+                                                        style="color: #e6e7e8"></i></a>
                                             {% endif %}
                                         </div>
-                                    </th>
+                                    </td>
                                 </tr>
-                                {% for performer in task.performers|slice:"1:" %}
-                                    {% if performer != request.user.username %}
-                                        <tr>
-                                            <th></th>
-                                            <td>
-                                                <div class="btn-group " style="width: 100%;">
-                                                    <button style="width: 100%;"
-                                                            class="btn btn-sm">{{ performer }}</button>
-                                                    {% if request.user.username == task.owner %}
-                                                        <a href="{% url 'unshare-task' pk=task.pk name=performer %}"
-                                                           class="btn bg-danger btn-sm"><i
-                                                                class="fas fa-trash-alt white"
-                                                                style="color: #e6e7e8"></i></a>
-                                                    {% endif %}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
                             {% endif %}
-                        {% endif %}
+                        {% endfor %}
                     {% endif %}
-                </table>
-            </th>
-            <th width="50%">
-                <a href="{% url 'edit-task' task.pk %}" class="btn btn-warning detail-vew-buttons">Edit</a>
-                <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger detail-vew-buttons">Delete</a>
-                <a href="{% url 'move-task' task.pk %}" class="btn bg-info detail-vew-buttons">Move</a>
-            </th>
+                {% endif %}
+            {% endif %}
         </table>
+
+        <div class="d-flex flex-direction-column align-items-stretch justify-content-between">
+            <a style="width: 100%;" href="{% url 'edit-task' task.pk %}" class="btn btn-warning ">Edit</a>
+            <a style="width: 100%;" href="{% url 'remove-task' task.pk %}" class="btn btn-danger ">Delete</a>
+            <a style="width: 100%;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a></div>
     </div>
 {% endblock %}
