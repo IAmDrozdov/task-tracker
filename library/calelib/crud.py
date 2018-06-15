@@ -1,7 +1,10 @@
 from calelib.config import Config
 from calelib.constants import Constants
+from django.db.models import F
 from calelib.logger import logg, configure_logger
 from calelib.models import Customer, Task, Plan, Reminder
+import operator
+from django.db.models import Q
 
 
 class Calendoola:
@@ -29,10 +32,13 @@ class Calendoola:
             task.save()
         user.add_task(task)
 
-    def get_tasks(self, username, task_id=None, tags=None, archive=False):
+    def get_tasks(self, username, task_id=None, tags=None, archive=False, info=None):
         user = self.get_users(username)
         if tags:
-            return user.tasks.filter(tags__contains=tags)
+            return user.tasks.reduce(operator.and_, (Q(tags__contains=tag) for tag in tags))
+
+        if info:
+            return user.tasks.filter(info__contains=info)
         elif task_id:
             return user.search_task(task_id)
         elif archive:
@@ -121,3 +127,9 @@ class Calendoola:
             user.add_reminder(instance)
         else:
             raise AttributeError
+
+    def get_sorted_tasks(self, username, field, type):
+        if type == 'desc':
+            return self.get_users(username).tasks.order_by(F(field).desc(nulls_last=True))
+        else:
+            return self.get_users(username).tasks.order_by(F(field).asc())

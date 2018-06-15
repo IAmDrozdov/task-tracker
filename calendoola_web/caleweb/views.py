@@ -2,7 +2,6 @@ from calelib.crud import Calendoola
 from calelib.models import Task
 from django import forms
 from django.contrib.auth import login
-from django.db.models import F
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -51,8 +50,21 @@ class TaskListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         username = self.request.user.username
         if self.request.GET.get('order'):
-            return db.get_tasks(username).order_by(F(self.request.GET.get('order')).desc(nulls_last=True))
+            return db.get_sorted_tasks(username, self.request.GET.get('order'), self.request.GET.get('vec'))
         return db.get_tasks(username)
+
+
+class TaskListSearchView(TaskListView):
+
+    def get_queryset(self):
+        username = self.request.user.username
+        query = self.request.GET.get('data')
+        result = db.get_tasks(username)
+        if query:
+            result_info = db.get_tasks(username, info=query)
+            result_tags = db.get_tasks(username, tags=query)
+            result = result_info | result_tags
+        return result
 
 
 class TaskArchiveListView(LoginRequiredMixin, ListView):
@@ -96,7 +108,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('task-detail', args=[self.kwargs['pk']])
 
 
-class TaskDeleteView(DeleteView):
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = 'caleweb/task_confirm_delete.html'
     success_url = '/'

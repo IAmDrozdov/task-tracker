@@ -6,12 +6,12 @@ from . import views
 urlpatterns = [
     # ####GENERAL####URLS####
     url(r'^$', views.index, name='homepage'),
-    url(r'^tasks/$', views.TaskListView.as_view(), name='tasks'),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'login'}, name='logout'),
     url(r'^signup/$', views.signup, name='signup'),
     # ####TASK####URLS####
-
+    url(r'^tasks/$', views.TaskListView.as_view(), name='tasks'),
+    url(r'^tasks/search/', views.TaskListSearchView.as_view(), name='search-tasks'),
     url(r'^tasks/archive/$', views.TaskArchiveListView.as_view(), name='archive'),
     url(r'^tasks/(?P<pk>\d+)/$', views.TaskDetailView.as_view(), name='task-detail'),
     url(r'^tasks/new/$', views.TaskCreateView.as_view(), name='new-task'),

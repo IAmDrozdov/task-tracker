@@ -33,31 +33,51 @@
                         </div>
                     </div>
                 </li>
+                <li class="nav-item" style="margin-left: 20rem">
+                    <form class="form-inline" action="{% url 'search-tasks' %}" method="get"
+                          accept-charset="utf-8">
+                        <div class="form-group">
+                            <label>
+                                <input name="data" class="form-control" type="text" style="width: 30rem;"
+                                       placeholder="Search task by tags or description">
+                            </label>
+                            <input class="btn" type="submit">
+                        </div>
+                    </form>
+                </li>
             </ul>
             {% if 'tasks' in request.path %}
                 <div class="dropdown" style="margin-right: 5%">
                     <button class="btn text-center" type="button" data-toggle="dropdown">
                         Order by
                     </button>
-                    <div class="dropdown-menu">
-                        <a class="nav-link text-center" href="{% url 'tasks' %}?order=priority">Priority</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="nav-link text-center" href="{% url 'tasks' %}?order=deadline">Deadline</a>
+                    <div class="dropdown-menu" style="padding: 0; margin: 0">
+                        <div class="btn-group" style="width: 100%">
+                            <p class="nav-link" style="margin: 0; width: 100%">Priority</p>
+                            <a href="{% url 'tasks' %}?order=priority&vec=asc" class=" btn fas fa-chevron-up"></a>
+                            <a href="{% url 'tasks' %}?order=priority&vec=desc" class="btn fas fa-chevron-down"></a>
+                        </div>
+                        <div class="btn-group" style="width: 100%">
+                            <p class="nav-link" style="margin: 0">Deadline</p>
+                            <a href="{% url 'tasks' %}?order=deadline&vec=asc" class=" btn fas fa-chevron-up"></a>
+                            <a href="{% url 'tasks' %}?order=deadline&vec=desc" class="btn fas fa-chevron-down"></a>
+                        </div>
                     </div>
                 </div>
-            {% endif %}
-            <div class="dropdown">
-                <button class="btn btn-secondary text-center" type="button" data-toggle="dropdown">
-                    {{ request.user.username|upper }}
-                </button>
-                <div class="dropdown-menu"
-                     style="background-color: #343a40; left: auto; right: -20px;  border-radius: 20px">
-                    <a style="color: white;" class="nav-link text-center" href="{% url 'archive' %}">Archive</a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{% url 'logout' %}" class="nav-link text-center" style="color: white;">Exit</a>
-
                 </div>
+            {% endif %}
+        <div class="dropdown">
+            <button class="btn btn-secondary text-center" type="button" data-toggle="dropdown">
+                {{ request.user.username|upper }}
+            </button>
+            <div class="dropdown-menu"
+                 style="background-color: #343a40; left: auto; right: -20px;  border-radius: 20px">
+                <a style="color: white;" class="nav-link text-center" href="{% url 'archive' %}">Archive</a>
+                <div class="dropdown-divider"></div>
+                <a href="{% url 'logout' %}" class="nav-link text-center" style="color: white;">Exit</a>
+
             </div>
+        </div>
         </div>
     {% endif %}
 </nav>
