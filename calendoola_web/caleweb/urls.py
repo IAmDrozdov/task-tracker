@@ -6,11 +6,12 @@ from . import views
 urlpatterns = [
     # ####GENERAL####URLS####
     url(r'^$', views.index, name='homepage'),
+    url(r'^tasks/$', views.TaskListView.as_view(), name='tasks'),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'login'}, name='logout'),
     url(r'^signup/$', views.signup, name='signup'),
     # ####TASK####URLS####
-    url(r'^tasks/$', views.TaskListView.as_view(), name='tasks'),
+
     url(r'^tasks/archive/$', views.TaskArchiveListView.as_view(), name='archive'),
     url(r'^tasks/(?P<pk>\d+)/$', views.TaskDetailView.as_view(), name='task-detail'),
     url(r'^tasks/new/$', views.TaskCreateView.as_view(), name='new-task'),
@@ -20,7 +21,7 @@ urlpatterns = [
     url(r'^tasks/(?P<pk>\d+)/share/$', views.share_task, name='share-task'),
     url(r'^tasks/(?P<pk>\d+)/move/$', views.move_task, name='move-task'),
     url(r'^tasks/remove/(?P<pk>\d+)/$', views.TaskDeleteView.as_view(), name='remove-task'),
-    url(r'^tasks/(?P<pk>\d+)/unshare/(?P<name>\w+)', views.unshare_task, name='unshare-task'),
+    url(r'^tasks/(?P<pk>\d+)/unshare/(?P<name>\w+)/$', views.unshare_task, name='unshare-task'),
     # ####PLAN####URLS####
     url(r'^plans/$', views.PlanListView.as_view(), name='plans'),
     url(r'^plans/(?P<pk>\d+)/$', views.PlanDetailView.as_view(), name='plan'),

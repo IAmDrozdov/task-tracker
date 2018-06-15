@@ -2,6 +2,7 @@ from calelib.crud import Calendoola
 from calelib.models import Task
 from django import forms
 from django.contrib.auth import login
+from django.db.models import F
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,7 +13,8 @@ from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
-                                  DeleteView, )
+                                  DeleteView,
+                                  )
 
 db = Calendoola()
 
@@ -22,7 +24,6 @@ def index(request):
 
 
 # ###T###A###S###K###S###
-
 
 @login_required
 def finish_task(request, pk):
@@ -49,6 +50,8 @@ class TaskListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         username = self.request.user.username
+        if self.request.GET.get('order'):
+            return db.get_tasks(username).order_by(F(self.request.GET.get('order')).desc(nulls_last=True))
         return db.get_tasks(username)
 
 
@@ -108,6 +111,7 @@ class TaskShareForm(forms.Form):
         super(TaskShareForm, self).__init__()
         users = db.get_users().exclude(nickname=self.user)
         self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in users)
+
     user_to = forms.ChoiceField(widget=forms.Select, label='Users')
 
 
@@ -207,4 +211,3 @@ def signup(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})
-

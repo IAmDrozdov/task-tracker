@@ -1,5 +1,6 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" href="{% url 'homepage' %}" style="font-family: 'BioRhyme Expanded', serif;"><b>Calendoola</b></a>
+    <a class="navbar-brand" href="{% url 'homepage' %}"
+       style="font-family: 'BioRhyme Expanded', serif;"><b>Calendoola</b></a>
     {% if request.path != '/login/' and  request.path != '/signup/' %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +34,18 @@
                     </div>
                 </li>
             </ul>
+            {% if 'tasks' in request.path %}
+                <div class="dropdown" style="margin-right: 5%">
+                    <button class="btn text-center" type="button" data-toggle="dropdown">
+                        Order by
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="nav-link text-center" href="{% url 'tasks' %}?order=priority">Priority</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="nav-link text-center" href="{% url 'tasks' %}?order=deadline">Deadline</a>
+                    </div>
+                </div>
+            {% endif %}
             <div class="dropdown">
                 <button class="btn btn-secondary text-center" type="button" data-toggle="dropdown">
                     {{ request.user.username|upper }}
