@@ -25,12 +25,12 @@ class Customer(models.Model):
 
     def search_task(self, task_id):
         def search_in_subtasks(subtasks):
-            if subtasks.exists():
-                for task in subtasks:
-                    if task.subtasks.filter(pk=task_id).exists():
-                        return task.subtasks.get(pk=task_id)
-                    else:
-                        return search_in_subtasks(task.subtasks.all())
+            for task in subtasks:
+                t = task.subtasks.filter(pk=task_id).first()
+                if t is not None:
+                    return t
+                else:
+                    return search_in_subtasks(task.subtasks.all())
 
         if self.tasks.filter(pk=task_id).exists():
             return self.tasks.get(pk=task_id)

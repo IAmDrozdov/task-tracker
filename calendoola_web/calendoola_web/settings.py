@@ -1,3 +1,6 @@
+import os
+
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -15,7 +18,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'calelib',
-    'widget_tweaks'
+    'widget_tweaks',
+
 ]
 
 MIDDLEWARE = [
@@ -26,6 +30,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'caleweb.middleware.RequestMiddleware',
+
 ]
 
 DATABASES = {
@@ -61,12 +67,10 @@ TEMPLATES = [
     },
 ]
 
-import os
-
 STATICFILES_DIRS = [
     os.path.join('caleweb', "static"),
 ]
 STATIC_URL = '/caleweb/static/'
-
+STATIC_ROOT = 'calendoola_web/caleweb/static'
 USE_TZ = True
 TIME_ZONE = 'Europe/Minsk'

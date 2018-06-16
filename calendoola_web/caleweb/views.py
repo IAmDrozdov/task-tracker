@@ -2,6 +2,7 @@ from calelib.constants import Constants
 from calelib.crud import Calendoola
 from calelib.models import Task, Plan, Reminder
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -10,7 +11,7 @@ from django.shortcuts import render, redirect
 from .value_parsers import (parse_period,
                             parse_period_to_view,
                             )
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy, reverse
 from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
@@ -18,12 +19,13 @@ from django.views.generic import (ListView,
                                   UpdateView,
                                   DeleteView,
                                   )
+from django.core.signals import request_finished
+from django.dispatch import receiver
+from django.http import Http404
+
+from .middleware import RequestMiddleware
 
 db = Calendoola()
-
-
-def index(request):
-    return redirect('tasks')
 
 
 def signup(request):
@@ -43,7 +45,10 @@ def signup(request):
 @login_required
 def finish_task(request, pk):
     username = request.user.username
-    task = db.get_tasks(username, pk)
+    try:
+        task = db.get_tasks(username, pk)
+    except ObjectDoesNotExist:
+        raise Http404()
     task.finish()
     task.pass_to_archive()
 
@@ -53,7 +58,10 @@ def finish_task(request, pk):
 @login_required
 def restore_task(request, pk):
     username = request.user.username
-    task = db.get_tasks(username, pk)
+    try:
+        task = db.get_tasks(username, pk)
+    except ObjectDoesNotExist:
+        raise Http404()
     task.restore_from_archive()
     task.unfinish()
     return redirect('/')
@@ -98,12 +106,15 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     template_name = 'caleweb/task_detail.html'
 
     def get_object(self, queryset=None):
-        return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
+        try:
+            return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404()
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
     model = Task
-    template_name = 'caleweb/create-form.html'
+    template_name = 'caleweb/instance-form.html'
     fields = ['info', 'deadline', 'priority', 'tags']
 
     def form_valid(self, form):
@@ -117,11 +128,9 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    template_name = 'caleweb/update-form.html'
+    template_name = 'caleweb/instance-form.html'
     fields = ['info', 'deadline', 'priority', 'tags']
-
-    def get_success_url(self):
-        return reverse('task-details', args=[self.kwargs['pk']])
+    success_url = reverse_lazy('tasks')
 
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
@@ -130,8 +139,15 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     success_url = '/'
 
     def get_object(self, queryset=None):
-        return db.get_tasks(username=self.request.user.username,
-                            task_id=self.kwargs['pk'])
+        username = self.request.user.username
+        try:
+            task = db.get_tasks(username=username,
+                                task_id=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404()
+        if username in task.performers:
+            task.remove_performer(username)
+        return task
 
 
 class TaskShareForm(forms.Form):
@@ -149,7 +165,10 @@ def share_task(request, pk):
     if request.method == 'POST':
         username = db.get_users(username=request.user.username)
         user_to = db.get_users(username=request.POST['user_to'])
-        task_to_share = db.get_tasks(username, pk)
+        try:
+            task_to_share = db.get_tasks(username, pk)
+        except ObjectDoesNotExist:
+            raise Http404()
         user_to.add_task(task_to_share)
         task_to_share.add_performer(user_to.nickname)
         return redirect('/')
@@ -172,9 +191,12 @@ class TaskMoveForm(forms.Form):
         self.user = kwargs.get('user')
         self.task = kwargs.get('task')
         super(TaskMoveForm, self).__init__()
-        tasks = db.get_tasks(self.user).exclude(pk=self.task)
-        self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
-                                          if check_possible_tasks(self.user, self.task, t.pk))
+        try:
+            tasks = db.get_all_tasks(self.user).exclude(pk=self.task)
+            self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
+                                              if check_possible_tasks(self.user, self.task, t.pk))
+        except ObjectDoesNotExist:
+            raise Http404()
 
     to_main = forms.NullBooleanField(help_text='Pass task to main view',
                                      widget=forms.Select(choices=((1, 'No'),
@@ -188,7 +210,10 @@ def move_task(request, pk):
     username = request.user.username
 
     if request.method == 'POST':
-        task_from = db.get_tasks(username=username, task_id=pk)
+        try:
+            task_from = db.get_tasks(username=username, task_id=pk)
+        except ObjectDoesNotExist:
+            raise Http404()
         if request.POST['to_main'] == '2':
             db.add_completed(username, 'task', task_from.get_copy())
             db.remove_task(username, pk)
@@ -204,8 +229,11 @@ def move_task(request, pk):
 @login_required
 def unshare_task(request, pk, name):
     username = request.user.username
-    task = db.get_tasks(username, pk)
-    performer = db.get_users(name)
+    try:
+        task = db.get_tasks(username, pk)
+        performer = db.get_users(name)
+    except ObjectDoesNotExist:
+        raise Http404()
     performer.tasks.remove(task)
     task.remove_performer(name)
     return redirect('/tasks/{}/'.format(pk))
@@ -232,7 +260,6 @@ class PlanModelForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(PlanModelForm, self).clean()
-        print(cleaned_data)
         try:
             parse_period(cleaned_data['period_type'], cleaned_data['period'])
         except ValueError:
@@ -247,7 +274,7 @@ class PlanModelForm(forms.ModelForm):
 class PlanCreateView(LoginRequiredMixin, CreateView):
     model = Plan
     form_class = PlanModelForm
-    template_name = 'caleweb/create-form.html'
+    template_name = 'caleweb/instance-form.html'
 
     def form_valid(self, form):
         username = self.request.user.username
@@ -270,14 +297,17 @@ class PlanDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def plan_set_state(request, pk):
     username = db.get_users(request.user.username)
-    plan = db.get_plans(username, pk)
+    try:
+        plan = db.get_plans(username, pk)
+    except ObjectDoesNotExist:
+        raise Http404()
     plan.set_state()
     return redirect('plans')
 
 
 class PlanUpdateView(LoginRequiredMixin, UpdateView):
     model = Plan
-    template_name = 'caleweb/update-form.html'
+    template_name = 'caleweb/instance-form.html'
     form_class = PlanModelForm
     success_url = reverse_lazy('plans')
 
@@ -309,7 +339,7 @@ class ReminderListView(LoginRequiredMixin, ListView):
 
 class ReminderCreateView(LoginRequiredMixin, CreateView):
     model = Reminder
-    template_name = 'caleweb/create-form.html'
+    template_name = 'caleweb/instance-form.html'
     fields = ['remind_type', 'remind_before']
 
     def form_valid(self, form):
@@ -338,14 +368,17 @@ class ReminderDetailView(LoginRequiredMixin, DetailView):
 @login_required
 def reminder_set_state(request, pk):
     username = db.get_users(request.user.username)
-    reminder = db.get_reminders(username, pk)
+    try:
+        reminder = db.get_reminders(username, pk)
+    except ObjectDoesNotExist:
+        raise Http404()
     reminder.set_state()
     return redirect('reminders')
 
 
 class ReminderUpdateView(LoginRequiredMixin, UpdateView):
     model = Reminder
-    template_name = 'caleweb/update-form.html'
+    template_name = 'caleweb/instance-form.html'
     fields = ['remind_type', 'remind_before']
     success_url = reverse_lazy('reminders')
 
@@ -355,7 +388,7 @@ class ReminderAddTaskForm(forms.Form):
         self.user = kwargs.get('user')
         self.tasks = kwargs.get('tasks')
         super(ReminderAddTaskForm, self).__init__()
-        tasks = db.get_tasks(self.user).exclude(pk__in=self.tasks)
+        tasks = db.get_all_tasks(self.user).exclude(pk__in=self.tasks)
         self.fields['task'].choices = ((t.pk, t.info) for t in tasks)
 
     task = forms.ChoiceField(label='Available tasks')
@@ -364,7 +397,10 @@ class ReminderAddTaskForm(forms.Form):
 @login_required
 def reminder_add_task(request, pk):
     username = db.get_users(request.user.username)
-    reminder = db.get_reminders(username, pk)
+    try:
+        reminder = db.get_reminders(username, pk)
+    except ObjectDoesNotExist:
+        raise Http404()
     tasks_ids = [t.pk for t in reminder.get_tasks()]
     if request.method == 'POST':
         task = db.get_tasks(username=username, task_id=request.POST['task'])
@@ -378,7 +414,33 @@ def reminder_add_task(request, pk):
 @login_required
 def reminder_detach_task(request, pk, task):
     username = request.user.username
-    reminder = db.get_reminders(username, pk)
-    task = db.get_tasks(username, task)
+    try:
+        reminder = db.get_reminders(username, pk)
+        task = db.get_tasks(username, task)
+    except ObjectDoesNotExist:
+        raise Http404()
+
     reminder.detach_task(task)
     return redirect('/reminders/{}/'.format(pk))
+
+
+def instances_checker(username):
+    for task in db.get_tasks(username):
+        overdue = task.check_deadline()
+        if overdue:
+            task.finish()
+            task.pass_to_archive()
+    for plan in db.get_plans(username):
+        new_plan = plan.check_for_create()
+        if new_plan:
+            db.add_completed(username, 'plan', new_plan)
+    for reminder in db.get_reminders(username):
+        reminder.check_tasks()
+
+
+@receiver(request_finished)
+def my_callback(sender, **kwargs):
+    request = RequestMiddleware(get_response=None)
+    request = request.thread_local.current_request
+    if request.user.username:
+        instances_checker(request.user.username)

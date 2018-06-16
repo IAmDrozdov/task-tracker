@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import datetime
+from django.core.exceptions import ValidationError
 
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
@@ -11,12 +12,8 @@ from django.utils import timezone
 
 
 class Task(models.Model):
-    PRIORITIES = ((1, 1),
-                  (2, 2),
-                  (3, 3),
-                  (4, 4),
-                  (5, 5),
-                  )
+    PRIORITIES = ((num + 1, num + 1) for num in range(5))
+
     owner = models.CharField(max_length=30, default=str)
     info = models.CharField(max_length=100, help_text='Enter what to do')
     subtasks = models.ManyToManyField('self', symmetrical=False)
@@ -29,6 +26,12 @@ class Task(models.Model):
     plan = models.ForeignKey('Plan', null=True, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
     performers = ArrayField(models.CharField(max_length=20), default=list)
+
+    def clean(self, *args, **kwargs):
+        super(Task, self).clean()
+        if self.deadline:
+            if self.deadline < timezone.now():
+                raise ValidationError('Deadline time must be later than now.')
 
     @logg('Added subtask')
     def add_subtask(self, task):

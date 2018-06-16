@@ -133,3 +133,15 @@ class Calendoola:
             return self.get_users(username).tasks.order_by(F(field).desc(nulls_last=True))
         else:
             return self.get_users(username).tasks.order_by(F(field).asc())
+
+    def get_all_tasks(self, username):
+        user = self.get_users(username)
+        task_array = []
+
+        def rec_down(tasks):
+            for task in tasks:
+                task_array.append(task)
+                rec_down(task.subtasks.all())
+
+        rec_down(self.get_tasks(user))
+        return Task.objects.filter(pk__in=[t.pk for t in task_array])

@@ -9,16 +9,16 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link {% ifequal request.path '/tasks/' %}active{% endifequal %}"
+                    <a class="nav-link {% if '/tasks/' in request.path  %}active{% endif %}"
                        href="{% url 'tasks' %}">Tasks <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% ifequal request.path '/plans/' %}active{% endifequal %}"
+                    <a class="nav-link {% if '/plans/' in request.path  %}active{% endif %}"
                        href="{% url 'plans' %}">Plans
                         <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% ifequal request.path '/reminders/' %}active{% endifequal %}"
+                    <a class="nav-link {% if '/reminders/' in request.path  %}active{% endif %}"
                        href="{% url 'reminders' %}">Reminders
                         <span class="sr-only">(current)</span></a>
                 </li>
@@ -40,21 +40,20 @@
                         </div>
                     </div>
                 </li>
-                <li class="nav-item" style="margin-left: 20rem">
+                <li class="nav-item navbar-right" style="margin-left: 15vw; width: 30vw;"  >
                     <form class="form-inline" action="{% url 'search-tasks' %}" method="get"
                           accept-charset="utf-8">
-                        <div class="form-group">
-                            <label>
-                                <input name="data" class="form-control" type="text" style="width: 30rem;"
+                        <div class="form-group"  style="width:100%;">
+
+                                <input name="data" class="form-control" type="text" style="width:100%;"
                                        placeholder="Search task by tags or description">
-                            </label>
-                            <input class="btn" type="submit" value="Search">
+
                         </div>
                     </form>
                 </li>
             </ul>
             {% if 'tasks' in request.path %}
-                <div class="dropdown" style="margin-right: 5%">
+                <div class="dropdown nav-item" >
                     <a class="nav-link text-center" style="color: white; cursor: pointer;" data-toggle="dropdown">
                         Order by
                     </a>
@@ -77,7 +76,7 @@
                 </div>
                 </div>
             {% endif %}
-        <div class="dropdown">
+        <div class="dropdown nav-item">
             <button class="btn btn-secondary text-center" type="button" data-toggle="dropdown">
                 {{ request.user.username|upper }}
             </button>

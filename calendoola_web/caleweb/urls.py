@@ -1,11 +1,12 @@
 import django.contrib.auth.views as auth_views
 from django.conf.urls import url
+from django.views.generic import RedirectView
 
 from . import views
 
 urlpatterns = [
     # ####GENERAL####URLS####
-    url(r'^$', views.index, name='homepage'),
+    url(r'^$', RedirectView.as_view(url='tasks'), name='homepage'),
     url(r'^login/$', auth_views.login, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'login'}, name='logout'),
     url(r'^signup/$', views.signup, name='signup'),
