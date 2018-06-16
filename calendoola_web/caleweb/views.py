@@ -1,3 +1,4 @@
+from calelib.constants import Constants
 from calelib.crud import Calendoola
 from calelib.models import Task, Plan
 from django import forms
@@ -6,8 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from .value_parsers import parse_period
-from django.urls import reverse
+from .value_parsers import parse_period, parse_period_to_view
+from django.urls import reverse, reverse_lazy
 from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
@@ -215,24 +216,36 @@ class PlanListView(LoginRequiredMixin, ListView):
         return db.get_plans(username)
 
 
-class PlanCreateForm(forms.ModelForm):
-    _period = forms.CharField(widget=forms.TextInput(), initial='')
+class PlanModelForm(forms.ModelForm):
+    period = forms.CharField(widget=forms.TextInput(), initial='')
 
     class Meta:
         model = Plan
-        fields = ['info', 'time_at', 'period_type', '_period']
+        fields = ['info', 'time_at', 'period_type']
+
+    def clean(self):
+        cleaned_data = super(PlanModelForm, self).clean()
+        print(cleaned_data)
+        try:
+            parse_period(cleaned_data['period_type'], cleaned_data['period'])
+        except ValueError:
+            if cleaned_data['period_type'] == Constants.REPEAT_DAY:
+                self.add_error('period', 'Enter only digit')
+            elif cleaned_data['period_type'] == Constants.REPEAT_WEEKDAY:
+                self.add_error('period', 'Enter only full weekday names')
+            else:
+                self.add_error('period', 'Follow example: "25 May, October"')
 
 
 class PlanCreateView(LoginRequiredMixin, CreateView):
     model = Plan
-    form_class = PlanCreateForm
+    form_class = PlanModelForm
     template_name = 'caleweb/create-form.html'
 
     def form_valid(self, form):
         username = self.request.user.username
         new_plan = form.save(commit=False)
-
-        new_plan.period = parse_period(new_plan.period_type, new_plan._period)
+        new_plan.period = parse_period(new_plan.period_type, self.request.POST['period'])
         new_plan.save()
         db.add_completed(username, 'plan', new_plan)
         return redirect('plans')
@@ -241,7 +254,7 @@ class PlanCreateView(LoginRequiredMixin, CreateView):
 class PlanDeleteView(LoginRequiredMixin, DeleteView):
     model = Plan
     template_name = 'caleweb/confirm_delete-form.html'
-    success_url = 'plans'
+    success_url = reverse_lazy('plans')
 
     def get_queryset(self):
         return db.get_plans(self.request.user.username)
@@ -252,3 +265,22 @@ def plan_set_state(request, pk):
     plan = db.get_plans(username, pk)
     plan.set_state()
     return redirect('plans')
+
+
+class PlanUpdateView(LoginRequiredMixin, UpdateView):
+    model = Plan
+    template_name = 'caleweb/update-form.html'
+    form_class = PlanModelForm
+    success_url = reverse_lazy('plans')
+
+    def get_initial(self):
+        plan = db.get_plans(self.request.user.username, self.kwargs['pk'])
+        return {'period': parse_period_to_view(plan.period_type, plan.period)}
+
+    def form_valid(self, form):
+        username = self.request.user.username
+        new_plan = form.save(commit=False)
+        new_plan.period = parse_period(new_plan.period_type, self.request.POST['period'])
+        new_plan.save()
+        db.add_completed(username, 'plan', new_plan)
+        return redirect('plans')

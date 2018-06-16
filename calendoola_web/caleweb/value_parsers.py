@@ -3,48 +3,36 @@ from calelib.constants import Constants
 
 def get_month_number(str_month):
     months = (
-        'jan',
-        'feb',
-        'mar',
-        'apr',
+        'january',
+        'february',
+        'march',
+        'april',
         'may',
-        'jun',
-        'jul',
-        'aug',
-        'sep',
-        'oct',
-        'nov',
-        'dec'
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december'
     )
-    return months.index(str_month[:3].lower()) + 1
+    return months.index(str_month.lower()) + 1
 
 
 def get_weekday_number(str_weekday):
-    """
-    Using name of weekday return its number representation
-    :param str_weekday: weekday from mon - sun
-    :return: integer number [0..7]
-    """
     weekdays = (
-        'mon',
-        'tue',
-        'wed',
-        'thu',
-        'fri',
-        'sat',
-        'sun'
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
     )
-    return weekdays.index(str_weekday[:3].lower())
+    return weekdays.index(str_weekday.lower())
 
 
 def parse_period(period_type, period_value):
-    """
-    parse entered period in period what can understand "plan"
-    :param period_type: type of periodic
-    :param period_value: date of period
-    :return: dict of readable for plan data for creating tasks
-    """
-
     parsed_period = {}
     if period_type == Constants.REPEAT_DAY:
         parsed_period = {'day': int(period_value)}
@@ -64,6 +52,42 @@ def parse_period(period_type, period_value):
     return parsed_period
 
 
+def get_weekday_word(number):
+    """
+    Using weekday index return its word representation
+    :param number: number of weekday [0..6]
+    :return: word representation
+    """
+    weekdays = (
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+    )
+    return weekdays[number]
+
+
+def get_month_word(number):
+    months = (
+        'january',
+        'february',
+        'march',
+        'april',
+        'may',
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december'
+    )
+    return months[number - 1]
+
+
 def parse_remind_type(string_type):
     if string_type == 'min':
         return Constants.REMIND_MINUTES
@@ -73,3 +97,12 @@ def parse_remind_type(string_type):
         return Constants.REMIND_DAYS
     else:
         return Constants.REMIND_MONTHS
+
+
+def parse_period_to_view(period_type, period_value):
+    if period_type == Constants.REPEAT_DAY:
+        return period_value['day']
+    elif period_type == Constants.REPEAT_WEEKDAY:
+        return ', '.join([get_weekday_word(e) for e in period_value['days']])
+    else:
+        return '{} {}'.format(period_value['day'], ', '.join([get_weekday_word(e) for e in period_value['months']]))

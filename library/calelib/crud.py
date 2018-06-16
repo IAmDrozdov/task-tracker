@@ -1,6 +1,7 @@
 from calelib.config import Config
 from calelib.constants import Constants
 from django.db.models import F
+from functools import reduce
 from calelib.logger import logg, configure_logger
 from calelib.models import Customer, Task, Plan, Reminder
 import operator
@@ -35,7 +36,7 @@ class Calendoola:
     def get_tasks(self, username, task_id=None, tags=None, archive=False, info=None):
         user = self.get_users(username)
         if tags:
-            return user.tasks.reduce(operator.and_, (Q(tags__contains=tag) for tag in tags))
+            return user.tasks.filter(reduce(operator.and_, (Q(tags__contains=tag) for tag in tags)))
         elif info:
             return user.tasks.filter(info__contains=info)
         elif task_id:
