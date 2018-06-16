@@ -293,6 +293,7 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
         db.add_completed(username, 'plan', new_plan)
         return redirect('plans')
 
+
 # ###P###L###A###N###S##############################################
 
 

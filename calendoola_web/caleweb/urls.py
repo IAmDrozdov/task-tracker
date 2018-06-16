@@ -38,5 +38,4 @@ urlpatterns = [
     url(r'^reminders/(?P<pk>\d+)/add-task/$', views.reminder_add_task, name='reminder-add-task'),
     url(r'^reminders/(?P<pk>\d+)/detach/(?P<task>\d+)/$', views.reminder_detach_task, name='reminder-detach-task')
 
-
 ]

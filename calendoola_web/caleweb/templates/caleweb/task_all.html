@@ -1,5 +1,6 @@
 {% extends 'caleweb/base.html' %}
 {% load humanize %}
+{% load task_colorize_priority %}
 {% block content %}
     <div class="d-flex flex-wrap card-group">
         {% for task in tasks %}
@@ -7,8 +8,7 @@
                 <div class="card-face">
                     <div class="front">
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="text-center">Priority {{ task.priority }}</h5>
+                            <div class="card-header" style="background: {{ task.priority|colorize }}">
                             </div>
                             <div class="card-body">
                                 {{ task.info|slice:':40' }}{% if task.info|length > 40 %}...{% endif %}

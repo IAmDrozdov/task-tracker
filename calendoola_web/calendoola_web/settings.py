@@ -54,7 +54,8 @@ TEMPLATES = [
             ],
             'libraries': {
                 'plan_period_filter': 'caleweb.templatetags.plan_period_filter',
-                'tags_display_filter': 'caleweb.templatetags.tags_display_filter'
+                'tags_display_filter': 'caleweb.templatetags.tags_display_filter',
+                'task_colorize_priority': 'caleweb.templatetags.task_colorize_priority',
             },
         },
     },

@@ -6,19 +6,20 @@
         <h1>{{ reminder }}</h1>
         <hr>
         {% for task in reminder.tasks.all %}
-                <div class="btn-group" style="width: 100%;margin-bottom: 1%;">
-                    <button style="width: 100%; " class="btn btn-sm">{{ task.info|slice:':40' }}</button>
-                    <a href="{% url 'reminder-detach-task' pk=reminder.pk task=task.pk %}"
-                                                   class="btn bg-danger btn-sm"><i
-                                                        class="fas fa-trash-alt white"
-                                                        style="color: #e6e7e8"></i></a>
-                </div>
+            <div class="btn-group" style="width: 100%;margin-bottom: 1%;">
+                <button style="width: 100%; " class="btn btn-sm">{{ task.info|slice:':40' }}</button>
+                <a href="{% url 'reminder-detach-task' pk=reminder.pk task=task.pk %}"
+                   class="btn bg-danger btn-sm"><i
+                        class="fas fa-trash-alt white"
+                        style="color: #e6e7e8"></i></a>
+            </div>
             {% empty %}
             <h1> No tasks</h1>
         {% endfor %}
         <hr>
         <div class="d-flex flex-direction-column align-items-stretch justify-content-between">
-            <a style="width: 100%; color: white;" href="{% url 'reminder-add-task' reminder.pk %}" class="btn bg-info"> Add task</a>
+            <a style="width: 100%; color: white;" href="{% url 'reminder-add-task' reminder.pk %}" class="btn bg-info">
+                Add task</a>
             <a style="width: 100%; color: white;" href="{% url 'edit-reminder' reminder.pk %}" class="btn btn-warning ">Edit</a>
             <a style="width: 100%;" href="{% url 'remove-reminder' reminder.pk %}" class="btn btn-danger ">Delete</a>
         </div>
