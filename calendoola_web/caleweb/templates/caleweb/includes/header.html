@@ -18,6 +18,11 @@
                         <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% ifequal request.path '/reminders/' %}active{% endifequal %}"
+                       href="{% url 'reminders' %}">Reminders
+                        <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
                     <div class="dropdown">
                         <a class="nav-link {% if 'new' in request.path %}active{% endif %}"
                            style="cursor: pointer;" data-toggle="dropdown"
@@ -25,11 +30,12 @@
                             <i class="fas fa-plus-circle"></i> Add
                         </a>
                         <div class="dropdown-menu" style="background-color: #343a40;">
-                            <a href="{% url 'new-task' %}" class="btn" style="text-decoration: #000000;  color: white;"><i
-                                    class="fas fa-thumbtack"></i> Task</a>
-                            <a href="{% url 'new-plan' %}" class="btn"
-                               style="text-decoration: #000000; color: white;"><i
-                                    class="fas fa-tasks"></i> Plan</a>
+                            <a href="{% url 'new-task' %}" class="btn" style="text-decoration: #000000; color: white;">
+                                <i class="fas fa-thumbtack"></i> Task</a>
+                            <a href="{% url 'new-plan' %}" class="btn" style="text-decoration: #000000; color: white;">
+                                <i class="fas fa-tasks"></i> Plan</a>
+                            <a href="{% url 'new-reminder' %}" class="btn" style="text-decoration: #000000; color: white;">
+                                <i class="far fa-bell"></i> Reminder</a>
                         </div>
                     </div>
                 </li>
@@ -48,19 +54,23 @@
             </ul>
             {% if 'tasks' in request.path %}
                 <div class="dropdown" style="margin-right: 5%">
-                    <button class="btn text-center" type="button" data-toggle="dropdown">
+                    <a class="nav-link text-center" style="color: white; cursor: pointer;" data-toggle="dropdown">
                         Order by
-                    </button>
+                    </a>
                     <div class="dropdown-menu" style="padding: 0; margin: 0">
                         <div class="btn-group" style="width: 100%">
-                            <p class="nav-link" style="margin: 0; width: 100%">Priority</p>
-                            <a href="{% url 'tasks' %}?order=priority&vec=asc" class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks' %}?order=priority&vec=desc" class="btn fas fa-chevron-down"></a>
+                            <p class="nav-link" style="margin: 0; width: 100%;">Priority</p>
+                            <a href="{% url 'tasks' %}?order=priority&vec=asc" style="color: black; padding-left: 0;"
+                               class=" btn fas fa-chevron-up"></a>
+                            <a href="{% url 'tasks' %}?order=priority&vec=desc" style="color: black; padding-left: 0;"
+                               class="btn fas fa-chevron-down"></a>
                         </div>
                         <div class="btn-group" style="width: 100%">
                             <p class="nav-link" style="margin: 0">Deadline</p>
-                            <a href="{% url 'tasks' %}?order=deadline&vec=asc" class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks' %}?order=deadline&vec=desc" class="btn fas fa-chevron-down"></a>
+                            <a href="{% url 'tasks' %}?order=deadline&vec=asc" style="color: black; padding-left: 0;"
+                               class=" btn fas fa-chevron-up"></a>
+                            <a href="{% url 'tasks' %}?order=deadline&vec=desc" style="color: black; padding-left: 0;"
+                               class="btn fas fa-chevron-down"></a>
                         </div>
                     </div>
                 </div>

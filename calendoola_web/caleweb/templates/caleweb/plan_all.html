@@ -5,8 +5,8 @@
     <div class="d-flex flex-wrap card-group">
         {% for plan in plans %}
             <div class="flex-fill p-2">
-                <div class="card-face" {% if not plan.able %}style="opacity: 0.4"{% endif %}>
-                    <div class="front" >
+                <div class="card-face" {% if not plan.able %}style="opacity: .6"{% endif %}>
+                    <div class="front">
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="text-center">{% if plan.created %}Created{% else %}Not
@@ -31,7 +31,7 @@
                         <a href="{% url 'edit-plan' plan.pk %}" class="btn btn-primary">Edit</a>
                         <a class="btn bg-warning" style="color: white;" href="{% url 'plan-set-state' plan.pk %}">
                             {% if plan.able %}Disable{% else %}Activate{% endif %}</a>
-                        <a href="{% url 'remove-plan' plan.pk %}" class="btn btn-danger detail-vew-buttons">Delete</a>
+                        <a href="{% url 'remove-plan' plan.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>

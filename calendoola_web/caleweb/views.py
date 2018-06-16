@@ -1,20 +1,23 @@
 from calelib.constants import Constants
 from calelib.crud import Calendoola
-from calelib.models import Task, Plan
+from calelib.models import Task, Plan, Reminder
 from django import forms
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from .value_parsers import parse_period, parse_period_to_view
+from .value_parsers import (parse_period,
+                            parse_period_to_view,
+                            )
 from django.urls import reverse, reverse_lazy
 from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
-                                  DeleteView, )
+                                  DeleteView,
+                                  )
 
 db = Calendoola()
 
@@ -35,7 +38,7 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 
-# ###T###A###S###K###S###
+# ###R###E###G###I###S###T###R###A###T###I###O###N##########
 
 @login_required
 def finish_task(request, pk):
@@ -86,13 +89,13 @@ class TaskArchiveListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         username = self.request.user.username
-        return db.get_tasks(username, archive=True)
+        return db.get_tasks(username=username, archive=True)
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     context_object_name = 'task'
-    template_name = 'caleweb/task_details.html'
+    template_name = 'caleweb/task_detail.html'
 
     def get_object(self, queryset=None):
         return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
@@ -127,7 +130,8 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     success_url = '/'
 
     def get_object(self, queryset=None):
-        return db.get_tasks(self.request.user.username, self.kwargs['pk'])
+        return db.get_tasks(username=self.request.user.username,
+                            task_id=self.kwargs['pk'])
 
 
 class TaskShareForm(forms.Form):
@@ -173,7 +177,9 @@ class TaskMoveForm(forms.Form):
                                           if check_possible_tasks(self.user, self.task, t.pk))
 
     to_main = forms.NullBooleanField(help_text='Pass task to main view',
-                                     widget=forms.Select(choices=((1, 'No'), (2, 'Yes'))))
+                                     widget=forms.Select(choices=((1, 'No'),
+                                                                  (2, 'Yes')
+                                                                  )))
     task_to = forms.ChoiceField(label='Available tasks')
 
 
@@ -195,6 +201,7 @@ def move_task(request, pk):
     return render(request, 'caleweb/task_move.html', {'form': form})
 
 
+@login_required
 def unshare_task(request, pk, name):
     username = request.user.username
     task = db.get_tasks(username, pk)
@@ -204,7 +211,7 @@ def unshare_task(request, pk, name):
     return redirect('/tasks/{}/'.format(pk))
 
 
-# ###T###A###S###K###S###
+# ###T###A###S###K###S###################################
 
 
 class PlanListView(LoginRequiredMixin, ListView):
@@ -260,6 +267,7 @@ class PlanDeleteView(LoginRequiredMixin, DeleteView):
         return db.get_plans(self.request.user.username)
 
 
+@login_required
 def plan_set_state(request, pk):
     username = db.get_users(request.user.username)
     plan = db.get_plans(username, pk)
@@ -284,3 +292,92 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
         new_plan.save()
         db.add_completed(username, 'plan', new_plan)
         return redirect('plans')
+
+# ###P###L###A###N###S##############################################
+
+
+class ReminderListView(LoginRequiredMixin, ListView):
+    model = Reminder
+    template_name = 'caleweb/reminder-all.html'
+    context_object_name = 'reminders'
+
+    def get_queryset(self):
+        username = self.request.user.username
+        return db.get_reminders(username)
+
+
+class ReminderCreateView(LoginRequiredMixin, CreateView):
+    model = Reminder
+    template_name = 'caleweb/create-form.html'
+    fields = ['remind_type', 'remind_before']
+
+    def form_valid(self, form):
+        username = self.request.user.username
+        new_reminder = form.save()
+        db.add_completed(username, 'reminder', new_reminder)
+        return redirect('reminders')
+
+
+class ReminderDeleteView(LoginRequiredMixin, DeleteView):
+    model = Reminder
+    template_name = 'caleweb/confirm_delete-form.html'
+    success_url = reverse_lazy('reminders')
+
+
+class ReminderDetailView(LoginRequiredMixin, DetailView):
+    model = Reminder
+    context_object_name = 'reminder'
+    template_name = 'caleweb/reminder-detail.html'
+
+    def get_queryset(self):
+        username = self.request.user.username
+        return db.get_reminders(username)
+
+
+@login_required
+def reminder_set_state(request, pk):
+    username = db.get_users(request.user.username)
+    reminder = db.get_reminders(username, pk)
+    reminder.set_state()
+    return redirect('reminders')
+
+
+class ReminderUpdateView(LoginRequiredMixin, UpdateView):
+    model = Reminder
+    template_name = 'caleweb/update-form.html'
+    fields = ['remind_type', 'remind_before']
+    success_url = reverse_lazy('reminders')
+
+
+class ReminderAddTaskForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('user')
+        self.tasks = kwargs.get('tasks')
+        super(ReminderAddTaskForm, self).__init__()
+        tasks = db.get_tasks(self.user).exclude(pk__in=self.tasks)
+        self.fields['task'].choices = ((t.pk, t.info) for t in tasks)
+
+    task = forms.ChoiceField(label='Available tasks')
+
+
+@login_required
+def reminder_add_task(request, pk):
+    username = db.get_users(request.user.username)
+    reminder = db.get_reminders(username, pk)
+    tasks_ids = [t.pk for t in reminder.get_tasks()]
+    if request.method == 'POST':
+        task = db.get_tasks(username=username, task_id=request.POST['task'])
+        reminder.apply_task(task)
+        return redirect('/reminders/{}/'.format(pk))
+
+    form = ReminderAddTaskForm(user=username, tasks=tasks_ids)
+    return render(request, 'caleweb/reminder_add_task.html', {'form': form})
+
+
+@login_required
+def reminder_detach_task(request, pk, task):
+    username = request.user.username
+    reminder = db.get_reminders(username, pk)
+    task = db.get_tasks(username, task)
+    reminder.detach_task(task)
+    return redirect('/reminders/{}/'.format(pk))

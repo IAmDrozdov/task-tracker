@@ -4,10 +4,11 @@ from calelib.notification import call
 from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MinValueValidator
 
 
 class Reminder(models.Model):
-    remind_before = models.IntegerField(default=0)
+    remind_before = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     remind_type = models.CharField(max_length=6,
                                    choices=[
                                        (Constants.REMIND_MINUTES, 'minutes'),
@@ -16,7 +17,11 @@ class Reminder(models.Model):
                                        (Constants.REMIND_MONTHS, 'months')
                                    ]
                                    )
+    able = models.BooleanField(default=True)
     tasks = models.ManyToManyField('Task')
+
+    def get_tasks(self):
+        return self.tasks.all()
 
     @logg('Applied task to reminder')
     def apply_task(self, task):
@@ -29,10 +34,11 @@ class Reminder(models.Model):
 
     @logg('Checked reminder')
     def check_tasks(self):
-        for task in self.tasks.all():
-            if self._get_delta(task.deadline) < timezone.now():
-                call(task.info, self.__str__().replace('before', 'after'))
-                self.tasks.remove(task)
+        if self.able:
+            for task in self.tasks.all():
+                if self._get_delta(task.deadline) < timezone.now():
+                    call(task.info, self.__str__().replace('before', 'after'))
+                    self.tasks.remove(task)
 
     def _get_delta(self, date):
         if self.remind_type == Constants.REMIND_MONTHS:
@@ -64,5 +70,10 @@ class Reminder(models.Model):
 
         return human_like if self.remind_before == 1 else human_like + 's'
 
+    @logg('Changed reminder state')
+    def set_state(self):
+        self.able = not self.able
+        self.save()
+
     def __str__(self):
-        return 'before {} {}'.format(self.remind_before, self._humanize_type())
+        return 'Before {} {}'.format(self.remind_before, self._humanize_type())

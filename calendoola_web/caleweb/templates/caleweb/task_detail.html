@@ -40,14 +40,14 @@
             {% if task.subtasks.all|length > 0 %}
                 <tr>
                     <th>Subtasks:</th>
-                    <th><a href="{% url 'task-details' task.subtasks.all.first.pk %}"
+                    <th><a href="{% url 'task-detail' task.subtasks.all.first.pk %}"
                            class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
                 </tr>
                 {% for sub in task.subtasks.all|slice:"1:" %}
                     <tr>
                         <th></th>
                         <td>
-                            <a href="{% url 'task-details' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
+                            <a href="{% url 'task-detail' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -97,6 +97,7 @@
         <div class="d-flex flex-direction-column align-items-stretch justify-content-between">
             <a style="width: 100%;" href="{% url 'edit-task' task.pk %}" class="btn btn-warning ">Edit</a>
             <a style="width: 100%;" href="{% url 'remove-task' task.pk %}" class="btn btn-danger ">Delete</a>
-            <a style="width: 100%;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a></div>
+            <a style="width: 100%;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a>
+        </div>
     </div>
 {% endblock %}

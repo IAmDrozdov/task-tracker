@@ -1,0 +1,30 @@
+{% extends 'caleweb/base.html' %}
+{% load plan_period_filter %}
+{% load humanize %}
+{% block content %}
+    <div class="d-flex flex-wrap card-group">
+        {% for reminder in reminders %}
+            <div class="flex-fill p-2">
+                <div class="card-face" {% if not reminder.able %}style="opacity: .6"{% endif %}>
+                    <div class="front">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="text-center">{{ reminder }}</h5>
+                            </div>
+                           <div style="display: flex;  justify-content: center; align-items: center; height: 100%; font-size: 15vh">{{ reminder.tasks.all|length }}</div>
+                        </div>
+                    </div>
+                    <div class="back">
+                        <a href="{% url 'reminder-detail' reminder.pk %}" class="btn btn-primary">Details</a>
+                        <a class="btn bg-warning" style="color: white;"
+                           href="{% url 'reminder-set-state' reminder.pk %}">
+                            {% if reminder.able %}Disable{% else %}Activate{% endif %}</a>
+                        <a href="{% url 'remove-reminder' reminder.pk %}" class="btn btn-danger">Remove</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <h1 class="display-3">No Reminders</h1>
+        {% endfor %}
+    </div>
+{% endblock %}

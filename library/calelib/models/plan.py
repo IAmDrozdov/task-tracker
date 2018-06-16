@@ -127,12 +127,13 @@ class Plan(models.Model):
         """
         Method to check self for being deleted or creating
         """
-        if self.created:
-            self.check_created()
-        else:
-            return self.check_uncreated()
+        if self.able:
+            if self.created:
+                self.check_created()
+            else:
+                return self.check_uncreated()
 
-    @logg('Changed state')
+    @logg('Changed plan state')
     def set_state(self):
         self.able = not self.able
         self.save()

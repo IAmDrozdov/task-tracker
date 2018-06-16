@@ -105,4 +105,4 @@ def parse_period_to_view(period_type, period_value):
     elif period_type == Constants.REPEAT_WEEKDAY:
         return ', '.join([get_weekday_word(e) for e in period_value['days']])
     else:
-        return '{} {}'.format(period_value['day'], ', '.join([get_weekday_word(e) for e in period_value['months']]))
+        return '{} {}'.format(period_value['day'], ' '.join([get_weekday_word(e) for e in period_value['months']]))
