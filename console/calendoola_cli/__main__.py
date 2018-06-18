@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.6
 # PYTHON_ARGCOMPLETE_OK
 # -*- coding: utf-8 -*-
-
+import configparser
 
 from calelib import configure_database
 
@@ -19,6 +19,10 @@ def main():
     db = Calendoola()
     argcomplete.autocomplete(parser)
     namespace = parser.parse_args()
+    try:
+        db.cfg.get_field('current_user')
+    except configparser.NoOptionError:
+        db.cfg.add_field('current_user')
     #######################################
     if namespace.target == 'user':
         if namespace.command == 'add':
@@ -34,7 +38,7 @@ def main():
         return
     #######################################
     try:
-        db.current_user = db.cfg.get_config_field('current_user')
+        db.cfg.get_field('current_user')
     except django_ex.ObjectDoesNotExist:
         print('You did not sign in. Please login')
         return
@@ -62,7 +66,7 @@ def main():
             co.operation_task_unshare(db, namespace.id)
     #######################################
     elif namespace.target == 'calendar':
-        co.operation_calendar_show(db.get_tasks(), namespace.date[0], namespace.date[1])
+        co.operation_calendar_show(db.get_tasks(db.cfg.get_field('current_user')), namespace.date[0], namespace.date[1])
     #######################################
     elif namespace.target == 'plan':
         if namespace.command == 'add':
@@ -88,13 +92,8 @@ def main():
             co.operation_reminder_show(db, namespace.id)
         elif namespace.command == 'change':
             co.operation_reminder_change(db, namespace.id, namespace.remind_type, namespace.remind_value)
-    # ######################################
-    # from calelib.models import Task, Plan, User, Reminder
-    # Task.objects.all().delete()
-    # User.objects.all().delete()
-    # Plan.objects.all().delete()
-    # Reminder.objects.all().delete()
-    # co.check_instances(db)
+
+    co.check_instances(db)
 
 
 if __name__ == '__main__':

@@ -482,5 +482,3 @@ def reminder_detach_task(request, pk, task):
 
     reminder.detach_task(task)
     return redirect('reminder-detail', pk)
-
-

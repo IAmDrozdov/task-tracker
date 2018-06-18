@@ -27,7 +27,7 @@ class Config:
         with open(self.path, 'w') as config_file:
             config.write(config_file)
 
-    def get_config_field(self, key):
+    def get_field(self, key):
         """
         Access to the fields of config
         :param key: name of the field what value should be returned
@@ -38,9 +38,16 @@ class Config:
         value = config.get(self.section, key)
         return value
 
-    def set_current_user(self, new_nickname):
+    def add_field(self, field):
         config = configparser.ConfigParser()
         config.read(self.path)
-        config.set(self.section, 'current_user', new_nickname)
+        config.set(self.section, field, '')
+        with open(self.path, 'w') as config_file:
+            config.write(config_file)
+
+    def set_field(self, field, field_value):
+        config = configparser.ConfigParser()
+        config.read(self.path)
+        config.set(self.section, field, field_value)
         with open(self.path, 'w') as config_file:
             config.write(config_file)
