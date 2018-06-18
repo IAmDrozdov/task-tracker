@@ -1,22 +1,22 @@
-class Constants:
-    """
-    Project constants
-    """
-    CONFIG_FILE_PATH = 'config.ini'
-    REPEAT_DAY = 'd'
-    REPEAT_WEEKDAY = 'wd'
-    REPEAT_MONTH = 'm'
-    REPEAT_YEAR = 'y'
-    REMIND_MINUTES = 'm'
-    REMIND_HOURS = 'h'
-    REMIND_DAYS = 'd'
-    REMIND_MONTHS = 'mth'
+from typing import NamedTuple
 
 
-class Status:
-    """
-    Tasks statuses
-    """
-    FINISHED = 'FINISHED'
-    UNFINISHED = 'UNFINISHED'
-    OVERDUE = 'OVERDUE'
+class _Constants(NamedTuple):
+    REPEAT_DAY: '_Constants' = 'd'
+    REPEAT_WEEKDAY: '_Constants' = 'wd'
+    REPEAT_MONTH: '_Constants' = 'm'
+    REPEAT_YEAR: '_Constants' = 'y'
+    REMIND_MINUTES: '_Constants' = 'm'
+    REMIND_HOURS: '_Constants' = 'h'
+    REMIND_DAYS: '_Constants' = 'd'
+    REMIND_MONTHS: '_Constants' = 'mth'
+
+
+class _Status(NamedTuple):
+    FINISHED: '_Status' = 'FINISHED'
+    UNFINISHED: '_Status' = 'UNFINISHED'
+    OVERDUE: '_Status' = 'OVERDUE'
+
+
+Status = _Status()
+Constants = _Constants()

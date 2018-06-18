@@ -8,3 +8,4 @@ logging.log
 config.ini
 library/calendoola.egg-info
 library/build
+library/dist/*

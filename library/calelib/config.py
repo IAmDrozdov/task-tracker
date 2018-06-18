@@ -3,12 +3,12 @@ import os
 
 
 class Config:
-    def __init__(self, path):
+    def __init__(self):
         """
         Class for work with config file
         :param path: path of config file
         """
-        self.path = path
+        self.path = 'config.ini'
         self.section = 'Settings'
         if not os.path.exists(self.path):
             self.__create_config()
@@ -19,7 +19,6 @@ class Config:
         """
         config = configparser.ConfigParser()
         config.add_section(self.section)
-        config.set(self.section, 'current_user', 'guess')
         config.set(self.section, 'logging_path', 'tmp/logging.log')
         config.set(self.section, 'logging_level', 'INFO')
         config.set(self.section, 'logging_format', '%%(asctime)s %%(levelname)s %%(message)s')

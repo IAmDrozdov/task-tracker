@@ -11,7 +11,7 @@ from django.db.models import Q
 
 class Calendoola:
     def __init__(self, ):
-        self.cfg = Config(Constants.CONFIG_FILE_PATH)
+        self.cfg = Config()
         log_path = self.cfg.get_config_field('logging_path')
         log_level = self.cfg.get_config_field('logging_level')
         log_format = self.cfg.get_config_field('logging_format')
