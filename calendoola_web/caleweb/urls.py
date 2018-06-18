@@ -17,6 +17,7 @@ task_patterns = [
     url(r'^(?P<pk>\d+)/move/$', views.move_task, name='move-task'),
     url(r'^(?P<pk>\d+)/remove/$', views.TaskDeleteView.as_view(), name='remove-task'),
     url(r'^(?P<pk>\d+)/unshare/(?P<name>\w+)/$', views.unshare_task, name='unshare-task'),
+    url(r'^(?P<pk>\d+)/add-subtask', views.AddSubtaskView.as_view(), name='add-subtask')
 ]
 
 plan_patterns = [

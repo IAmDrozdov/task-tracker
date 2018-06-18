@@ -19,7 +19,7 @@ from django.views.generic import (ListView,
                                   UpdateView,
                                   DeleteView,
                                   )
-
+import humanize
 from .middleware import RequestMiddleware
 from .value_parsers import (parse_period,
                             parse_period_to_view,
@@ -181,6 +181,44 @@ def check_possible_tasks(username, id_from, id_to):
         return False
     else:
         return True
+
+
+class AddSubtaskForm(forms.ModelForm):
+
+    def __init__(self, username, parent_task,*args, **kwargs):
+        self.username = username
+        self.parent_task = parent_task
+        super(AddSubtaskForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Task
+        fields = ['info', 'deadline', 'priority', 'tags']
+
+    def clean_deadline(self):
+        parent_task = db.get_tasks(self.username, self.parent_task)
+        if parent_task.deadline:
+            if parent_task.deadline < self.cleaned_data['deadline']:
+                self.add_error('deadline', 'Deadline of child task can not exceed {}'
+                               .format(parent_task.deadline.strftime('%d %m %Y %H:%M ')))
+
+
+class AddSubtaskView(CreateView):
+    form_class = AddSubtaskForm
+    template_name = 'caleweb/instance-form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super(AddSubtaskView, self).get_form_kwargs()
+        kwargs.update({'username': self.request.user.username, 'parent_task': self.kwargs['pk']})
+        return kwargs
+
+    def form_valid(self, form):
+        username = self.request.user.username
+        parent_task = db.get_tasks(username, self.kwargs['pk'])
+        new_task = form.save(commit=False)
+        new_task.owner = self.request.user.username
+        new_task.save()
+        parent_task.add_subtask(new_task)
+        return redirect('task-detail', self.kwargs['pk'])
 
 
 class TaskMoveForm(forms.Form):
