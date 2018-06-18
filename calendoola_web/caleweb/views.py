@@ -8,8 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.signals import request_finished
-from django.dispatch import receiver
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -19,8 +17,7 @@ from django.views.generic import (ListView,
                                   UpdateView,
                                   DeleteView,
                                   )
-import humanize
-from .middleware import RequestMiddleware
+
 from .value_parsers import (parse_period,
                             parse_period_to_view,
                             )
@@ -117,7 +114,7 @@ class TaskCreateForm(forms.ModelForm):
                                          queryset=Task.objects.none(),
                                          required=False)
 
-    def __init__(self, username,*args, **kwargs):
+    def __init__(self, username, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
         self.fields['parent_task'].queryset = db.get_all_tasks(username)
 
@@ -185,7 +182,7 @@ def check_possible_tasks(username, id_from, id_to):
 
 class AddSubtaskForm(forms.ModelForm):
 
-    def __init__(self, username, parent_task,*args, **kwargs):
+    def __init__(self, username, parent_task, *args, **kwargs):
         self.username = username
         self.parent_task = parent_task
         super(AddSubtaskForm, self).__init__(*args, **kwargs)
@@ -487,23 +484,3 @@ def reminder_detach_task(request, pk, task):
     return redirect('reminder-detail', pk)
 
 
-def instances_checker(username):
-    for task in db.get_tasks(username):
-        overdue = task.check_deadline()
-        if overdue:
-            task.finish()
-            task.pass_to_archive()
-    for plan in db.get_plans(username):
-        new_plan = plan.check_for_create()
-        if new_plan:
-            db.add_completed(username, 'plan', new_plan)
-    for reminder in db.get_reminders(username):
-        reminder.check_tasks()
-
-
-@receiver(request_finished)
-def my_callback(sender, **kwargs):
-    request = RequestMiddleware(get_response=None)
-    request = request.thread_local.current_request
-    if request.user.username:
-        instances_checker(request.user.username)
