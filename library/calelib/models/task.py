@@ -105,6 +105,7 @@ class Task(models.Model):
     @logg('Archived task')
     def pass_to_archive(self):
         self.archived = True
+
         self.save()
 
     @logg('Restored task')

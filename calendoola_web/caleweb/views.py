@@ -19,7 +19,7 @@ from django.views.generic import (ListView,
                                   UpdateView,
                                   DeleteView,
                                   )
-from django.core.signals import request_finished
+from django.core.signals import request_finished, request_started
 from django.dispatch import receiver
 from django.http import Http404
 

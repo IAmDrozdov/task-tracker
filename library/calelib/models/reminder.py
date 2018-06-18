@@ -26,7 +26,6 @@ class Reminder(models.Model):
     @logg('Applied task to reminder')
     def apply_task(self, task):
         self.tasks.add(task)
-        self.save()
 
     @logg('Detached task from reminder')
     def detach_task(self, task):
@@ -58,22 +57,22 @@ class Reminder(models.Model):
             self.remind_type = remind_type
         self.save()
 
-    def _humanize_type(self):
-        if self.remind_type == Constants.REMIND_MONTHS:
-            human_like = 'month'
-        elif self.remind_type == Constants.REMIND_DAYS:
-            human_like = 'day'
-        elif self.remind_type == Constants.REMIND_HOURS:
-            human_like = 'hour'
-        else:
-            human_like = 'minute'
-
-        return human_like if self.remind_before == 1 else human_like + 's'
-
     @logg('Changed reminder state')
     def set_state(self):
         self.able = not self.able
         self.save()
 
     def __str__(self):
-        return 'Before {} {}'.format(self.remind_before, self._humanize_type())
+        def humanize_type():
+            if self.remind_type == Constants.REMIND_MONTHS:
+                human_like = 'month'
+            elif self.remind_type == Constants.REMIND_DAYS:
+                human_like = 'day'
+            elif self.remind_type == Constants.REMIND_HOURS:
+                human_like = 'hour'
+            else:
+                human_like = 'minute'
+
+            return human_like if self.remind_before == 1 else human_like + 's'
+
+        return 'Before {} {}'.format(self.remind_before, humanize_type())
