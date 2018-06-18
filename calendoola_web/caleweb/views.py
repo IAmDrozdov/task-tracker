@@ -1,30 +1,29 @@
+from calelib import CycleError
 from calelib.constants import Constants
 from calelib.crud import Calendoola
 from calelib.models import Task, Plan, Reminder
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.signals import request_finished
+from django.dispatch import receiver
+from django.http import Http404
 from django.shortcuts import render, redirect
-from django.core.exceptions import ValidationError
-from .value_parsers import (parse_period,
-                            parse_period_to_view,
-                            )
 from django.urls import reverse_lazy
-from calelib import CycleError
 from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
                                   DeleteView,
                                   )
-from django.core.signals import request_finished
-from django.dispatch import receiver
-from django.http import Http404
 
 from .middleware import RequestMiddleware
+from .value_parsers import (parse_period,
+                            parse_period_to_view,
+                            )
 
 db = Calendoola()
 
@@ -153,8 +152,6 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
         if username in task.performers:
             task.remove_performer(username)
         return task
-
-
 
 
 def check_possible_tasks(username, id_from, id_to):

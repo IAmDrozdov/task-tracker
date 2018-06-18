@@ -24,12 +24,9 @@ setup(
         'calelib.database_settings'
     ],
     install_requires=[
-        'colorama',
-        'argcomplete',
+        'django==1.11',
+        'psycopg2',
     ],
-    cmdclass={
-        'install': CustomInstallCommand,
-    },
     data_files=['manage.py'],
     include_package_data=True
 )

@@ -19,7 +19,6 @@ task_patterns = [
     url(r'^(?P<pk>\d+)/unshare/(?P<name>\w+)/$', views.unshare_task, name='unshare-task'),
 ]
 
-
 plan_patterns = [
     url(r'^$', views.PlanListView.as_view(), name='plans'),
     url(r'^new/$', views.PlanCreateView.as_view(), name='new-plan'),
@@ -27,7 +26,6 @@ plan_patterns = [
     url(r'^(?P<pk>\d+)/set-state/$', views.plan_set_state, name='plan-set-state'),
     url(r'^(?P<pk>\d+)/edit/$', views.PlanUpdateView.as_view(), name='edit-plan'),
 ]
-
 
 reminder_patterns = [
     url(r'^$', views.ReminderListView.as_view(), name='reminders'),
@@ -39,7 +37,6 @@ reminder_patterns = [
     url(r'^(?P<pk>\d+)/add-task/$', views.reminder_add_task, name='reminder-add-task'),
     url(r'^(?P<pk>\d+)/detach/(?P<task>\d+)/$', views.reminder_detach_task, name='reminder-detach-task')
 ]
-
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='tasks'), name='homepage'),

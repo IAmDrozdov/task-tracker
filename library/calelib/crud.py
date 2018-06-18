@@ -1,10 +1,11 @@
+import operator
+from functools import reduce
+
 from calelib.config import Config
 from calelib.constants import Constants
-from django.db.models import F
-from functools import reduce
 from calelib.logger import logg, configure_logger
 from calelib.models import Customer, Task, Plan, Reminder
-import operator
+from django.db.models import F
 from django.db.models import Q
 
 

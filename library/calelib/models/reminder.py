@@ -2,9 +2,9 @@ from calelib.constants import Constants
 from calelib.logger import logg
 from calelib.notification import call
 from dateutil.relativedelta import relativedelta
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MinValueValidator
 
 
 class Reminder(models.Model):

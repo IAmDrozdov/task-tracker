@@ -1,5 +1,5 @@
-from django import template
 from calelib.constants import Constants
+from django import template
 
 register = template.Library()
 
