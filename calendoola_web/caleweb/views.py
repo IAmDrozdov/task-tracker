@@ -112,17 +112,36 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             raise Http404()
 
 
+class TaskCreateForm(forms.ModelForm):
+    parent_task = forms.ModelChoiceField(empty_label='Do not make subtask',
+                                         queryset=Task.objects.none(),
+                                         required=False)
+
+    def __init__(self, username,*args, **kwargs):
+        super(TaskCreateForm, self).__init__(*args, **kwargs)
+        self.fields['parent_task'].queryset = db.get_all_tasks(username)
+
+    class Meta:
+        model = Task
+        fields = ['info', 'deadline', 'priority', 'tags']
+
+
 class TaskCreateView(LoginRequiredMixin, CreateView):
-    model = Task
+    form_class = TaskCreateForm
     template_name = 'caleweb/instance-form.html'
-    fields = ['info', 'deadline', 'priority', 'tags']
+
+    def get_form_kwargs(self):
+        kwargs = super(TaskCreateView, self).get_form_kwargs()
+        kwargs.update({'username': self.request.user.username})
+        return kwargs
 
     def form_valid(self, form):
         username = self.request.user.username
         new_task = form.save(commit=False)
         new_task.owner = self.request.user.username
         new_task.save()
-        db.add_completed(username, 'task', new_task)
+        parent_task = form.cleaned_data['parent_task']
+        parent_task.add_subtask(new_task) if parent_task else db.add_completed(username, 'task', new_task)
         return redirect('task-detail', new_task.pk)
 
 
