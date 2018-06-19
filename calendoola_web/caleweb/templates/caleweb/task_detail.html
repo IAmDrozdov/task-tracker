@@ -3,9 +3,15 @@
 {% load tags_display_filter %}
 {% block content %}
     <div class="form-wrapper">
-        <h3 class="text-center text-muted">It is {% if task.owner == request.user.username %}
-            <b>your</b> {% else %}
-            <b>{{ task.owner }}</b>'s {% endif %}task</h3>
+        <h3 class="text-center text-muted">
+            It is
+            {% if task.owner.nickname == request.user.username %}
+                <b>your</b>
+            {% else %}
+                <b>{{ task.owner }}</b>'s
+            {% endif %}
+            task
+        </h3>
         <hr>
         <p style=" word-wrap: break-word;">{{ task.info }}</p>
         <hr>
@@ -14,6 +20,13 @@
                 <th>Priority:</th>
                 <th>{{ task.priority }}</th>
             </tr>
+            {% if task.parent_task %}
+                <tr>
+                    <th>Parent task:</th>
+                    <th><a style="color: black; display: block"
+                           href="{% url 'task-detail' task.parent_task.pk %}">{{ task.parent_task.info }}</a>
+                </tr>
+            {% endif %}
             <tr>
                 <th>Created:</th>
                 <th>{{ task.created_at }}</th>
@@ -41,13 +54,16 @@
                 <tr>
                     <th>Subtasks:</th>
                     <th><a href="{% url 'task-detail' task.subtasks.all.first.pk %}"
+                           {% if task.subtasks.all.first.status == 'FINISHED' %}style="opacity: .4"{% endif %}
                            class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
                 </tr>
                 {% for sub in task.subtasks.all|slice:"1:" %}
                     <tr>
                         <th></th>
                         <td>
-                            <a href="{% url 'task-detail' sub.pk %}" class="btn bg-light">{{ sub.info }}</a>
+                            <a href="{% url 'task-detail' sub.pk %}"
+                               {% if sub.status == 'FINISHED' %}style="opacity: .4"{% endif %}
+                               class="btn bg-light">{{ sub.info }}</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -93,14 +109,28 @@
                 {% endif %}
             {% endif %}
         </table>
-
-        <div class="d-flex flex-direction-column align-items-stretch justify-content-between">
-            <a style="width: 100%; color: #e6e7e8;" href="{% url 'edit-task' task.pk %}"
-               class="btn btn-warning ">Edit</a>
-            <a style="background: green; color: #e6e7e8;  width: 100%;" href="{% url 'add-subtask' task.pk %}"
-               class="btn">Add Subtask</a>
-            <a style="width: 100%;" href="{% url 'remove-task' task.pk %}" class="btn btn-danger ">Delete</a>
-            <a style="width: 100%; color: #e6e7e8;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a>
-        </div>
+        <table class="table borderless">
+            <tr>
+                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'edit-task' task.pk %}"
+                       class="btn btn-primary ">Edit</a>
+                </th>
+                <th><a style="width: 100%;" href="{% url 'add-subtask' task.pk %}"
+                       class="btn border border-primary">Add Subtask</a>
+                </th>
+                <th><a style="width: 100%;" href="{% url 'remove-task' task.pk %}" class="btn btn-danger ">Delete</a>
+                </th>
+            </tr>
+            <tr>
+                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a>
+                </th>
+                <th><a href="{% url 'share-task' task.pk %}" class="btn btn-warning">Share</a>
+                </th>
+                <th>{% if task.status != 'FINISHED' %}
+                    <a href="{% url 'finish-task' task.pk %}" class="btn btn-success">Finish</a>
+                {% else %}
+                    <a href="{% url 'restore-task' task.pk %}" class="btn btn-success">Restore</a>
+                {% endif %}</th>
+            </tr>
+        </table>
     </div>
 {% endblock %}

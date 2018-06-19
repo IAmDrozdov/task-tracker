@@ -15,12 +15,10 @@ from django.views.generic import (ListView,
                                   DetailView,
                                   CreateView,
                                   UpdateView,
-                                  DeleteView,
-                                  )
+                                  DeleteView, )
 
 from .value_parsers import (parse_period,
-                            parse_period_to_view,
-                            )
+                            parse_period_to_view, )
 
 db = Calendoola()
 
@@ -82,8 +80,8 @@ class TaskListSearchView(TaskListView):
         query = self.request.GET.get('data')
         result = db.get_tasks(username)
         if query:
-            result_info = db.get_tasks(username, info=query)
-            result_tags = db.get_tasks(username, tags=query)
+            result_info = db.get_tasks(username, info=query, primary=False)
+            result_tags = db.get_tasks(username, tags=query, primary=False)
             result = result_info | result_tags
         return result
 
@@ -116,7 +114,7 @@ class TaskCreateForm(forms.ModelForm):
 
     def __init__(self, username, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self.fields['parent_task'].queryset = db.get_all_tasks(username)
+        self.fields['parent_task'].queryset = db.get_tasks(username, primary=False)
 
     class Meta:
         model = Task
@@ -138,7 +136,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         new_task.owner = db.get_users(self.request.user.username)
         new_task.save()
         parent_task = form.cleaned_data['parent_task']
-        new_task.parent_task = parent_task if parent_task else db.add_completed(username, 'task', new_task)
+        parent_task.add_subtask(new_task) if parent_task else db.add_completed(username, 'task', new_task)
         return redirect('task-detail', new_task.pk)
 
 
@@ -193,7 +191,7 @@ class AddSubtaskForm(forms.ModelForm):
 
     def clean_deadline(self):
         parent_task = db.get_tasks(self.username, self.parent_task)
-        if parent_task.deadline:
+        if parent_task.deadline and self.cleaned_data['deadline']:
             if parent_task.deadline < self.cleaned_data['deadline']:
                 self.add_error('deadline', 'Deadline of child task can not exceed {}'
                                .format(parent_task.deadline.strftime('%d %m %Y %H:%M ')))
@@ -448,7 +446,7 @@ class ReminderAddTaskForm(forms.Form):
         self.user = kwargs.get('user')
         self.tasks = kwargs.get('tasks')
         super(ReminderAddTaskForm, self).__init__()
-        tasks = db.get_all_tasks(self.user).exclude(pk__in=self.tasks)
+        tasks = db.get_tasks(self.user, primary=False).exclude(pk__in=self.tasks).exclude(deadline__isnull=True)
         self.fields['task'].choices = ((t.pk, t.info) for t in tasks)
 
     task = forms.ChoiceField(label='Available tasks')

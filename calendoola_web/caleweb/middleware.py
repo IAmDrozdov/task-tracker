@@ -1,16 +1,17 @@
 from .views import db
-
+from django.http import Http404
+from django.urls.exceptions import NoReverseMatch
 
 def instances_checker(username):
-    for task in db.get_tasks(username):
+    for task in db.get_tasks(username, ):
         overdue = task.check_deadline()
         if overdue:
             task.finish()
             task.pass_to_archive()
     for plan in db.get_plans(username):
-        new_plan = plan.check_for_create()
-        if new_plan:
-            db.add_completed(username, 'plan', new_plan)
+        new_planned = plan.check_for_create()
+        if new_planned:
+            db.add_completed(username, 'task', new_planned)
     for reminder in db.get_reminders(username):
         reminder.check_tasks()
 

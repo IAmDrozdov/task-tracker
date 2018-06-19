@@ -83,8 +83,10 @@ class Plan(models.Model):
         """
         now = datetime.datetime.now()
         if self.time_at:
-            if self.time_at > now.time():
+            if self.time_at <= now.time():
                 return True
+        else:
+            return True
 
     def check_uncreated(self):
         """

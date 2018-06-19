@@ -32,7 +32,11 @@
                 </div>
             </div>
             {% empty %}
-            <h1 class="display-3">No Tasks</h1>
+            {% if 'search' in request.path %}
+                <h1 class="display-3">No such tasks were found</h1>
+            {% else %}
+                <h1 class="display-3">No tasks</h1>
+            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}

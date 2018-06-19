@@ -36,17 +36,16 @@ class Calendoola:
     def get_tasks(self, username, task_id=None, tags=None, archive=False, info=None, primary=True):
         user = self.get_users(username)
         if tags:
-            return user.tasks.filter(reduce(operator.and_, (Q(tags__contains=tag) for tag in tags)))
+            query = user.tasks.filter(reduce(operator.and_, (Q(tags__contains=tag) for tag in tags)))
         elif info:
-            return user.tasks.filter(info__contains=info)
+            query = user.tasks.filter(info__contains=info)
         elif task_id:
-            return user.tasks.filter(pk=task_id).first()
+            return user.tasks.get(pk=task_id)
         elif archive:
-            return user.tasks.filter(archived=True)
-        elif primary:
-            return user.tasks.filter(archived=False).exclude(parent_task__isnull=False)
+            query = user.tasks.filter(archived=True)
         else:
-            return user.tasks.filter(archived=False)
+            query = user.tasks.filter(archived=False)
+        return query.filter(parent_task__isnull=True) if primary else query
 
     @logg('CHanged task')
     def change_task(self, username, task_id, info, deadline, priority, status, plus_tags, minus_tags):
@@ -130,20 +129,9 @@ class Calendoola:
         else:
             raise AttributeError
 
-    def get_sorted_tasks(self, username, field, type):
-        if type == 'desc':
-            return self.get_users(username).tasks.order_by(F(field).desc(nulls_last=True))
+    def get_sorted_tasks(self, username, field, vector, primary=True):
+        query = self.get_tasks(username, primary=primary)
+        if vector == 'desc':
+            return query.order_by(F(field).desc(nulls_last=True))
         else:
-            return self.get_users(username).tasks.order_by(F(field).asc())
-
-    def get_all_tasks(self, username):
-        user = self.get_users(username)
-        task_array = []
-
-        def rec_down(tasks):
-            for task in tasks:
-                task_array.append(task)
-                rec_down(task.subtasks.all())
-
-        rec_down(self.get_tasks(user))
-        return Task.objects.filter(pk__in=[t.pk for t in task_array])
+            return query.order_by(F(field).asc())
