@@ -18,6 +18,12 @@ class Plan(models.Model):
     'y'-period = {'day': int month day, 'month': int month number}
     """
     info = models.CharField(max_length=100)
+    owner = models.ForeignKey(
+        'Customer',
+        related_name='plans',
+        null=True,
+        on_delete=models.CASCADE,
+    )
     created = models.BooleanField(default=False)
     last_create = models.DateTimeField(auto_now=True)
     time_at = models.TimeField(null=True, blank=True)

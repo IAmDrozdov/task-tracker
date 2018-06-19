@@ -33,16 +33,18 @@ class Calendoola:
             task.save()
         user.add_task(task)
 
-    def get_tasks(self, username, task_id=None, tags=None, archive=False, info=None):
+    def get_tasks(self, username, task_id=None, tags=None, archive=False, info=None, primary=True):
         user = self.get_users(username)
         if tags:
             return user.tasks.filter(reduce(operator.and_, (Q(tags__contains=tag) for tag in tags)))
         elif info:
             return user.tasks.filter(info__contains=info)
         elif task_id:
-            return user.search_task(task_id)
+            return user.tasks.filter(pk=task_id).first()
         elif archive:
             return user.tasks.filter(archived=True)
+        elif primary:
+            return user.tasks.filter(archived=False).exclude(parent_task__isnull=False)
         else:
             return user.tasks.filter(archived=False)
 

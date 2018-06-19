@@ -14,11 +14,24 @@ from django.utils import timezone
 class Task(models.Model):
     PRIORITIES = ((num + 1, num + 1) for num in range(5))
 
-    owner = models.CharField(max_length=30, default=str)
-    info = models.CharField(max_length=100, help_text='Enter what to do')
-    subtasks = models.ManyToManyField('self', symmetrical=False)
+    owner = models.ForeignKey(
+        'Customer',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='tasks',
+        related_query_name='task'
+    )
+    info = models.CharField(
+        max_length=100,
+        help_text='Enter what to do')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    parent_task = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='subtasks',
+        null=True
+    )
     tags = models.CharField(null=True, blank=True, max_length=20, help_text='Some grouping info')
     priority = models.IntegerField(choices=PRIORITIES, default=1, help_text='Need for speed')
     status = models.CharField(max_length=10, default=Status.UNFINISHED)

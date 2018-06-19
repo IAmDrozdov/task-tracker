@@ -10,6 +10,11 @@ setup(
         'colorama',
         'argcomplete',
     ],
+    entry_points={
+        'console_scripts': [
+            'calendoola_cli = calendoola_cli.__main__:main'
+        ]
+    },
     data_files=['manage.py'],
     include_package_data=True
 )

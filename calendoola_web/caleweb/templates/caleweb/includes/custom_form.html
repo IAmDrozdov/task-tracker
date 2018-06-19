@@ -27,12 +27,12 @@
             {% else %}
                 {% render_field field class="form-control is-valid" %}
             {% endif %}
-        {% else %}
-            {% render_field field class="form-control" %}
+            {% else %}
+                {% render_field field class="form-control" %}
         {% endif %}
 
         {% if field.help_text %}
-            <small style="color: black;" class="form-text">{{ field.help_text }}</small>
+            <small style="color: black;" class="form-text">{{ field.help_text|striptags }}</small>
         {% endif %}
     </div>
 {% endfor %}

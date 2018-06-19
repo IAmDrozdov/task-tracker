@@ -5,7 +5,7 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-class CustomInstallCommand(install):
+class CalendoolaLibraryInstallCommand(install):
     def run(self):
         install.run(self)
         os.system('sudo -u postgres psql -c "create user calendoola password \'1111\'"')
@@ -27,6 +27,9 @@ setup(
         'django==1.11',
         'psycopg2',
     ],
+    cmdclass={
+        'install': CalendoolaLibraryInstallCommand,
+    },
     data_files=['manage.py'],
     include_package_data=True
 )

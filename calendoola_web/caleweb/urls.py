@@ -47,4 +47,5 @@ urlpatterns = [
     url(r'^tasks/', include(task_patterns)),
     url(r'^plans/', include(plan_patterns)),
     url(r'^reminders/', include(reminder_patterns)),
+
 ]

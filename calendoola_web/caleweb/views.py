@@ -135,10 +135,10 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         username = self.request.user.username
         new_task = form.save(commit=False)
-        new_task.owner = self.request.user.username
+        new_task.owner = db.get_users(self.request.user.username)
         new_task.save()
         parent_task = form.cleaned_data['parent_task']
-        parent_task.add_subtask(new_task) if parent_task else db.add_completed(username, 'task', new_task)
+        new_task.parent_task = parent_task if parent_task else db.add_completed(username, 'task', new_task)
         return redirect('task-detail', new_task.pk)
 
 
@@ -212,7 +212,7 @@ class AddSubtaskView(CreateView):
         username = self.request.user.username
         parent_task = db.get_tasks(username, self.kwargs['pk'])
         new_task = form.save(commit=False)
-        new_task.owner = self.request.user.username
+        new_task.owner = db.get_users(self.request.user.username)
         new_task.save()
         parent_task.add_subtask(new_task)
         return redirect('task-detail', self.kwargs['pk'])
