@@ -15,11 +15,11 @@
                         </div>
                     </div>
                     <div class="back">
-                        <a href="{% url 'reminder-detail' reminder.pk %}" class="btn btn-primary">Details</a>
+                        <a href="{% url 'reminders:detail' reminder.pk %}" class="btn btn-primary">Details</a>
                         <a class="btn bg-warning" style="color: white;"
-                           href="{% url 'reminder-set-state' reminder.pk %}">
+                           href="{% url 'reminders:set-state' reminder.pk %}">
                             {% if reminder.able %}Disable{% else %}Activate{% endif %}</a>
-                        <a href="{% url 'remove-reminder' reminder.pk %}" class="btn btn-danger">Remove</a>
+                        <a href="{% url 'reminders:remove' reminder.pk %}" class="btn btn-danger">Remove</a>
                     </div>
                 </div>
             </div>

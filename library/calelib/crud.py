@@ -2,10 +2,9 @@ import operator
 from functools import reduce
 
 from calelib.config import Config
-from calelib.logger import logg, configure_logger
-from calelib.models import Customer, Task, Plan, Reminder
-from django.db.models import F
-from django.db.models import Q
+from calelib.logger import configure_logger, logg
+from calelib.models import Customer, Plan, Reminder, Task
+from django.db.models import F, Q
 
 
 class Calendoola:

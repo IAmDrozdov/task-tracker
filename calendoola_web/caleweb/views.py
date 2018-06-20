@@ -47,7 +47,7 @@ def finish_task(request, pk):
     task.finish()
     task.pass_to_archive()
 
-    return redirect('archive')
+    return redirect('tasks:archive')
 
 
 @login_required
@@ -137,7 +137,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
         new_task.save()
         parent_task = form.cleaned_data['parent_task']
         parent_task.add_subtask(new_task) if parent_task else db.add_completed(username, 'task', new_task)
-        return redirect('task-detail', new_task.pk)
+        return redirect('tasks:detail', new_task.pk)
 
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
@@ -146,7 +146,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['info', 'deadline', 'priority', 'tags']
 
     def get_success_url(self):
-        return reverse_lazy('task-detail', args=(self.object.pk,))
+        return reverse_lazy('tasks:detail', args=(self.object.pk,))
 
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
@@ -213,7 +213,7 @@ class AddSubtaskView(CreateView):
         new_task.owner = db.get_users(self.request.user.username)
         new_task.save()
         parent_task.add_subtask(new_task)
-        return redirect('task-detail', self.kwargs['pk'])
+        return redirect('tasks:detail', self.kwargs['pk'])
 
 
 class TaskMoveForm(forms.Form):
@@ -222,7 +222,7 @@ class TaskMoveForm(forms.Form):
         self.task = kwargs.get('task')
         super(TaskMoveForm, self).__init__()
         try:
-            tasks = db.get_all_tasks(self.user).exclude(pk=self.task)
+            tasks = db.get_tasks(self.user).exclude(pk=self.task)
             self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
                                               if check_possible_tasks(self.user, self.task, t.pk))
         except ObjectDoesNotExist:
@@ -270,8 +270,8 @@ class TaskShareForm(forms.Form):
 def share_task(request, pk):
     if request.method == 'POST':
         username = db.get_users(username=request.user.username)
-        user_to = db.get_users(username=request.POST['user_to'])
         try:
+            user_to = db.get_users(username=request.POST['user_to'])
             task_to_share = db.get_tasks(username, pk)
         except ObjectDoesNotExist:
             raise Http404()
@@ -292,7 +292,7 @@ def unshare_task(request, pk, name):
         raise Http404()
     performer.tasks.remove(task)
     task.remove_performer(name)
-    return redirect('task-detail', pk)
+    return redirect('tasks:detail', pk)
 
 
 # ###T###A###S###K###S###################################
@@ -338,13 +338,13 @@ class PlanCreateView(LoginRequiredMixin, CreateView):
         new_plan.period = parse_period(new_plan.period_type, self.request.POST['period'])
         new_plan.save()
         db.add_completed(username, 'plan', new_plan)
-        return redirect('plans')
+        return redirect('plans:all')
 
 
 class PlanDeleteView(LoginRequiredMixin, DeleteView):
     model = Plan
     template_name = 'caleweb/confirm_delete-form.html'
-    success_url = reverse_lazy('plans')
+    success_url = reverse_lazy('plans:all')
 
     def get_queryset(self):
         return db.get_plans(self.request.user.username)
@@ -358,14 +358,14 @@ def plan_set_state(request, pk):
     except ObjectDoesNotExist:
         raise Http404()
     plan.set_state()
-    return redirect('plans')
+    return redirect('plans:all')
 
 
 class PlanUpdateView(LoginRequiredMixin, UpdateView):
     model = Plan
     template_name = 'caleweb/instance-form.html'
     form_class = PlanModelForm
-    success_url = reverse_lazy('plans')
+    success_url = reverse_lazy('plans:all')
 
     def get_initial(self):
         plan = db.get_plans(self.request.user.username, self.kwargs['pk'])
@@ -377,7 +377,7 @@ class PlanUpdateView(LoginRequiredMixin, UpdateView):
         new_plan.period = parse_period(new_plan.period_type, self.request.POST['period'])
         new_plan.save()
         db.add_completed(username, 'plan', new_plan)
-        return redirect('plans')
+        return redirect('plans:all')
 
 
 # ###P###L###A###N###S##############################################
@@ -402,13 +402,13 @@ class ReminderCreateView(LoginRequiredMixin, CreateView):
         username = self.request.user.username
         new_reminder = form.save()
         db.add_completed(username, 'reminder', new_reminder)
-        return redirect('reminder-detail', new_reminder.pk)
+        return redirect('reminders:detail', new_reminder.pk)
 
 
 class ReminderDeleteView(LoginRequiredMixin, DeleteView):
     model = Reminder
     template_name = 'caleweb/confirm_delete-form.html'
-    success_url = reverse_lazy('reminders')
+    success_url = reverse_lazy('reminders:all')
 
 
 class ReminderDetailView(LoginRequiredMixin, DetailView):
@@ -429,7 +429,7 @@ def reminder_set_state(request, pk):
     except ObjectDoesNotExist:
         raise Http404()
     reminder.set_state()
-    return redirect('reminders')
+    return redirect('reminders:all')
 
 
 class ReminderUpdateView(LoginRequiredMixin, UpdateView):
@@ -438,7 +438,7 @@ class ReminderUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['remind_type', 'remind_before']
 
     def get_success_url(self):
-        return reverse_lazy('reminder-detail', args=(self.object.pk,))
+        return reverse_lazy('reminders:detail', args=(self.object.pk,))
 
 
 class ReminderAddTaskForm(forms.Form):
@@ -463,7 +463,7 @@ def reminder_add_task(request, pk):
     if request.method == 'POST':
         task = db.get_tasks(username=username, task_id=request.POST['task'])
         reminder.apply_task(task)
-        return redirect('reminder-detail', pk)
+        return redirect('reminders:detail', pk)
 
     form = ReminderAddTaskForm(user=username, tasks=tasks_ids)
     return render(request, 'caleweb/reminder_add_task.html', {'form': form})
@@ -479,4 +479,4 @@ def reminder_detach_task(request, pk, task):
         raise Http404()
 
     reminder.detach_task(task)
-    return redirect('reminder-detail', pk)
+    return redirect('reminders:detail', pk)

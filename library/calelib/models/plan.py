@@ -33,7 +33,10 @@ class Plan(models.Model):
                                        (Constants.REPEAT_WEEKDAY, 'week'),
                                        (Constants.REPEAT_MONTH, 'month'), ])
     able = models.BooleanField(default=True)
-    _period = JSONField(db_column='period', default=dict)
+    _period = JSONField(
+        db_column='period',
+        default=dict
+    )
 
     @property
     def period(self):

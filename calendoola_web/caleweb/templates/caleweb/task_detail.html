@@ -24,7 +24,7 @@
                 <tr>
                     <th>Parent task:</th>
                     <th><a style="color: black; display: block"
-                           href="{% url 'task-detail' task.parent_task.pk %}">{{ task.parent_task.info }}</a>
+                           href="{% url 'tasks:detail' task.parent_task.pk %}">{{ task.parent_task.info }}</a>
                 </tr>
             {% endif %}
             <tr>
@@ -53,7 +53,7 @@
             {% if task.subtasks.all|length > 0 %}
                 <tr>
                     <th>Subtasks:</th>
-                    <th><a href="{% url 'task-detail' task.subtasks.all.first.pk %}"
+                    <th><a href="{% url 'tasks:detail' task.subtasks.all.first.pk %}"
                            {% if task.subtasks.all.first.status == 'FINISHED' %}style="opacity: .4"{% endif %}
                            class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
                 </tr>
@@ -61,7 +61,7 @@
                     <tr>
                         <th></th>
                         <td>
-                            <a href="{% url 'task-detail' sub.pk %}"
+                            <a href="{% url 'tasks:detail' sub.pk %}"
                                {% if sub.status == 'FINISHED' %}style="opacity: .4"{% endif %}
                                class="btn bg-light">{{ sub.info }}</a>
                         </td>
@@ -79,7 +79,7 @@
                                     <button style="width: 100%;"
                                             class="btn btn-sm">{{ task.performers.0 }}</button>
                                     {% if request.user.username == task.owner %}
-                                        <a href="{% url 'unshare-task' pk=task.pk name=task.performers.0 %}"
+                                        <a href="{% url 'tasks:unshare' pk=task.pk name=task.performers.0 %}"
                                            class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
                                                                            style="color: #e6e7e8"></i></a>
                                     {% endif %}
@@ -95,7 +95,7 @@
                                             <button style="width: 100%;"
                                                     class="btn btn-sm">{{ performer }}</button>
                                             {% if request.user.username == task.owner %}
-                                                <a href="{% url 'unshare-task' pk=task.pk name=performer %}"
+                                                <a href="{% url 'tasks:unshare' pk=task.pk name=performer %}"
                                                    class="btn bg-danger btn-sm"><i
                                                         class="fas fa-trash-alt white"
                                                         style="color: #e6e7e8"></i></a>
@@ -111,24 +111,24 @@
         </table>
         <table class="table borderless">
             <tr>
-                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'edit-task' task.pk %}"
+                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'tasks:edit' task.pk %}"
                        class="btn btn-primary ">Edit</a>
                 </th>
-                <th><a style="width: 100%;" href="{% url 'add-subtask' task.pk %}"
+                <th><a style="width: 100%;" href="{% url 'tasks:add-subtask' task.pk %}"
                        class="btn border border-primary">Add Subtask</a>
                 </th>
-                <th><a style="width: 100%;" href="{% url 'remove-task' task.pk %}" class="btn btn-danger ">Delete</a>
+                <th><a style="width: 100%;" href="{% url 'tasks:remove' task.pk %}" class="btn btn-danger ">Delete</a>
                 </th>
             </tr>
             <tr>
-                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'move-task' task.pk %}" class="btn bg-info ">Move</a>
+                <th><a style="width: 100%; color: #e6e7e8;" href="{% url 'tasks:move' task.pk %}" class="btn bg-info ">Move</a>
                 </th>
-                <th><a href="{% url 'share-task' task.pk %}" class="btn btn-warning">Share</a>
+                <th><a href="{% url 'tasks:share' task.pk %}" class="btn btn-warning">Share</a>
                 </th>
                 <th>{% if task.status != 'FINISHED' %}
-                    <a href="{% url 'finish-task' task.pk %}" class="btn btn-success">Finish</a>
+                    <a href="{% url 'tasks:finish' task.pk %}" class="btn btn-success">Finish</a>
                 {% else %}
-                    <a href="{% url 'restore-task' task.pk %}" class="btn btn-success">Restore</a>
+                    <a href="{% url 'tasks:restore' task.pk %}" class="btn btn-success">Restore</a>
                 {% endif %}</th>
             </tr>
         </table>

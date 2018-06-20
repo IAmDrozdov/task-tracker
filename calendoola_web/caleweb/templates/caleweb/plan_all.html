@@ -28,10 +28,10 @@
                             <button class="btn bg-info" disabled data-toggle="tooltip" title={{ plan.info }}>Full
                             </button>
                         {% endif %}
-                        <a href="{% url 'edit-plan' plan.pk %}" class="btn btn-primary">Edit</a>
-                        <a class="btn bg-warning" style="color: white;" href="{% url 'plan-set-state' plan.pk %}">
+                        <a href="{% url 'plans:edit' plan.pk %}" class="btn btn-primary">Edit</a>
+                        <a class="btn bg-warning" style="color: white;" href="{% url 'plans:set-state' plan.pk %}">
                             {% if plan.able %}Disable{% else %}Activate{% endif %}</a>
-                        <a href="{% url 'remove-plan' plan.pk %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'plans:remove' plan.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>

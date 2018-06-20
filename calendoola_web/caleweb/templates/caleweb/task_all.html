@@ -20,14 +20,14 @@
                         </div>
                     </div>
                     <div class="back">
-                        <a href="{% url 'task-detail' task.pk %}" class="btn btn-primary">Details</a>
-                        <a href="{% url 'share-task' task.pk %}" class="btn btn-warning">Share</a>
+                        <a href="{% url 'tasks:detail' task.pk %}" class="btn btn-primary">Details</a>
+                        <a href="{% url 'tasks:share' task.pk %}" class="btn btn-warning">Share</a>
                         {% if task.status != 'FINISHED' %}
-                            <a href="{% url 'finish-task' task.pk %}" class="btn btn-success">Finish</a>
+                            <a href="{% url 'tasks:finish' task.pk %}" class="btn btn-success">Finish</a>
                         {% else %}
-                            <a href="{% url 'restore-task' task.pk %}" class="btn btn-success">Restore</a>
+                            <a href="{% url 'tasks:restore' task.pk %}" class="btn btn-success">Restore</a>
                         {% endif %}
-                        <a href="{% url 'remove-task' task.pk %}" class="btn btn-danger">Delete</a>
+                        <a href="{% url 'tasks:remove' task.pk %}" class="btn btn-danger">Delete</a>
                     </div>
                 </div>
             </div>

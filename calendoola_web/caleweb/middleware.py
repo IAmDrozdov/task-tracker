@@ -1,6 +1,5 @@
 from .views import db
-from django.http import Http404
-from django.urls.exceptions import NoReverseMatch
+
 
 def instances_checker(username):
     for task in db.get_tasks(username, ):
@@ -23,7 +22,5 @@ class InstanceCheckingMiddleware(object):
     def __call__(self, request):
         if request.user.username:
             instances_checker(request.user.username)
-
         response = self.get_response(request)
-
         return response
