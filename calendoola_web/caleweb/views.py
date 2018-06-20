@@ -46,8 +46,7 @@ def finish_task(request, pk):
         raise Http404()
     task.finish()
     task.pass_to_archive()
-
-    return redirect('tasks:archive')
+    return redirect('homepage')
 
 
 @login_required
@@ -102,6 +101,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         try:
+            print(db.get_tasks(self.request.user.username))
             return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404()
@@ -163,9 +163,15 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
                                 task_id=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404()
-        if username in task.performers:
-            task.remove_performer(username)
         return task
+
+    def delete(self, request, *args, **kwargs):
+        username = self.request.user.username
+        try:
+            db.remove_task(username, self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404()
+        return redirect('homepage')
 
 
 def check_possible_tasks(username, id_from, id_to):
@@ -275,8 +281,7 @@ def share_task(request, pk):
             task_to_share = db.get_tasks(username, pk)
         except ObjectDoesNotExist:
             raise Http404()
-        user_to.add_task(task_to_share)
-        task_to_share.add_performer(user_to.nickname)
+        user_to.apply_task(task_to_share)
         return redirect('homepage')
     form = TaskShareForm(user=request.user.username)
     return render(request, 'caleweb/task_share.html', {'form': form})

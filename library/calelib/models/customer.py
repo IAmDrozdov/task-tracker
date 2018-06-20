@@ -3,12 +3,18 @@ from django.db import models
 
 class Customer(models.Model):
     nickname = models.CharField(max_length=20, unique=True)
+    shared_tasks = models.ManyToManyField('Task', related_name='performers')
 
     def add_task(self, task):
         self.tasks.add(task)
 
-    def remove_task(self, task_id):
-        self.tasks.filter(task_id).delete()
+    def remove_task(self, task):
+        if self in task.performers.all():
+            self.detach_task(task)
+        else:
+            for user in task.performers.all().iterator():
+                user.detach_task(task)
+            self.tasks.remove(task)
 
     def add_plan(self, plan):
         self.plans.add(plan)
@@ -24,3 +30,9 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.nickname
+
+    def apply_task(self, task):
+        self.shared_tasks.add(task)
+
+    def detach_task(self, task):
+        self.shared_tasks.remove(task)

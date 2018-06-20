@@ -5,7 +5,6 @@ from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from calelib.notification import call
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -38,7 +37,7 @@ class Task(models.Model):
         max_length=20,
         help_text='Some grouping info'
     )
-    priority = models.IntegerField(
+    priority = models.PositiveSmallIntegerField(
         choices=PRIORITIES,
         default=1,
         help_text='Need for speed'
@@ -59,10 +58,6 @@ class Task(models.Model):
         on_delete=models.CASCADE
     )
     archived = models.BooleanField(default=False)
-    performers = ArrayField(
-        models.CharField(max_length=20),
-        default=list
-    )
 
     def clean(self, *args, **kwargs):
         super(Task, self).clean()

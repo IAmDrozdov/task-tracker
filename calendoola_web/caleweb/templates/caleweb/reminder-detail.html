@@ -20,7 +20,8 @@
         <div class="d-flex flex-direction-column align-items-stretch justify-content-between">
             <a style="width: 100%; color: white;" href="{% url 'reminders:add-task' reminder.pk %}" class="btn bg-info">
                 Add task</a>
-            <a style="width: 100%; color: white;" href="{% url 'reminders:edit' reminder.pk %}" class="btn btn-warning ">Edit</a>
+            <a style="width: 100%; color: white;" href="{% url 'reminders:edit' reminder.pk %}"
+               class="btn btn-warning ">Edit</a>
             <a style="width: 100%;" href="{% url 'reminders:remove' reminder.pk %}" class="btn btn-danger ">Delete</a>
         </div>
     </div>

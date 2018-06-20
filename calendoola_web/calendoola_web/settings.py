@@ -66,7 +66,6 @@ TEMPLATES = [
     },
 ]
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -83,4 +82,3 @@ STATIC_URL = '/caleweb/static/'
 STATIC_ROOT = 'calendoola_web/caleweb/static'
 USE_TZ = True
 TIME_ZONE = 'Europe/Minsk'
-

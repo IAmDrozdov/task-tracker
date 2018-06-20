@@ -8,7 +8,7 @@ from django.utils import timezone
 
 
 class Reminder(models.Model):
-    remind_before = models.IntegerField(
+    remind_before = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1)]
     )

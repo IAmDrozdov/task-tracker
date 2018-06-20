@@ -6,14 +6,15 @@
         {% for task in tasks %}
             <div class="flex-fill p-2">
                 <div class="card-face">
-                    <div class="front">
-                        <div class="card">
+                    <div class="front ">
+                        <div class="card ">
                             <div class="card-header" style="background: {{ task.priority|colorize }}">
                             </div>
                             <div class="card-body">
                                 {{ task.info|slice:':40' }}{% if task.info|length > 40 %}...{% endif %}
                             </div>
-                            <div class="card-footer" style="text-align: center">
+                            <div class="card-footer"
+                                 style="text-align: center;{% if task.performers.all %} background: #FCE883;{% endif %}">
                                 {{ task.deadline|default:'No deadline' }}
                             </div>
                             <small class="text-muted offset-1">{{ task.created_at }}</small>

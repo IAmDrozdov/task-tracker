@@ -2,7 +2,7 @@ from .views import db
 
 
 def instances_checker(username):
-    for task in db.get_tasks(username, ):
+    for task in db.get_tasks(username):
         overdue = task.check_deadline()
         if overdue:
             task.finish()

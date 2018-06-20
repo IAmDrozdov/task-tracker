@@ -4,6 +4,7 @@ from functools import reduce
 from calelib.config import Config
 from calelib.logger import configure_logger, logg
 from calelib.models import Customer, Plan, Reminder, Task
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F, Q
 
 
@@ -18,7 +19,8 @@ class Calendoola:
     @logg('Removed task')
     def remove_task(self, username, task_id):
         user = self.get_users(username)
-        user.remove_task(task_id)
+        task = self.get_tasks(username, task_id)
+        user.remove_task(task)
 
     @logg('Created new task')
     def create_task(self, username, info=None, priority=None, deadline=None, tags=None, parent_task_id=None):
@@ -39,11 +41,16 @@ class Calendoola:
         elif info:
             query = user.tasks.filter(info__contains=info)
         elif task_id:
-            return user.tasks.get(pk=task_id)
+            try:
+                return user.tasks.get(pk=task_id)
+            except ObjectDoesNotExist:
+                return user.shared_tasks.get(pk=task_id)
+
         elif archive:
             query = user.tasks.filter(archived=True)
         else:
-            query = user.tasks.filter(archived=False)
+            return user.tasks.filter(archived=False).filter(parent_task__isnull=True) \
+                   | user.shared_tasks.filter(archived=False)
         return query.filter(parent_task__isnull=True) if primary else query
 
     @logg('CHanged task')
@@ -85,13 +92,7 @@ class Calendoola:
     @staticmethod
     def get_users(username=None):
         if username:
-            try:
-                user = Customer.objects.get(nickname=username)
-                return user
-            except Customer.DoesNotExist:
-                user = Customer(nickname=username)
-                user.save()
-                return user
+            return Customer.objects.get_or_create(nickname=username)[0]
         else:
             return Customer.objects.all()
 
