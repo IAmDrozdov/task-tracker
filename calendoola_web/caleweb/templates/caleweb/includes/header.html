@@ -1,24 +1,24 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="{% url 'homepage' %}"
        style="font-family: 'BioRhyme Expanded', serif;"><b>Calendoola</b></a>
-    {% if request.path != '/login/' and  request.path != '/signup/' %}
+    {% if request.path != 'login' and  request.path != 'signup' %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link {% if '/tasks/' in request.path %}active{% endif %}"
+                    <a class="nav-link {% if 'tasks' in request.path %}active{% endif %}"
                        href="{% url 'tasks:all' %}">Tasks <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if '/plans/' in request.path %}active{% endif %}"
+                    <a class="nav-link {% if 'plans' in request.path %}active{% endif %}"
                        href="{% url 'plans:all' %}">Plans
                         <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if '/reminders/' in request.path %}active{% endif %}"
+                    <a class="nav-link {% if 'reminders' in request.path %}active{% endif %}"
                        href="{% url 'reminders:all' %}">Reminders
                         <span class="sr-only">(current)</span></a>
                 </li>
@@ -60,16 +60,20 @@
                     <div class="dropdown-menu" style="padding: 0; margin: 0">
                         <div class="btn-group" style="width: 100%">
                             <p class="nav-link" style="margin: 0; width: 100%;">Priority</p>
-                            <a href="{% url 'tasks:all' %}?order=priority&vec=asc" style="color: black; padding-left: 0;"
+                            <a href="{% url 'tasks:all' %}?order=priority&vec=asc"
+                               style="color: black; padding-left: 0;"
                                class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks:all' %}?order=priority&vec=desc" style="color: black; padding-left: 0;"
+                            <a href="{% url 'tasks:all' %}?order=priority&vec=desc"
+                               style="color: black; padding-left: 0;"
                                class="btn fas fa-chevron-down"></a>
                         </div>
                         <div class="btn-group" style="width: 100%">
                             <p class="nav-link" style="margin: 0">Deadline</p>
-                            <a href="{% url 'tasks:all' %}?order=deadline&vec=asc" style="color: black; padding-left: 0;"
+                            <a href="{% url 'tasks:all' %}?order=deadline&vec=asc"
+                               style="color: black; padding-left: 0;"
                                class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks:all' %}?order=deadline&vec=desc" style="color: black; padding-left: 0;"
+                            <a href="{% url 'tasks:all' %}?order=deadline&vec=desc"
+                               style="color: black; padding-left: 0;"
                                class="btn fas fa-chevron-down"></a>
                         </div>
                     </div>
@@ -87,7 +91,6 @@
                 <a href="{% url 'logout' %}" class="nav-link text-center" style="color: white;">Exit</a>
 
             </div>
-        </div>
         </div>
     {% endif %}
 </nav>

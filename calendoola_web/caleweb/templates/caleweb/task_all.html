@@ -22,7 +22,7 @@
                     <div class="back">
                         <a href="{% url 'tasks:detail' task.pk %}" class="btn btn-primary">Details</a>
                         <a href="{% url 'tasks:share' task.pk %}" class="btn btn-warning">Share</a>
-                        {% if task.status != 'FINISHED' %}
+                        {% if task.status != 'Finished' %}
                             <a href="{% url 'tasks:finish' task.pk %}" class="btn btn-success">Finish</a>
                         {% else %}
                             <a href="{% url 'tasks:restore' task.pk %}" class="btn btn-success">Restore</a>

@@ -54,7 +54,7 @@
                 <tr>
                     <th>Subtasks:</th>
                     <th><a href="{% url 'tasks:detail' task.subtasks.all.first.pk %}"
-                           {% if task.subtasks.all.first.status == 'FINISHED' %}style="opacity: .4"{% endif %}
+                           {% if task.subtasks.all.first.status == 'Finished' %}style="opacity: .4"{% endif %}
                            class="btn bg-light">{{ task.subtasks.all.first.info }}</a></th>
                 </tr>
                 {% for sub in task.subtasks.all|slice:"1:" %}
@@ -62,7 +62,7 @@
                         <th></th>
                         <td>
                             <a href="{% url 'tasks:detail' sub.pk %}"
-                               {% if sub.status == 'FINISHED' %}style="opacity: .4"{% endif %}
+                               {% if sub.status == 'Finished' %}style="opacity: .4"{% endif %}
                                class="btn bg-light">{{ sub.info }}</a>
                         </td>
                     </tr>
@@ -125,7 +125,7 @@
                 </th>
                 <th><a href="{% url 'tasks:share' task.pk %}" class="btn btn-warning">Share</a>
                 </th>
-                <th>{% if task.status != 'FINISHED' %}
+                <th>{% if task.status != 'Finished' %}
                     <a href="{% url 'tasks:finish' task.pk %}" class="btn btn-success">Finish</a>
                 {% else %}
                     <a href="{% url 'tasks:restore' task.pk %}" class="btn btn-success">Restore</a>

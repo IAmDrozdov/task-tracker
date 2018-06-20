@@ -44,7 +44,7 @@ class Task(models.Model):
         help_text='Need for speed'
     )
     status = models.CharField(
-        max_length=10,
+        max_length=15,
         default=Status.UNFINISHED
     )
     deadline = models.DateTimeField(

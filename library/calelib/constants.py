@@ -13,9 +13,9 @@ class _Constants(NamedTuple):
 
 
 class _Status(NamedTuple):
-    FINISHED: '_Status' = 'FINISHED'
-    UNFINISHED: '_Status' = 'UNFINISHED'
-    OVERDUE: '_Status' = 'OVERDUE'
+    FINISHED: '_Status' = 'Finished'
+    UNFINISHED: '_Status' = 'Not finished'
+    OVERDUE: '_Status' = 'Overdue'
 
 
 Status = _Status()
