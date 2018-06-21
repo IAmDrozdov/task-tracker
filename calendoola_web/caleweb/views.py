@@ -45,7 +45,6 @@ def finish_task(request, pk):
     except ObjectDoesNotExist:
         raise Http404()
     task.finish()
-    task.pass_to_archive()
     return redirect('homepage')
 
 
@@ -56,8 +55,7 @@ def restore_task(request, pk):
         task = db.get_tasks(username, pk)
     except ObjectDoesNotExist:
         raise Http404()
-    task.restore_from_archive()
-    task.unfinish()
+    task.restore()
     return redirect('homepage')
 
 

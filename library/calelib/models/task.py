@@ -70,17 +70,20 @@ class Task(models.Model):
     @logg('Finished task')
     def finish(self):
         self.status = Status.FINISHED
+        self.archived = True
         self.save()
         for task in self.subtasks.all():
             task.finish()
 
-    @logg('Unfinished taks')
-    def unfinish(self):
+    @logg('Unfinished task')
+    def restore(self):
         self.status = Status.UNFINISHED
         self.archived = False
+        self.created_at = timezone.now().date()
+        self.deadline = None
         self.save()
         for task in self.subtasks.all():
-            task.unfinish()
+            task.restore()
 
     @logg('Changed information about task')
     def update(self, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
@@ -121,20 +124,6 @@ class Task(models.Model):
                 self.status = Status.OVERDUE
                 call('Overdue task', self.info)
                 return self
-
-    @logg('Archived task')
-    def pass_to_archive(self):
-        self.archived = True
-        self.save()
-        for task in self.subtasks.all():
-            task.pass_to_archive()
-
-    @logg('Restored task')
-    def restore_from_archive(self):
-        self.unfinish()
-        self.created_at = timezone.now().date()
-        self.deadline = None
-        self.save()
 
     def __str__(self):
         return '{} {}'.format(self.info, self.deadline if self.deadline else 'no deadline')
