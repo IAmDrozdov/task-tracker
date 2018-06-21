@@ -101,7 +101,6 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         try:
-            print(db.get_tasks(self.request.user.username))
             return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404()
@@ -251,12 +250,12 @@ def move_task(request, pk):
         except ObjectDoesNotExist:
             raise Http404()
         if request.POST['to_main'] == '2':
-            db.add_completed(username, 'task', task_from.get_copy())
-            db.remove_task(username, pk)
+            db.add_completed(username, 'task', task_from)
+
         elif request.POST.get('task_to', None):
             task_to = db.get_tasks(username=username, task_id=request.POST['task_to'])
-            task_to.add_subtask(task_from.get_copy())
-            db.remove_task(username, pk)
+            task_to.add_subtask(task_from)
+
         return redirect('homepage')
     form = TaskMoveForm(user=username, task=pk)
     return render(request, 'caleweb/task_move.html', {'form': form})
@@ -295,8 +294,7 @@ def unshare_task(request, pk, name):
         performer = db.get_users(name)
     except ObjectDoesNotExist:
         raise Http404()
-    performer.tasks.remove(task)
-    task.remove_performer(name)
+    performer.detach_task(task)
     return redirect('tasks:detail', pk)
 
 

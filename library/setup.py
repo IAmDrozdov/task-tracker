@@ -9,6 +9,11 @@ class CalendoolaLibraryInstallCommand(install):
     def run(self):
         install.run(self)
         os.system('sudo -u postgres psql -c "create user calendoola password \'1111\'"')
+        os.system('sudo -u postgres psql -c "create database testing_calendoola_db owner calendoola"')
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'calelib.database_settings.testing_settings')
+        execute_from_command_line(['manage.py', 'makemigrations'])
+        execute_from_command_line(['manage.py', 'migrate'])
+
         os.system('sudo -u postgres psql -c "create database calendoola_db owner calendoola"')
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'calelib.database_settings.settings')
         execute_from_command_line(['manage.py', 'makemigrations'])

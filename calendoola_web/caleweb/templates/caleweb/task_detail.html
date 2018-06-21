@@ -50,7 +50,7 @@
 
                 </tr>
             {% endif %}
-            {% if task.subtasks.all|length > 0 %}
+            {% if task.subtasks.all.exists %}
                 <tr>
                     <th>Subtasks:</th>
                     <th><a href="{% url 'tasks:detail' task.subtasks.all.first.pk %}"
@@ -68,45 +68,38 @@
                     </tr>
                 {% endfor %}
             {% endif %}
-            {% if task.performers|length > 0 %}
-                {% if task.performers|length == 1 and request.user.username in task.performers %}
-                {% else %}
-                    {% if task.performers|length > 0 %}
+            {% if task.performers.all.exists %}
+                <tr>
+                    <th>Performers:</th>
+                    <th>
+                        <div class="btn-group" style="width: 100%;">
+                            <button style="width: 100%;"
+                                    class="btn btn-sm">{{ task.performers.all.first }}</button>
+                            <a href="{% url 'tasks:unshare' pk=task.pk name=task.performers.all.first %}"
+                               class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
+                                                               style="color: #e6e7e8"></i></a>
+                        </div>
+                    </th>
+                </tr>
+                {% for performer in task.performers.all|slice:"1:" %}
+                    {% if performer != request.user.username %}
                         <tr>
-                            <th>Performers:</th>
-                            <th>
-                                <div class="btn-group" style="width: 100%;">
+                            <th></th>
+                            <td>
+                                <div class="btn-group " style="width: 100%;">
                                     <button style="width: 100%;"
-                                            class="btn btn-sm">{{ task.performers.0 }}</button>
+                                            class="btn btn-sm">{{ performer }}</button>
                                     {% if request.user.username == task.owner %}
-                                        <a href="{% url 'tasks:unshare' pk=task.pk name=task.performers.0 %}"
-                                           class="btn bg-danger btn-sm"><i class="fas fa-trash-alt white"
-                                                                           style="color: #e6e7e8"></i></a>
+                                        <a href="{% url 'tasks:unshare' pk=task.pk name=performer %}"
+                                           class="btn bg-danger btn-sm"><i
+                                                class="fas fa-trash-alt white"
+                                                style="color: #e6e7e8"></i></a>
                                     {% endif %}
                                 </div>
-                            </th>
+                            </td>
                         </tr>
-                        {% for performer in task.performers|slice:"1:" %}
-                            {% if performer != request.user.username %}
-                                <tr>
-                                    <th></th>
-                                    <td>
-                                        <div class="btn-group " style="width: 100%;">
-                                            <button style="width: 100%;"
-                                                    class="btn btn-sm">{{ performer }}</button>
-                                            {% if request.user.username == task.owner %}
-                                                <a href="{% url 'tasks:unshare' pk=task.pk name=performer %}"
-                                                   class="btn bg-danger btn-sm"><i
-                                                        class="fas fa-trash-alt white"
-                                                        style="color: #e6e7e8"></i></a>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
                     {% endif %}
-                {% endif %}
+                {% endfor %}
             {% endif %}
         </table>
         <table class="table borderless">

@@ -23,7 +23,7 @@ class Calendoola:
         user.remove_task(task)
 
     @logg('Created new task')
-    def create_task(self, username, info=None, priority=None, deadline=None, tags=None, parent_task_id=None):
+    def create_task(self, username, info=None, priority=1, deadline=None, tags=None, parent_task_id=None):
         task = Task(info=info, priority=priority, deadline=deadline, tags=tags)
         user = self.get_users(username)
         if parent_task_id:
@@ -54,16 +54,16 @@ class Calendoola:
         return query.filter(parent_task__isnull=True) if primary else query
 
     @logg('CHanged task')
-    def change_task(self, username, task_id, info, deadline, priority, status, plus_tags, minus_tags):
-        user = self.get_users(username)
-        user.search_task(task_id).update(info, deadline, priority, status, plus_tags, minus_tags)
+    def change_task(self, username, task_id, info=None, deadline=None, priority=None, status=None,
+                    plus_tags=None, minus_tags=None):
+        self.get_tasks(username, task_id).update(info, deadline, priority, status, plus_tags, minus_tags)
 
     def get_plans(self, username, plan_id=None):
         user = self.get_users(username)
         return user.plans.get(pk=plan_id) if plan_id else user.plans.all()
 
     @logg('Created plan')
-    def create_plan(self, username, info, period_value, period_type, time_at):
+    def create_plan(self, username, info, period_value, period_type, time_at=None):
         user = self.get_users(username)
         plan = Plan(info=info, period=period_value, period_type=period_type, time_at=time_at)
         plan.save()
@@ -75,7 +75,7 @@ class Calendoola:
         user.remove_plan(plan_id)
 
     @logg('Changed plan')
-    def change_plan(self, username, plan_id, info, period_type, period_value, time):
+    def change_plan(self, username, plan_id, info=None, period_type=None, period_value=None, time=None):
         user = self.get_users(username)
         user.plans.get(pk=plan_id).update(info, period_type, period_value, time)
 
@@ -113,7 +113,7 @@ class Calendoola:
         return user.reminders.get(pk=reminder_id) if reminder_id else user.reminders.all()
 
     @logg('Changed reminder')
-    def change_reminder(self, username, reminder_id, remind_type, remind_value):
+    def change_reminder(self, username, reminder_id, remind_type=None, remind_value=None):
         user = self.get_users(username)
         user.reminders.get(pk=reminder_id).update(remind_type, remind_value)
 

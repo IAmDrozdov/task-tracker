@@ -45,9 +45,10 @@ class Reminder(models.Model):
     def check_tasks(self):
         if self.able:
             for task in self.tasks.all():
-                if self._get_delta(task.deadline) < timezone.now():
-                    call(task.info, self.__str__().replace('before', 'after'))
-                    self.tasks.remove(task)
+                if task.deadline is not None:
+                    if self._get_delta(task.deadline) < timezone.now():
+                        call(task.info, self.__str__().replace('before', 'after'))
+                        self.tasks.remove(task)
 
     def _get_delta(self, date):
         if self.remind_type == Constants.REMIND_MONTHS:

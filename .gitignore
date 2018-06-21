@@ -9,3 +9,4 @@ config.ini
 library/calendoola.egg-info
 library/build
 library/dist/*
+tests/tmp

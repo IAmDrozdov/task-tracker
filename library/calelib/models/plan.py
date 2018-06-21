@@ -1,13 +1,12 @@
-import datetime
 import json
 
 from calelib.constants import Constants
 from calelib.logger import logg
 from calelib.models.task import Task
 from calelib.notification import call
-from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.utils import timezone
 
 
 class Plan(models.Model):
@@ -56,7 +55,7 @@ class Plan(models.Model):
         new_task = Task(info=self.info, plan=self)
         new_task.save()
         self.created = True
-        self.last_create = datetime.datetime.now().date()
+        self.last_create = timezone.now().date()
         self.save()
         call('Created planned task', self.info)
         return new_task
@@ -77,14 +76,14 @@ class Plan(models.Model):
         Comparing now date and date, when last plan created
         :return: True or False
         """
-        return self.last_create + relativedelta(days=int(self.period['day'])) != datetime.datetime.now().date()
+        return self.last_create + timezone.timedelta(days=int(self.period['day'])) != timezone.now().date()
 
     def check_time(self):
         """
         Comparing time for creating. If plan has no time_at, returns True
         :return: True if time reached now
         """
-        now = datetime.datetime.now()
+        now = timezone.now()
         if self.time_at:
             if self.time_at <= now.time():
                 return True
@@ -97,7 +96,7 @@ class Plan(models.Model):
         :return: True if task have to be created
         """
         if self.check_time():
-            now = datetime.datetime.now()
+            now = timezone.now()
             if self.period_type == Constants.REPEAT_DAY:
                 if self.check_last_create_day():
                     return False
@@ -105,20 +104,20 @@ class Plan(models.Model):
                 if now.weekday() not in self.period['days']:
                     return False
             elif self.period_type == Constants.REPEAT_MONTH:
-                if now.month not in json.loads(self.period['months']) or now.day != self.period['day']:
+                if now.month not in self.period['months'] or now.day != self.period['day']:
                     return False
             return self.create_task()
 
     def check_created_days(self):
-        if self.last_create - datetime.datetime.now().date():
+        if self.last_create.date() - timezone.now().date():
             self.remove_task()
 
     def check_created_wdays(self):
-        if datetime.datetime.now().weekday() not in self.period['days']:
+        if timezone.now().weekday() not in self.period['days']:
             self.remove_task()
 
     def check_created_months(self):
-        if datetime.datetime.now().month not in self.period['months']:
+        if timezone.now().month not in self.period['months']:
             self.remove_task()
 
     def check_created(self):
@@ -150,7 +149,7 @@ class Plan(models.Model):
         self.save()
 
     @logg('Chaned information about plan')
-    def update(self, info, period_type, period_value, time):
+    def update(self, info=None, period_type=None, period_value=None, time=None):
         """
         Updates information about plan
         """

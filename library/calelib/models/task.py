@@ -1,6 +1,3 @@
-from copy import deepcopy
-from datetime import datetime
-
 from calelib.constants import Status
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
@@ -70,16 +67,6 @@ class Task(models.Model):
         self.subtasks.add(task)
         self.save()
 
-    @logg('Copied task')
-    def get_copy(self):
-        copied = deepcopy(self)
-        copied.id = None
-        copied.save()
-        for task in self.subtasks.all():
-            copied.add_subtask(task)
-        copied.save()
-        return copied
-
     @logg('Finished task')
     def finish(self):
         self.status = Status.FINISHED
@@ -90,6 +77,7 @@ class Task(models.Model):
     @logg('Unfinished taks')
     def unfinish(self):
         self.status = Status.UNFINISHED
+        self.archived = False
         self.save()
         for task in self.subtasks.all():
             task.unfinish()
@@ -137,25 +125,15 @@ class Task(models.Model):
     @logg('Archived task')
     def pass_to_archive(self):
         self.archived = True
-
         self.save()
+        for task in self.subtasks.all():
+            task.pass_to_archive()
 
     @logg('Restored task')
     def restore_from_archive(self):
-        self.archived = False
         self.unfinish()
-        self.created_at = datetime.now().date()
+        self.created_at = timezone.now().date()
         self.deadline = None
-        self.save()
-
-    @logg('Added performer to task')
-    def add_performer(self, user_nickname):
-        self.performers.append(user_nickname)
-        self.save()
-
-    @logg('Removed performer')
-    def remove_performer(self, user_nickname):
-        self.performers.remove(user_nickname)
         self.save()
 
     def __str__(self):
