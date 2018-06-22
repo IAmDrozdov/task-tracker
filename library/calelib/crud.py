@@ -9,7 +9,7 @@ from django.db.models import F, Q
 
 
 class Calendoola:
-    def __init__(self, ):
+    def __init__(self):
         self.cfg = Config()
         log_path = self.cfg.get_field('logging_path')
         log_level = self.cfg.get_field('logging_level')
@@ -23,7 +23,7 @@ class Calendoola:
         user.remove_task(task)
 
     @logg('Created new task')
-    def create_task(self, username, info=None, priority=1, deadline=None, tags=None, parent_task_id=None):
+    def create_task(self, username, info, priority=1, deadline=None, tags=None, parent_task_id=None):
         task = Task(info=info, priority=priority, deadline=deadline, tags=tags)
         user = self.get_users(username)
         if parent_task_id:

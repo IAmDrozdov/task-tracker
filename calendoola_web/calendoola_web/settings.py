@@ -5,8 +5,9 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 SECRET_KEY = '123'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'homepage'
 LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
