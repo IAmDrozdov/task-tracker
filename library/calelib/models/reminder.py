@@ -8,6 +8,19 @@ from django.utils import timezone
 
 
 class Reminder(models.Model):
+    """
+    Represents Reminder instance
+    Fields:
+        remind_before(int): value what converts in remind_type measure
+        remind_type(str):
+            'm', minutes: remind before minutes
+            'h', hours: remind before hours
+            'd', days: remind before days
+            'mth', months: remind before months
+        able: field which shows should reminder remind or not
+        tasks(Task m2m relations): container of tasks to remind
+        owner(Customer): Customer instance which created this reminder
+    """
     remind_before = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1)]
@@ -31,18 +44,30 @@ class Reminder(models.Model):
     )
 
     def get_tasks(self):
+        """Return tasks what remind should remind"""
         return self.tasks.all()
 
     @logg('Applied task to reminder')
     def apply_task(self, task):
+        """
+        Add new task to self tasks container
+        Args:
+            task: Completed instance of Task
+        """
         self.tasks.add(task)
 
     @logg('Detached task from reminder')
     def detach_task(self, task):
+        """
+        Remove task from self tasks container
+        Args:
+            task: Completed instance of Task
+        """
         self.tasks.remove(task)
 
     @logg('Checked reminder')
     def check_tasks(self):
+        """Check tasks for need in remind"""
         if self.able:
             for task in self.tasks.all():
                 if task.deadline is not None:
@@ -62,6 +87,7 @@ class Reminder(models.Model):
 
     @logg('Changed information about reminder')
     def update(self, remind_type, remind_before):
+        """Update information about reminder"""
         if remind_before:
             self.remind_before = remind_before
         if remind_type:
@@ -70,20 +96,20 @@ class Reminder(models.Model):
 
     @logg('Changed reminder state')
     def set_state(self):
+        """Set state able<->not able"""
         self.able = not self.able
         self.save()
 
     def __str__(self):
-        def humanize_type():
-            if self.remind_type == Constants.REMIND_MONTHS:
-                human_like = 'month'
-            elif self.remind_type == Constants.REMIND_DAYS:
-                human_like = 'day'
-            elif self.remind_type == Constants.REMIND_HOURS:
-                human_like = 'hour'
-            else:
-                human_like = 'minute'
+        if self.remind_type == Constants.REMIND_MONTHS:
+            human_like = 'month'
+        elif self.remind_type == Constants.REMIND_DAYS:
+            human_like = 'day'
+        elif self.remind_type == Constants.REMIND_HOURS:
+            human_like = 'hour'
+        else:
+            human_like = 'minute'
 
-            return human_like if self.remind_before == 1 else human_like + 's'
+        human_like_type = human_like if self.remind_before == 1 else human_like + 's'
 
-        return 'Before {} {}'.format(self.remind_before, humanize_type())
+        return 'Before {} {}'.format(self.remind_before, human_like_type)

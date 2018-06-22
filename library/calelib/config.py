@@ -3,20 +3,16 @@ import os
 
 
 class Config:
+    """Represents Config instance"""
+
     def __init__(self):
-        """
-        Class for work with config file
-        :param path: path of config file
-        """
         self.path = 'config.ini'
         self.section = 'Settings'
         if not os.path.exists(self.path):
             self.__create_config()
 
     def __create_config(self):
-        """
-        Creates config file with default settings
-        """
+        """Creates config file with default settings"""
         config = configparser.ConfigParser()
         config.add_section(self.section)
         config.set(self.section, 'logging_path', 'tmp/logging.log')
@@ -29,9 +25,9 @@ class Config:
 
     def get_field(self, key):
         """
-        Access to the fields of config
-        :param key: name of the field what value should be returned
-        :return: value from field with name 'key'
+        Return value of field
+        Args:
+            key(string): name of the field what value should be returned
         """
         config = configparser.ConfigParser()
         config.read(self.path)
@@ -39,6 +35,11 @@ class Config:
         return value
 
     def add_field(self, field):
+        """
+        Add new field to config
+        Args:
+            field(str): name of field
+        """
         config = configparser.ConfigParser()
         config.read(self.path)
         config.set(self.section, field, '')
@@ -46,6 +47,12 @@ class Config:
             config.write(config_file)
 
     def set_field(self, field, field_value):
+        """
+        Set value of field
+        Args:
+            field(str):  name of the field what value should be set
+            field_value(str): value what will be putted to the field
+        """
         config = configparser.ConfigParser()
         config.read(self.path)
         config.set(self.section, field, field_value)

@@ -8,6 +8,21 @@ from django.utils import timezone
 
 
 class Task(models.Model):
+    """
+    Represents Task instance
+    Fields:
+        owner(Customer): Customer instance which created this reminder
+        info(str): description of task
+        created_at(datetime): date of creation task
+        updated_at(datetime): date of updating info about task
+        parent_task(Task): task in which subtasks container this task in
+        tags(str): tags for task
+        priority(int): importance of task(1..5)
+        status(str): status of implementation
+        deadline(datetime): date when task will be overdue
+        plan(Plan): Plan instance what created this task
+        archive(bool): field what shows should task be check
+    """
     PRIORITIES = ((num + 1, num + 1) for num in range(5))
 
     owner = models.ForeignKey(
@@ -57,6 +72,7 @@ class Task(models.Model):
     archived = models.BooleanField(default=False)
 
     def clean(self, *args, **kwargs):
+        """Validation of deadline"""
         super(Task, self).clean()
         if self.deadline:
             if self.deadline < timezone.now():
@@ -64,11 +80,17 @@ class Task(models.Model):
 
     @logg('Added subtask')
     def add_subtask(self, task):
+        """
+        Add task to subtasks container
+        Args:
+            task(Task): completed instance of Task
+        """
         self.subtasks.add(task)
         self.save()
 
     @logg('Finished task')
     def finish(self):
+        """Set status to FINISH and archive to True of self and subtasks"""
         self.status = Status.FINISHED
         self.archived = True
         self.save()
@@ -77,6 +99,8 @@ class Task(models.Model):
 
     @logg('Unfinished task')
     def restore(self):
+        """Set status to UNFINISH and archive to False of self and subtasks"""
+
         self.status = Status.UNFINISHED
         self.archived = False
         self.created_at = timezone.now().date()
@@ -87,6 +111,7 @@ class Task(models.Model):
 
     @logg('Changed information about task')
     def update(self, info=None, deadline=None, priority=None, status=None, plus_tag=None, minus_tag=None):
+        """Update information about task"""
         if info:
             self.info = info
         if deadline:
@@ -104,6 +129,7 @@ class Task(models.Model):
         self.save()
 
     def __rec_up(self, id):
+        """Goes down and find task_id in subtasks"""
         for task in self.subtasks.all():
             if task.id == id:
                 return True
@@ -112,6 +138,11 @@ class Task(models.Model):
 
     @logg('Task checked for cycles')
     def is_parent(self, id):
+        """
+        Check for cycles
+        Args:
+            id of prospective parent task
+        """
         if self.__rec_up(id):
             raise CycleError
         else:
@@ -119,6 +150,7 @@ class Task(models.Model):
 
     @logg('''Checked task's deadline''')
     def check_deadline(self):
+        """Check task for deadline overdue"""
         if self.deadline is not None:
             if self.deadline < timezone.now() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE

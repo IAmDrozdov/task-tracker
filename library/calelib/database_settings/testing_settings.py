@@ -1,3 +1,5 @@
+"""Database for unittests"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

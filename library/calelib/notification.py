@@ -3,8 +3,9 @@ import subprocess
 
 def call(title, info):
     """
-    pop-up notification
-    :param title: title of notification
-    :param info: information of notification
+    Pop-up notification
+    Args:
+        title(str): title of notification
+        info(str): information of notification
     """
     subprocess.check_call(['notify-send', title, info])

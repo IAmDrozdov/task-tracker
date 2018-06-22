@@ -2,6 +2,7 @@ from typing import NamedTuple
 
 
 class _Constants(NamedTuple):
+    """General constants for reminders and plans"""
     REPEAT_DAY: '_Constants' = 'd'
     REPEAT_WEEKDAY: '_Constants' = 'wd'
     REPEAT_MONTH: '_Constants' = 'm'
@@ -13,6 +14,7 @@ class _Constants(NamedTuple):
 
 
 class _Status(NamedTuple):
+    """General statuses for tasks"""
     FINISHED: '_Status' = 'Finished'
     UNFINISHED: '_Status' = 'Not finished'
     OVERDUE: '_Status' = 'Overdue'

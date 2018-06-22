@@ -1,3 +1,5 @@
+"""Default and primary database"""
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

@@ -16,6 +16,26 @@ class Plan(models.Model):
     'm'-period = {'months': list of int months, 'day': int day of month}
     'y'-period = {'day': int month day, 'month': int month number}
     """
+    """
+    Represents Plan instance
+    Fields:
+        info(str): description for task what will be created
+        owner(Customer): Customer instance which created this plan
+        created(bool): field which shows created this plan task or not
+        last_create(datetime): last creation
+        time_at(datetime.time): time when plan should create task
+        period_type(str): 
+            'd', day: create task after every N days
+            'wd' week: create task every given weekdays
+            'm', month: create task every given day at given months
+        able: field which shows should plan create or not
+        _period(dict):
+            dependents on period type:
+             'd'-period = {'day':int day period number}
+            'wd'-period = {'days':list of int weekdays}
+            'm'-period = {'months': list of int months, 'day': int day of month}
+    """
+
     info = models.CharField(max_length=100)
     owner = models.ForeignKey(
         'Customer',
@@ -39,19 +59,18 @@ class Plan(models.Model):
 
     @property
     def period(self):
+        """Returns jsoned data"""
         return json.loads(self._period)
 
     @period.setter
     def period(self, not_dumped_period):
+        """Dumps new data"""
         self._period = json.dumps(not_dumped_period)
         self.save()
 
     @logg('Created planned task')
     def create_task(self):
-        """
-        Creates new periodic tasks if its time has come
-        :return: task object
-        """
+        """Creates new periodic tasks if its time has come"""
         new_task = Task(info=self.info, plan=self)
         new_task.save()
         self.created = True
@@ -62,27 +81,18 @@ class Plan(models.Model):
 
     @logg('Removed planned task')
     def remove_task(self):
-        """
-        Removes task if plan overdued
-        :return:
-        """
+        """Removes task if plan overdue"""
         self.created = False
         call('Removed planned task', self.info)
         self.save()
         Task.objects.get(plan=self).delete()
 
     def check_last_create_day(self):
-        """
-        Comparing now date and date, when last plan created
-        :return: True or False
-        """
+        """Comparing now date and date, when last plan created"""
         return self.last_create + timezone.timedelta(days=int(self.period['day'])) != timezone.now().date()
 
     def check_time(self):
-        """
-        Comparing time for creating. If plan has no time_at, returns True
-        :return: True if time reached now
-        """
+        """Comparing time for creating. If plan has no time_at, returns True"""
         now = timezone.now()
         if self.time_at:
             if self.time_at <= now.time():
@@ -91,10 +101,7 @@ class Plan(models.Model):
             return True
 
     def check_uncreated(self):
-        """
-        Selecting uncreated plan for period types
-        :return: True if task have to be created
-        """
+        """Selecting uncreated plan for period types"""
         if self.check_time():
             now = timezone.now()
             if self.period_type == Constants.REPEAT_DAY:
@@ -109,22 +116,24 @@ class Plan(models.Model):
             return self.create_task()
 
     def check_created_days(self):
+        """Check created plans with type 'd' for deleting task"""
         if self.last_create.date() - timezone.now().date():
             self.remove_task()
 
     def check_created_wdays(self):
+        """Check created plans with type 'wd' for deleting task"""
+
         if timezone.now().weekday() not in self.period['days']:
             self.remove_task()
 
     def check_created_months(self):
+        """Check created plans with type 'm' for deleting task"""
+
         if timezone.now().month not in self.period['months']:
             self.remove_task()
 
     def check_created(self):
-        """
-        Selecting created plan for period types
-        :return: Function that delete plan's task if task have to be created
-        """
+        """Selecting created plan for period types"""
         if self.period_type == Constants.REPEAT_DAY:
             return self.check_created_days()
         elif self.period_type == Constants.REPEAT_WEEKDAY:
@@ -134,9 +143,7 @@ class Plan(models.Model):
 
     @logg('Checked plan')
     def check_for_create(self):
-        """
-        Method to check self for being deleted or creating
-        """
+        """Method to check self for being deleted or creating"""
         if self.able:
             if self.created:
                 self.check_created()
@@ -145,14 +152,13 @@ class Plan(models.Model):
 
     @logg('Changed plan state')
     def set_state(self):
+        """Set state able<->not able"""
         self.able = not self.able
         self.save()
 
     @logg('Chaned information about plan')
     def update(self, info=None, period_type=None, period_value=None, time=None):
-        """
-        Updates information about plan
-        """
+        """Updates information about plan"""
         if info:
             self.info = info
         if time:

@@ -4,6 +4,8 @@ from functools import wraps
 
 
 def logg(mes=''):
+    """Decorator for functions what will be login"""
+
     def log_decorator(fn):
         @wraps(fn)
         def wrapped(inst, *args, **kwargs):

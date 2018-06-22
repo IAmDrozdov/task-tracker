@@ -83,7 +83,7 @@ integrating this library into a console or web application.
         in which to be measured next argument remind_before - value of
         remind_type units, before this instance reminder will remind you about
         task.
-        For more details use help(crud) or help(reminder)
+        For more details use help(crud) or help(reminder).
 """
 
 from .constants import Constants, Status
