@@ -81,5 +81,7 @@ STATICFILES_DIRS = [
 ]
 STATIC_URL = '/caleweb/static/'
 STATIC_ROOT = 'calendoola_web/caleweb/static'
+
+LANGUAGE_CODE = 'en-us'
 USE_TZ = True
 TIME_ZONE = 'Europe/Minsk'

@@ -24,6 +24,8 @@ db = Calendoola()
 
 
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect('homepage')
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():

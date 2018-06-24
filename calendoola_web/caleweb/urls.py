@@ -41,7 +41,7 @@ reminder_patterns = [
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='tasks'), name='homepage'),
-    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^login/$', auth_views.LoginView.as_view(redirect_authenticated_user=True), name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': 'login'}, name='logout'),
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^tasks/', include(task_patterns, namespace='tasks')),
