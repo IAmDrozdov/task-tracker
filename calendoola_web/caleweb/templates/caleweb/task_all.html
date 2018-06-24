@@ -17,7 +17,7 @@
                                  style="text-align: center;{% if task.performers.all %} background: #FCE883;{% endif %}">
                                 {{ task.deadline|default:'No deadline' }}
                             </div>
-                            <small class="text-muted offset-1">{{ task.created_at }}</small>
+                            <small class="text-muted offset-1">{{ task.updated_at }}</small>
                         </div>
                     </div>
                     <div class="back">
