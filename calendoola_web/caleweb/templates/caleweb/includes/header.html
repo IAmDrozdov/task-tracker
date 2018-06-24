@@ -76,6 +76,14 @@
                                style="color: black; padding-left: 0;"
                                class="btn fas fa-chevron-down"></a>
                         </div>
+                        <div class="btn-group" style="width: 100%">
+                            <p class="nav-link" style="margin: 0">Created date</p>
+                            <a href="{% url 'tasks:all' %}?order=created_at&vec=asc"
+                               style="color: black; padding-left: 0;"
+                               class=" btn fas fa-chevron-up"></a>
+                            <a href="{% url 'tasks:all' %}?order=created_at&vec=desc"
+                               style="color: black; padding-left: 0;"
+                               class="btn fas fa-chevron-down"></a>
                     </div>
                 </div>
                 </div>
@@ -89,7 +97,6 @@
                 <a style="color: white;" class="nav-link text-center" href="{% url 'tasks:archive' %}">Archive</a>
                 <div class="dropdown-divider"></div>
                 <a href="{% url 'logout' %}" class="nav-link text-center" style="color: white;">Exit</a>
-
             </div>
         </div>
     {% endif %}
