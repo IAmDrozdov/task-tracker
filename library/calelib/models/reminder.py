@@ -67,7 +67,11 @@ class Reminder(models.Model):
 
     @logg('Checked reminder')
     def check_tasks(self):
-        """Check tasks for need in remind"""
+        """
+        Check tasks for need in remind
+        Return:
+            list of tuples of  notifications
+        """
         if self.able:
             notifications = []
             for task in self.tasks.all():

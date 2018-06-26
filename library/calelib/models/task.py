@@ -151,7 +151,11 @@ class Task(models.Model):
 
     @logg('''Checked task's deadline''')
     def check_deadline(self):
-        """Check task for deadline overdue"""
+        """
+        Check task for deadline overdue
+        Return:
+            notification
+        """
         if self.deadline is not None:
             if self.deadline < timezone.localtime() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE

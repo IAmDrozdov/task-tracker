@@ -9,4 +9,3 @@ def call(title, info):
         info(str): information of notification
     """
     subprocess.check_call(['notify-send', title, info])
-

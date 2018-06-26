@@ -59,7 +59,7 @@ class Plan(models.Model):
 
     @property
     def period(self):
-        """Returns jsoned data"""
+        """Returns readable for python data"""
         return json.loads(self._period)
 
     @period.setter
@@ -70,7 +70,11 @@ class Plan(models.Model):
 
     @logg('Created planned task')
     def create_task(self):
-        """Creates new periodic tasks if its time has come"""
+        """
+        Creates new periodic tasks if its time has come
+        Return:
+            tuple of new task object and notification
+        """
         new_task = Task(info=self.info, plan=self)
         new_task.save()
         self.created = True
@@ -83,7 +87,11 @@ class Plan(models.Model):
 
     @logg('Removed planned task')
     def remove_task(self):
-        """Removes task if plan overdue"""
+        """
+        Removes task if plan overdue
+        Return:
+            tuple of string with notification status and notification
+        """
         self.created = False
         self.save()
         Task.objects.get(plan=self).delete()

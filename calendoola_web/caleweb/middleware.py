@@ -1,5 +1,7 @@
 from calelib.constants import Notifications
+from calelib.notification import Notification
 from django.contrib import messages
+
 from .views import db
 
 
@@ -14,7 +16,7 @@ def instances_checker(username):
             db.add_completed(username, 'task', new_planned)
     for reminder in db.get_reminders(username):
         notifications.extend(reminder.check_tasks())
-    return filter(None, notifications)
+    return list(filter(None, notifications))
 
 
 class InstanceCheckingMiddleware(object):
@@ -22,15 +24,27 @@ class InstanceCheckingMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
+
         if request.user.username:
-            notifications = instances_checker(request.user.username)
+            username = request.user.username
+            user = db.get_users(username)
+            notifications = []
+            print(user.new_tasks)
+            for tid in user.new_tasks:
+                task = db.get_tasks(username=username, task_id=tid)
+                notifications.append(Notification(
+                    title=f'{username.capitalize()}',
+                    info=f'shared you task {task.info}'
+                ))
+            user.clear_new_tasks()
+            notifications.extend(instances_checker(username))
             if request.path != '/':
                 for n in notifications:
                     if n.title == Notifications.REMOVED or n.title == Notifications.OVERDUE:
                         messages.error(request, f'{n.title} {n.info}')
                     elif n.title == Notifications.PLANNED:
                         messages.info(request, f'{n.title} {n.info}')
-                    elif n.title == Notifications.REMIND:
+                    else:
                         messages.warning(request, f'{n.title} {n.info}')
 
         response = self.get_response(request)

@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -11,9 +12,14 @@ class Customer(models.Model):
         tasks(Task o2m relations): container of user's tasks
         plans(Plan o2m relations): container of user's plans
         reminders(Reminder o2m relations): container of user's plans
+        new_tasks(ArrayField of int): Array of task's id what had been shared and not seen
     """
     nickname = models.CharField(max_length=20, unique=True)
     shared_tasks = models.ManyToManyField('Task', related_name='performers')
+    new_tasks = ArrayField(
+        models.PositiveIntegerField(null=True),
+        default=list
+    )
 
     def add_task(self, task):
         """
@@ -83,7 +89,9 @@ class Customer(models.Model):
          Args:
              task: Completed instance of Task
         """
+        self.new_tasks.append(task.pk)
         self.shared_tasks.add(task)
+        self.save()
 
     def detach_task(self, task):
         """
@@ -91,4 +99,12 @@ class Customer(models.Model):
          Args:
              task: Completed instance of Task
         """
+        if task.pk in self.new_tasks:
+            self.new_tasks.remove(task.pk)
         self.shared_tasks.remove(task)
+        self.save()
+
+    def clear_new_tasks(self):
+        """Clear list of new tasks"""
+        self.new_tasks.clear()
+        self.save()
