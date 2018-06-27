@@ -1,6 +1,9 @@
 import json
 
-from calelib.constants import Constants, Notifications
+from calelib.constants import (
+    Constants,
+    Notifications,
+)
 from calelib.logger import logg
 from calelib.models.task import Task
 from calelib.notification import Notification

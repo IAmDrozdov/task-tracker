@@ -1,5 +1,7 @@
-from calelib.constants import (Status,
-                               Notifications, )
+from calelib.constants import (
+    Status,
+    Notifications,
+)
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
 from calelib.notification import Notification

@@ -1,7 +1,8 @@
 from calelib.constants import Notifications
 from calelib.notification import Notification
 from django.contrib import messages
-
+from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 from .views import db
 
 
@@ -19,7 +20,7 @@ def instances_checker(username):
     return list(filter(None, notifications))
 
 
-class InstanceCheckingMiddleware(object):
+class CalendoolaMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -49,5 +50,6 @@ class InstanceCheckingMiddleware(object):
         response = self.get_response(request)
         return response
 
-    def process_exceptions(self, request, exception):
-        pass
+    def process_exception(self, request, exception):
+        if isinstance(exception, ObjectDoesNotExist):
+            raise Http404(exception)

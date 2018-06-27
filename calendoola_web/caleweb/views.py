@@ -9,8 +9,6 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -56,10 +54,7 @@ def signup(request):
 @login_required
 def finish_task(request, pk):
     username = request.user.username
-    try:
-        task = db.get_tasks(username, pk)
-    except ObjectDoesNotExist:
-        raise Http404()
+    task = db.get_tasks(username, pk)
     task.finish()
     return redirect('homepage')
 
@@ -67,10 +62,7 @@ def finish_task(request, pk):
 @login_required
 def restore_task(request, pk):
     username = request.user.username
-    try:
-        task = db.get_tasks(username, pk)
-    except ObjectDoesNotExist:
-        raise Http404()
+    task = db.get_tasks(username, pk)
     task.restore()
     return redirect('homepage')
 
@@ -114,10 +106,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     template_name = 'caleweb/task_detail.html'
 
     def get_object(self, queryset=None):
-        try:
-            return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404()
+        return db.get_tasks(username=self.request.user.username, task_id=self.kwargs['pk'])
 
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
@@ -155,19 +144,13 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         username = self.request.user.username
-        try:
-            task = db.get_tasks(username=username,
-                                task_id=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404()
+        task = db.get_tasks(username=username,
+                            task_id=self.kwargs['pk'])
         return task
 
     def delete(self, request, *args, **kwargs):
         username = self.request.user.username
-        try:
-            db.remove_task(username, self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404()
+        db.remove_task(username, self.kwargs['pk'])
         return redirect('homepage')
 
 
@@ -178,7 +161,6 @@ class AddSubtaskView(CreateView):
     def get_form_kwargs(self):
         kwargs = super(AddSubtaskView, self).get_form_kwargs()
         parent_task = db.get_tasks(self.request.user.username, self.kwargs['pk'])
-
         kwargs.update({'parent_task': parent_task})
         return kwargs
 
@@ -211,10 +193,8 @@ def move_task(request, pk):
     available_tasks = (t for t in tasks if check_possible_tasks(username, pk, t.pk))
     form = TaskMoveForm(request.POST or None, tasks=available_tasks)
     if request.method == 'POST':
-        try:
-            task_from = db.get_tasks(username=username, task_id=pk)
-        except ObjectDoesNotExist:
-            raise Http404()
+        task_from = db.get_tasks(username=username, task_id=pk)
+
         if form.is_valid():
             if form.cleaned_data['to_main']:
                 task_from.parent_task = None
@@ -222,11 +202,9 @@ def move_task(request, pk):
                 db.add_completed(username, 'task', task_from)
 
             elif request.POST.get('task_to', None):
-                try:
-                    task_to = db.get_tasks(username=username, task_id=form.cleaned_data['task_to'])
-                    task_to.add_subtask(task_from)
-                except ObjectDoesNotExist:
-                    raise Http404()
+                task_to = db.get_tasks(username=username, task_id=form.cleaned_data['task_to'])
+                task_to.add_subtask(task_from)
+
             return redirect('homepage')
     return render(request, 'caleweb/task_move.html', {'form': form})
 
@@ -239,11 +217,8 @@ def share_task(request, pk):
     if request.method == 'POST':
         if form.is_valid():
             username = db.get_users(username=request.user.username)
-            try:
-                user_to = db.get_users(username=form.cleaned_data['user_to'])
-                task_to_share = db.get_tasks(username, pk)
-            except ObjectDoesNotExist:
-                raise Http404()
+            user_to = db.get_users(username=form.cleaned_data['user_to'])
+            task_to_share = db.get_tasks(username, pk)
             user_to.apply_task(task_to_share)
             return redirect('homepage')
     return render(request, 'caleweb/task_share.html', {'form': form})
@@ -252,11 +227,8 @@ def share_task(request, pk):
 @login_required
 def unshare_task(request, pk, name):
     username = request.user.username
-    try:
-        task = db.get_tasks(username, pk)
-        performer = db.get_users(name)
-    except ObjectDoesNotExist:
-        raise Http404()
+    task = db.get_tasks(username, pk)
+    performer = db.get_users(name)
     performer.detach_task(task)
     return redirect('tasks:detail', pk)
 
@@ -299,10 +271,7 @@ class PlanDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def plan_set_state(request, pk):
     username = db.get_users(request.user.username)
-    try:
-        plan = db.get_plans(username, pk)
-    except ObjectDoesNotExist:
-        raise Http404()
+    plan = db.get_plans(username, pk)
     plan.set_state()
     return redirect('plans:all')
 
@@ -370,10 +339,7 @@ class ReminderDetailView(LoginRequiredMixin, DetailView):
 @login_required
 def reminder_set_state(request, pk):
     username = db.get_users(request.user.username)
-    try:
-        reminder = db.get_reminders(username, pk)
-    except ObjectDoesNotExist:
-        raise Http404()
+    reminder = db.get_reminders(username, pk)
     reminder.set_state()
     return redirect('reminders:all')
 
@@ -390,12 +356,9 @@ class ReminderUpdateView(LoginRequiredMixin, UpdateView):
 @login_required
 def reminder_add_task(request, pk):
     username = db.get_users(request.user.username)
-    try:
-        reminder = db.get_reminders(username, pk)
-        tasks_ids = [t.pk for t in reminder.get_tasks()]
-        tasks = db.get_tasks(username, primary=False).exclude(pk__in=tasks_ids).exclude(deadline__isnull=True)
-    except ObjectDoesNotExist:
-        raise Http404()
+    reminder = db.get_reminders(username, pk)
+    tasks_ids = [t.pk for t in reminder.get_tasks()]
+    tasks = db.get_tasks(username, primary=False).exclude(pk__in=tasks_ids).exclude(deadline__isnull=True)
 
     form = ReminderAddTaskForm(request.POST or None, task=tasks)
     if request.method == 'POST':
@@ -410,11 +373,7 @@ def reminder_add_task(request, pk):
 @login_required
 def reminder_detach_task(request, pk, task):
     username = request.user.username
-    try:
-        reminder = db.get_reminders(username, pk)
-        task = db.get_tasks(username, task)
-    except ObjectDoesNotExist:
-        raise Http404()
-
+    reminder = db.get_reminders(username, pk)
+    task = db.get_tasks(username, task)
     reminder.detach_task(task)
     return redirect('reminders:detail', pk)

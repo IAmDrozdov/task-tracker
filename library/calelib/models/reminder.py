@@ -1,4 +1,7 @@
-from calelib.constants import Constants, Notifications
+from calelib.constants import (
+    Constants,
+    Notifications,
+)
 from calelib.logger import logg
 from calelib.notification import Notification
 from dateutil.relativedelta import relativedelta
