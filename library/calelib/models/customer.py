@@ -42,6 +42,8 @@ class Customer(models.Model):
         else:
             for user in task.performers.all().iterator():
                 user.detach_task(task)
+            if task.parent_task:
+                task.parent_task.subtasks.remove(task)
             self.tasks.remove(task)
 
     def add_plan(self, plan):

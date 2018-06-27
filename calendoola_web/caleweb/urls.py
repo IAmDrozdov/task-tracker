@@ -47,5 +47,4 @@ urlpatterns = [
     url(r'^tasks/', include(task_patterns, namespace='tasks')),
     url(r'^plans/', include(plan_patterns, namespace='plans')),
     url(r'^reminders/', include(reminder_patterns, namespace='reminders')),
-
 ]

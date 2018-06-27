@@ -1,8 +1,10 @@
 from calelib import CycleError
-from calelib.constants import Constants
 from calelib.crud import Calendoola
-from calelib.models import Task, Plan, Reminder
-from django import forms
+from calelib.models import (
+    Task,
+    Plan,
+    Reminder,
+)
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -11,14 +13,26 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import (ListView,
-                                  DetailView,
-                                  CreateView,
-                                  UpdateView,
-                                  DeleteView, )
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
 
-from .value_parsers import (parse_period,
-                            parse_period_to_view, )
+from .forms import (
+    TaskShareForm,
+    TaskCreateForm,
+    PlanModelForm,
+    ReminderAddTaskForm,
+    AddSubtaskForm,
+    TaskMoveForm,
+)
+from .value_parsers import (
+    parse_period,
+    parse_period_to_view,
+)
 
 db = Calendoola()
 
@@ -106,27 +120,13 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             raise Http404()
 
 
-class TaskCreateForm(forms.ModelForm):
-    parent_task = forms.ModelChoiceField(empty_label='Do not make subtask',
-                                         queryset=Task.objects.none(),
-                                         required=False)
-
-    def __init__(self, username, *args, **kwargs):
-        super(TaskCreateForm, self).__init__(*args, **kwargs)
-        self.fields['parent_task'].queryset = db.get_tasks(username, primary=False)
-
-    class Meta:
-        model = Task
-        fields = ['info', 'deadline', 'priority', 'tags']
-
-
 class TaskCreateView(LoginRequiredMixin, CreateView):
     form_class = TaskCreateForm
     template_name = 'caleweb/instance-form.html'
 
     def get_form_kwargs(self):
         kwargs = super(TaskCreateView, self).get_form_kwargs()
-        kwargs.update({'username': self.request.user.username})
+        kwargs.update({'tasks': db.get_tasks(self.request.user.username, primary=False)})
         return kwargs
 
     def form_valid(self, form):
@@ -151,9 +151,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = 'caleweb/confirm_delete-form.html'
-
-    def get_success_url(self):
-        return reverse_lazy('homepage')
+    success_url = reverse_lazy('homepage')
 
     def get_object(self, queryset=None):
         username = self.request.user.username
@@ -173,42 +171,15 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
         return redirect('homepage')
 
 
-def check_possible_tasks(username, id_from, id_to):
-    try:
-        task_from = db.get_tasks(username, id_from)
-        task_from.is_parent(id_to)
-    except CycleError:
-        return False
-    else:
-        return True
-
-
-class AddSubtaskForm(forms.ModelForm):
-
-    def __init__(self, username, parent_task, *args, **kwargs):
-        self.username = username
-        self.parent_task = parent_task
-        super(AddSubtaskForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Task
-        fields = ['info', 'deadline', 'priority', 'tags']
-
-    def clean_deadline(self):
-        parent_task = db.get_tasks(self.username, self.parent_task)
-        if parent_task.deadline and self.cleaned_data['deadline']:
-            if parent_task.deadline < self.cleaned_data['deadline']:
-                self.add_error('deadline', 'Deadline of child task can not exceed {}'
-                               .format(parent_task.deadline.strftime('%d %m %Y %H:%M ')))
-
-
 class AddSubtaskView(CreateView):
     form_class = AddSubtaskForm
     template_name = 'caleweb/instance-form.html'
 
     def get_form_kwargs(self):
         kwargs = super(AddSubtaskView, self).get_form_kwargs()
-        kwargs.update({'username': self.request.user.username, 'parent_task': self.kwargs['pk']})
+        parent_task = db.get_tasks(self.request.user.username, self.kwargs['pk'])
+
+        kwargs.update({'parent_task': parent_task})
         return kwargs
 
     def form_valid(self, form):
@@ -221,68 +192,60 @@ class AddSubtaskView(CreateView):
         return redirect('tasks:detail', self.kwargs['pk'])
 
 
-class TaskMoveForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.get('user')
-        self.task = kwargs.get('task')
-        super(TaskMoveForm, self).__init__()
-        try:
-            tasks = db.get_tasks(self.user).exclude(pk=self.task)
-            self.fields['task_to'].choices = ((t.pk, t.info) for t in tasks
-                                              if check_possible_tasks(self.user, self.task, t.pk))
-        except ObjectDoesNotExist:
-            raise Http404()
-
-    to_main = forms.NullBooleanField(help_text='Pass task to main view',
-                                     widget=forms.Select(choices=((1, 'No'),
-                                                                  (2, 'Yes')
-                                                                  )))
-    task_to = forms.ChoiceField(label='Available tasks')
+def check_possible_tasks(username, id_from, id_to):
+    try:
+        task_from = db.get_tasks(username, id_from)
+        task_from.is_parent(id_to)
+    except CycleError:
+        return False
+    else:
+        return True
 
 
 @login_required
 def move_task(request, pk):
     username = request.user.username
-
+    task = db.get_tasks(username, pk)
+    pks_to_exclude = [pk] if not task.parent_task else [pk, task.parent_task.pk]
+    tasks = db.get_tasks(username).exclude(pk__in=pks_to_exclude)
+    available_tasks = (t for t in tasks if check_possible_tasks(username, pk, t.pk))
+    form = TaskMoveForm(request.POST or None, tasks=available_tasks)
     if request.method == 'POST':
         try:
             task_from = db.get_tasks(username=username, task_id=pk)
         except ObjectDoesNotExist:
             raise Http404()
-        if request.POST['to_main'] == '2':
-            db.add_completed(username, 'task', task_from)
+        if form.is_valid():
+            if form.cleaned_data['to_main']:
+                task_from.parent_task = None
+                task_from.save()
+                db.add_completed(username, 'task', task_from)
 
-        elif request.POST.get('task_to', None):
-            task_to = db.get_tasks(username=username, task_id=request.POST['task_to'])
-            task_to.add_subtask(task_from)
-
-        return redirect('homepage')
-    form = TaskMoveForm(user=username, task=pk)
+            elif request.POST.get('task_to', None):
+                try:
+                    task_to = db.get_tasks(username=username, task_id=form.cleaned_data['task_to'])
+                    task_to.add_subtask(task_from)
+                except ObjectDoesNotExist:
+                    raise Http404()
+            return redirect('homepage')
     return render(request, 'caleweb/task_move.html', {'form': form})
-
-
-class TaskShareForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.get('user')
-        super(TaskShareForm, self).__init__()
-        users = db.get_users().exclude(nickname=self.user)
-        self.fields['user_to'].choices = ((u.nickname, u.nickname) for u in users)
-
-    user_to = forms.ChoiceField(widget=forms.Select, label='Users')
 
 
 @login_required
 def share_task(request, pk):
+    users = db.get_users().exclude(nickname=request.user.username)
+    form = TaskShareForm(request.POST or None, users=users)
+
     if request.method == 'POST':
-        username = db.get_users(username=request.user.username)
-        try:
-            user_to = db.get_users(username=request.POST['user_to'])
-            task_to_share = db.get_tasks(username, pk)
-        except ObjectDoesNotExist:
-            raise Http404()
-        user_to.apply_task(task_to_share)
-        return redirect('homepage')
-    form = TaskShareForm(user=request.user.username)
+        if form.is_valid():
+            username = db.get_users(username=request.user.username)
+            try:
+                user_to = db.get_users(username=form.cleaned_data['user_to'])
+                task_to_share = db.get_tasks(username, pk)
+            except ObjectDoesNotExist:
+                raise Http404()
+            user_to.apply_task(task_to_share)
+            return redirect('homepage')
     return render(request, 'caleweb/task_share.html', {'form': form})
 
 
@@ -308,26 +271,6 @@ class PlanListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         username = self.request.user.username
         return db.get_plans(username)
-
-
-class PlanModelForm(forms.ModelForm):
-    period = forms.CharField(widget=forms.TextInput(), initial='')
-
-    class Meta:
-        model = Plan
-        fields = ['info', 'time_at', 'period_type']
-
-    def clean(self):
-        cleaned_data = super(PlanModelForm, self).clean()
-        try:
-            parse_period(cleaned_data['period_type'], cleaned_data['period'])
-        except ValueError:
-            if cleaned_data['period_type'] == Constants.REPEAT_DAY:
-                self.add_error('period', 'Enter only digit')
-            elif cleaned_data['period_type'] == Constants.REPEAT_WEEKDAY:
-                self.add_error('period', 'Enter only full weekday names')
-            else:
-                self.add_error('period', 'Follow example: "25 May, October"')
 
 
 class PlanCreateView(LoginRequiredMixin, CreateView):
@@ -444,31 +387,23 @@ class ReminderUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('reminders:detail', args=(self.object.pk,))
 
 
-class ReminderAddTaskForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.get('user')
-        self.tasks = kwargs.get('tasks')
-        super(ReminderAddTaskForm, self).__init__()
-        tasks = db.get_tasks(self.user, primary=False).exclude(pk__in=self.tasks).exclude(deadline__isnull=True)
-        self.fields['task'].choices = ((t.pk, t.info) for t in tasks)
-
-    task = forms.ChoiceField(label='Available tasks')
-
-
 @login_required
 def reminder_add_task(request, pk):
     username = db.get_users(request.user.username)
     try:
         reminder = db.get_reminders(username, pk)
+        tasks_ids = [t.pk for t in reminder.get_tasks()]
+        tasks = db.get_tasks(username, primary=False).exclude(pk__in=tasks_ids).exclude(deadline__isnull=True)
     except ObjectDoesNotExist:
         raise Http404()
-    tasks_ids = [t.pk for t in reminder.get_tasks()]
-    if request.method == 'POST':
-        task = db.get_tasks(username=username, task_id=request.POST['task'])
-        reminder.apply_task(task)
-        return redirect('reminders:detail', pk)
 
-    form = ReminderAddTaskForm(user=username, tasks=tasks_ids)
+    form = ReminderAddTaskForm(request.POST or None, task=tasks)
+    if request.method == 'POST':
+        if form.is_valid():
+            task = db.get_tasks(username=username, task_id=form.cleaned_data['task'])
+            reminder.apply_task(task)
+            return redirect('reminders:detail', pk)
+
     return render(request, 'caleweb/reminder_add_task.html', {'form': form})
 
 

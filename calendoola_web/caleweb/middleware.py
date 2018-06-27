@@ -29,7 +29,6 @@ class InstanceCheckingMiddleware(object):
             username = request.user.username
             user = db.get_users(username)
             notifications = []
-            print(user.new_tasks)
             for tid in user.new_tasks:
                 task = db.get_tasks(username=username, task_id=tid)
                 notifications.append(Notification(
@@ -49,3 +48,6 @@ class InstanceCheckingMiddleware(object):
 
         response = self.get_response(request)
         return response
+
+    def process_exceptions(self, request, exception):
+        pass
