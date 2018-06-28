@@ -20,5 +20,14 @@ class _Status(NamedTuple):
     OVERDUE: '_Status' = 'Overdue'
 
 
+class _Notifications(NamedTuple):
+    """General notification types"""
+    OVERDUE = 'Overdue task'
+    PLANNED = 'Created planned task'
+    REMOVED = 'Removed planned task'
+    REMIND = 'Reminding'
+
+
 Status = _Status()
 Constants = _Constants()
+Notifications = _Notifications()

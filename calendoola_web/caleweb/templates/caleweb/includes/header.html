@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" href="{% url 'homepage' %}"
+    <a class="navbar-brand" href="{% url 'tasks:all' %}"
        style="font-family: 'BioRhyme Expanded', serif;"><b>Calendoola</b></a>
     {% if request.path != 'login' and  request.path != 'signup' %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
@@ -7,87 +7,87 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if 'tasks' in request.path %}active{% endif %}"
-                       href="{% url 'tasks:all' %}">Tasks <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if 'plans' in request.path %}active{% endif %}"
-                       href="{% url 'plans:all' %}">Plans
-                        <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if 'reminders' in request.path %}active{% endif %}"
-                       href="{% url 'reminders:all' %}">Reminders
-                        <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <div class="dropdown">
-                        <a class="nav-link {% if 'new' in request.path %}active{% endif %}"
-                           style="cursor: pointer;" data-toggle="dropdown"
-                           aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-plus-circle"></i> Add
-                        </a>
-                        <div class="dropdown-menu" style="background-color: #343a40;">
-                            <a href="{% url 'tasks:new' %}" class="btn" style="text-decoration: #000000; color: white;">
-                                <i class="fas fa-thumbtack"></i> Task</a>
-                            <a href="{% url 'plans:new' %}" class="btn" style="text-decoration: #000000; color: white;">
-                                <i class="fas fa-tasks"></i> Plan</a>
-                            <a href="{% url 'reminders:new' %}" class="btn"
-                               style="text-decoration: #000000; color: white;">
-                                <i class="far fa-bell"></i> Reminder</a>
-                        </div>
-                    </div>
-                </li>
-                <li class="nav-item navbar-right" style="margin-left: 15vw; width: 30vw;">
-                    <form class="form-inline" action="{% url 'tasks:search' %}" method="get"
-                          accept-charset="utf-8">
-                        <div class="form-group" style="width:100%;">
-
-                            <input name="data" class="form-control" type="text" style="width:100%;"
-                                   placeholder="Search task by tags or description">
-
-                        </div>
-                    </form>
-                </li>
-            </ul>
-            {% if 'tasks' in request.path %}
-                <div class="dropdown nav-item">
-                    <a class="nav-link text-center" style="color: white; cursor: pointer;" data-toggle="dropdown">
-                        Order by
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link {% if 'tasks' in request.path %}active{% endif %}"
+                   href="{% url 'tasks:all' %}">Tasks <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'plans' in request.path %}active{% endif %}"
+                   href="{% url 'plans:all' %}">Plans
+                    <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'reminders' in request.path %}active{% endif %}"
+                   href="{% url 'reminders:all' %}">Reminders
+                    <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <div class="dropdown">
+                    <a class="nav-link {% if 'new' in request.path %}active{% endif %}"
+                       style="cursor: pointer;" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-plus-circle"></i> Add
                     </a>
-                    <div class="dropdown-menu" style="padding: 0; margin: 0">
-                        <div class="btn-group" style="width: 100%">
-                            <p class="nav-link" style="margin: 0; width: 100%;">Priority</p>
-                            <a href="{% url 'tasks:all' %}?order=priority&vec=asc"
-                               style="color: black; padding-left: 0;"
-                               class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks:all' %}?order=priority&vec=desc"
-                               style="color: black; padding-left: 0;"
-                               class="btn fas fa-chevron-down"></a>
-                        </div>
-                        <div class="btn-group" style="width: 100%">
-                            <p class="nav-link" style="margin: 0">Deadline</p>
-                            <a href="{% url 'tasks:all' %}?order=deadline&vec=asc"
-                               style="color: black; padding-left: 0;"
-                               class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks:all' %}?order=deadline&vec=desc"
-                               style="color: black; padding-left: 0;"
-                               class="btn fas fa-chevron-down"></a>
-                        </div>
-                        <div class="btn-group" style="width: 100%">
-                            <p class="nav-link" style="margin: 0">Creating</p>
-                            <a href="{% url 'tasks:all' %}?order=created_at&vec=asc"
-                               style="color: black; padding-left: 0;"
-                               class=" btn fas fa-chevron-up"></a>
-                            <a href="{% url 'tasks:all' %}?order=created_at&vec=desc"
-                               style="color: black; padding-left: 0;"
-                               class="btn fas fa-chevron-down"></a>
+                    <div class="dropdown-menu" style="background-color: #343a40;">
+                        <a href="{% url 'tasks:new' %}" class="btn" style="text-decoration: #000000; color: white;">
+                            <i class="fas fa-thumbtack"></i> Task</a>
+                        <a href="{% url 'plans:new' %}" class="btn" style="text-decoration: #000000; color: white;">
+                            <i class="fas fa-tasks"></i> Plan</a>
+                        <a href="{% url 'reminders:new' %}" class="btn"
+                           style="text-decoration: #000000; color: white;">
+                            <i class="far fa-bell"></i> Reminder</a>
                     </div>
                 </div>
+            </li>
+            <li class="nav-item navbar-right" style="margin-left: 15vw; width: 30vw;">
+                <form class="form-inline" action="{% url 'tasks:search' %}" method="get"
+                      accept-charset="utf-8">
+                    <div class="form-group" style="width:100%;">
+
+                        <input name="data" class="form-control" type="text" style="width:100%;"
+                               placeholder="Search task by tags or description">
+
+                    </div>
+                </form>
+            </li>
+        </ul>
+        {% if 'tasks' in request.path %}
+            <div class="dropdown nav-item">
+                <a class="nav-link text-center" style="color: white; cursor: pointer;" data-toggle="dropdown">
+                    Order by
+                </a>
+                <div class="dropdown-menu" style="padding: 0; margin: 0">
+                    <div class="btn-group" style="width: 100%">
+                        <p class="nav-link" style="margin: 0; width: 100%;">Priority</p>
+                        <a href="{% url 'tasks:all' %}?order=priority&vec=asc"
+                           style="color: black; padding-left: 0;"
+                           class=" btn fas fa-chevron-up"></a>
+                        <a href="{% url 'tasks:all' %}?order=priority&vec=desc"
+                           style="color: black; padding-left: 0;"
+                           class="btn fas fa-chevron-down"></a>
+                    </div>
+                    <div class="btn-group" style="width: 100%">
+                        <p class="nav-link" style="margin: 0">Deadline</p>
+                        <a href="{% url 'tasks:all' %}?order=deadline&vec=asc"
+                           style="color: black; padding-left: 0;"
+                           class=" btn fas fa-chevron-up"></a>
+                        <a href="{% url 'tasks:all' %}?order=deadline&vec=desc"
+                           style="color: black; padding-left: 0;"
+                           class="btn fas fa-chevron-down"></a>
+                    </div>
+                    <div class="btn-group" style="width: 100%">
+                        <p class="nav-link" style="margin: 0">Creating</p>
+                        <a href="{% url 'tasks:all' %}?order=created_at&vec=asc"
+                           style="color: black; padding-left: 0;"
+                           class=" btn fas fa-chevron-up"></a>
+                        <a href="{% url 'tasks:all' %}?order=created_at&vec=desc"
+                           style="color: black; padding-left: 0;"
+                           class="btn fas fa-chevron-down"></a>
+                    </div>
                 </div>
-            {% endif %}
+            </div>
+        {% endif %}
         <div class="dropdown nav-item">
             <button class="btn btn-secondary text-center" type="button" data-toggle="dropdown">
                 {{ request.user.username|upper }}

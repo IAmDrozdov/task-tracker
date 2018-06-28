@@ -1,0 +1,7 @@
+<div class="message-block d-flex justify-content-center flex-column align-items-center">
+    {% for message in messages %}
+        <button class="alert {{ message.tags }} text-truncate" type="button" data-dismiss="alert" style="width: 20%">
+            {{ message }}
+        </button>
+    {% endfor %}
+</div>

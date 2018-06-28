@@ -1,7 +1,8 @@
-from calelib.constants import Status
+from calelib.constants import (Status,
+                               Notifications, )
 from calelib.custom_exceptions import CycleError
 from calelib.logger import logg
-from calelib.notification import call
+from calelib.notification import Notification
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -75,7 +76,7 @@ class Task(models.Model):
         """Validation of deadline"""
         super(Task, self).clean()
         if self.deadline:
-            if self.deadline < timezone.now():
+            if self.deadline < timezone.localtime():
                 raise ValidationError('Deadline time must be later than now.')
 
     @logg('Added subtask')
@@ -103,7 +104,7 @@ class Task(models.Model):
 
         self.status = Status.UNFINISHED
         self.archived = False
-        self.created_at = timezone.now().date()
+        self.created_at = timezone.localtime().date()
         self.deadline = None
         self.save()
         for task in self.subtasks.all():
@@ -152,10 +153,13 @@ class Task(models.Model):
     def check_deadline(self):
         """Check task for deadline overdue"""
         if self.deadline is not None:
-            if self.deadline < timezone.now() and self.status == Status.UNFINISHED:
+            if self.deadline < timezone.localtime() and self.status == Status.UNFINISHED:
                 self.status = Status.OVERDUE
-                call('Overdue task', self.info)
-                return self
+                self.finish()
+                return Notification(
+                    title=Notifications.OVERDUE,
+                    info=self.info
+                )
 
     def __str__(self):
         return '{} {}'.format(self.info, self.deadline if self.deadline else 'no deadline')

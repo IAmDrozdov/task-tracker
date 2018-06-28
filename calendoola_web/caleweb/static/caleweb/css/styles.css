@@ -119,9 +119,15 @@ body {
 
 .card {
     height: 100%;
-
 }
 
 table.borderless td, table.borderless th {
     border: none !important;
+}
+
+.message-block {
+    position: absolute;
+    z-index: 999;
+    width: 100%;
+    margin-top: 3%;
 }

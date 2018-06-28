@@ -1,5 +1,7 @@
 import os
 
+from django.contrib.messages import constants as messages
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -85,3 +87,9 @@ STATIC_ROOT = 'calendoola_web/caleweb/static'
 LANGUAGE_CODE = 'en-us'
 USE_TZ = True
 TIME_ZONE = 'Europe/Minsk'
+
+MESSAGE_TAGS = {
+    messages.INFO: 'alert-info',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}

@@ -1,6 +1,6 @@
-from calelib.constants import Constants
+from calelib.constants import Constants, Notifications
 from calelib.logger import logg
-from calelib.notification import call
+from calelib.notification import Notification
 from dateutil.relativedelta import relativedelta
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -69,11 +69,16 @@ class Reminder(models.Model):
     def check_tasks(self):
         """Check tasks for need in remind"""
         if self.able:
+            notifications = []
             for task in self.tasks.all():
                 if task.deadline is not None:
-                    if self._get_delta(task.deadline) < timezone.now():
-                        call(task.info, self.__str__().replace('before', 'after'))
+                    if self._get_delta(task.deadline) < timezone.localtime():
                         self.tasks.remove(task)
+                        notifications.append(Notification(
+                            title=Notifications.REMIND,
+                            info=f'{task.info} {self.__str__().replace("before", "after")}'
+                        ))
+            return notifications
 
     def _get_delta(self, date):
         if self.remind_type == Constants.REMIND_MONTHS:
